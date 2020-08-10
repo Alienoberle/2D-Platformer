@@ -30,7 +30,7 @@ public class Player : MonoBehaviour
     private float maxJumpVelocity;
     private float minJumpVelocity;
 
-    private float ghostJumpTime = 0.5f;
+    public float ghostJumpTime = 0.2f;
     private float timeToGhostJumpEnd;
 
     public float maximumSlopeAngle = 60.0f;
@@ -65,6 +65,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         CalculateVelocity();
+        GhostJump();
         WallSliding();
 
         // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
@@ -81,19 +82,6 @@ public class Player : MonoBehaviour
             {
                 velocity.y = 0;
             }
-
-        }
-
-        // Check if the player is standing on smth 
-        if (playerController.collisionInfo.below)
-        {
-            grounded = true;
-            airborne = false;
-        }
-        else 
-        {
-            grounded = false;
-            airborne = false;
         }
     }
 
@@ -104,6 +92,7 @@ public class Player : MonoBehaviour
 
     public void OnJumpInputDown()
     {
+        // If the player is currently wall sliding
         if (playerInfo.isWallsliding)
         {
             if (wallDirectionX == directionalInput.x)
@@ -124,8 +113,8 @@ public class Player : MonoBehaviour
         }
 
         // If we stand on smth. and don't press down we set maxJumpvelocity
-        if (playerController.collisionInfo.below)
-        {
+        if (playerController.collisionInfo.below || playerInfo.canGhostJump)
+        {          
             if (playerController.collisionInfo.slidingDownMaxSlope)
             {
                 if(directionalInput.x != -Mathf.Sign(playerController.collisionInfo.slopeNormal.x)) // if we are not jumping against max slope normal
@@ -134,6 +123,7 @@ public class Player : MonoBehaviour
                     velocity.x = maxJumpVelocity * playerController.collisionInfo.slopeNormal.x;
                 }
             }
+
             else if (directionalInput.y != -1)
             {
                 velocity.y = maxJumpVelocity;
@@ -147,9 +137,26 @@ public class Player : MonoBehaviour
         {
             velocity.y = minJumpVelocity;
         }
-
-        airborne = true;
     }
+
+ /*   void GhostJump()
+    {
+        if(playerController.collisionInfo.below)
+        {
+            playerInfo.canGhostJump = true;
+            timeToGhostJumpEnd = ghostJumpTime;
+        }
+        if(!playerController.collisionInfo.below)
+        {
+            timeToGhostJumpEnd -= Time.deltaTime;           
+        }
+        if(timeToGhostJumpEnd <= 0)
+        {
+                timeToGhostJumpEnd = ghostJumpTime;
+                playerInfo.canGhostJump = false;
+                Debug.Log("GhostJump Ended");
+        }
+*/    }
 
     void WallSliding()
     {

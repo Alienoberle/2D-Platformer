@@ -185,7 +185,7 @@ public class PlayerController : RaycastController
                     }
 
                     // and we want to move down (fall trough) we also just continue with the next ray
-                    if (playerInput.y == -1 && Input.GetKeyDown(KeyCode.Space))
+                    if (playerInput.y == -1 && Input.GetButtonDown("Jump"))
                     {
                         collisionInfo.fallingTroughPlatform = true;
                         Invoke("ResetFallingTroughPlatform", 0.25f);
