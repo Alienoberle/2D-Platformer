@@ -65,8 +65,8 @@ public class Player : MonoBehaviour
     void Update()
     {
         CalculateVelocity();
-        //GhostJump();
         WallSliding();
+        GhostJump();
 
         // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
         playerController.Move(velocity * Time.deltaTime, directionalInput);
@@ -113,7 +113,7 @@ public class Player : MonoBehaviour
         }
 
         // If we stand on smth. or the player can ghostjump and doesn't press down we set maxJumpvelocity
-        if (playerController.collisionInfo.below || playerInfo.canGhostJump)
+        if (playerController.collisionInfo.below)
         {          
             if (playerController.collisionInfo.slidingDownMaxSlope)
             {
@@ -131,7 +131,6 @@ public class Player : MonoBehaviour
             }
         }
 
-        playerInfo.canGhostJump = false;
     }
 
     public void OnJumpInputUp()
@@ -142,24 +141,26 @@ public class Player : MonoBehaviour
         }
     }
 
-    void GhostJump()
-    {
-        if(playerController.collisionInfo.below)
-        {
-            playerInfo.canGhostJump = true;
-            timeToGhostJumpEnd = ghostJumpTime;
-        }
-        if(!playerController.collisionInfo.below)
-        {
-            timeToGhostJumpEnd -= Time.deltaTime;           
-        }
-         if(timeToGhostJumpEnd <= 0)
-        {
-                timeToGhostJumpEnd = ghostJumpTime;
-                playerInfo.canGhostJump = false;
-                Debug.Log("GhostJump Ended");
-        }
-    }
+    //void GhostJump()
+    //{
+    //    if(playerController.collisionInfo.below)
+    //    {
+    //        playerInfo.canGhostJump = true;
+    //        timeToGhostJumpEnd = ghostJumpTime;
+    //    }
+    //    if(!playerController.collisionInfo.below)
+    //    {
+    //        timeToGhostJumpEnd -= Time.deltaTime;
+
+    //        if (timeToGhostJumpEnd <= 0)
+    //        {
+    //            timeToGhostJumpEnd = ghostJumpTime;
+    //            playerInfo.canGhostJump = false;
+    //            Debug.Log("GhostJump Ended");
+    //        }
+    //    }
+
+    //}
 
     void WallSliding()
     {
