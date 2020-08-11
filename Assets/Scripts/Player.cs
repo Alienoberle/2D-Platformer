@@ -65,7 +65,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         CalculateVelocity();
-        GhostJump();
+        //GhostJump();
         WallSliding();
 
         // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
