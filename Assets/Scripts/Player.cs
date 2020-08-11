@@ -30,7 +30,7 @@ public class Player : MonoBehaviour
     private float maxJumpVelocity;
     private float minJumpVelocity;
 
-    public float ghostJumpTime = 0.2f;
+    public float ghostJumpTime = 0.1f;
     private float timeToGhostJumpEnd;
 
     public float maximumSlopeAngle = 60.0f;
@@ -112,7 +112,7 @@ public class Player : MonoBehaviour
             }
         }
 
-        // If we stand on smth. and don't press down we set maxJumpvelocity
+        // If we stand on smth. or the player can ghostjump and doesn't press down we set maxJumpvelocity
         if (playerController.collisionInfo.below || playerInfo.canGhostJump)
         {          
             if (playerController.collisionInfo.slidingDownMaxSlope)
@@ -121,6 +121,7 @@ public class Player : MonoBehaviour
                 {
                     velocity.y = maxJumpVelocity * playerController.collisionInfo.slopeNormal.y;
                     velocity.x = maxJumpVelocity * playerController.collisionInfo.slopeNormal.x;
+
                 }
             }
 
@@ -129,6 +130,8 @@ public class Player : MonoBehaviour
                 velocity.y = maxJumpVelocity;
             }
         }
+
+        playerInfo.canGhostJump = false;
     }
 
     public void OnJumpInputUp()
@@ -139,7 +142,7 @@ public class Player : MonoBehaviour
         }
     }
 
- /*   void GhostJump()
+    void GhostJump()
     {
         if(playerController.collisionInfo.below)
         {
@@ -150,13 +153,13 @@ public class Player : MonoBehaviour
         {
             timeToGhostJumpEnd -= Time.deltaTime;           
         }
-        if(timeToGhostJumpEnd <= 0)
+         if(timeToGhostJumpEnd <= 0)
         {
                 timeToGhostJumpEnd = ghostJumpTime;
                 playerInfo.canGhostJump = false;
                 Debug.Log("GhostJump Ended");
         }
-*/    }
+    }
 
     void WallSliding()
     {
