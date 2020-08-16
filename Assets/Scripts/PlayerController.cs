@@ -227,6 +227,7 @@ public class PlayerController : RaycastController
                     moveAmount.x = (hit.distance - skinWidth) * directionX;
                     collisionInfo.slopeAngle = newSlopeAngle;
                     collisionInfo.slopeNormal = hit.normal;
+                    collisionInfo.below = true; // since we are climbing we can safely assume that we are on the ground and have collision below us
                 }
             }
         }
@@ -274,7 +275,7 @@ public class PlayerController : RaycastController
                             collisionInfo.slopeAngle = slopeAngle;
                             collisionInfo.descendingSlope = true;
                             collisionInfo.slopeNormal = hit.normal;
-                            collisionInfo.below = true; // since we are climbing we can safely assume that we are on the ground and have collision below us
+                            collisionInfo.below = true; // since we are descending a slope we can safely assume that we are on the ground and have collision below us
                         }
                     }
                 }
@@ -297,6 +298,7 @@ public class PlayerController : RaycastController
                 collisionInfo.slopeAngle = slopeAngle;
                 collisionInfo.slidingDownMaxSlope = true;
                 collisionInfo.slopeNormal = hit.normal;
+                collisionInfo.below = true; // since we are descending a slope we can safely assume that we are on the ground and have collision below us
 
             }
         }
@@ -312,6 +314,8 @@ public class PlayerController : RaycastController
     {
         public bool above, below;
         public bool left, right;
+
+        public bool lastFrameBelow;
 
         public bool climbingSlope;
         public bool descendingSlope;
@@ -329,6 +333,8 @@ public class PlayerController : RaycastController
 
         public void Reset()
         {
+            lastFrameBelow = below;
+
             above = below = false;
             left = right = false;
             climbingSlope = false;

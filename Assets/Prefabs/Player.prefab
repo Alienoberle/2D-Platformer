@@ -58,6 +58,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -69,6 +70,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -137,15 +139,16 @@ MonoBehaviour:
   maxJumpHeight: 3.5
   minJumpHeight: 1
   timeToJumpApex: 0.25
+  jumpAmount: 1
+  ghostJumpTime: 0.2
+  ghostJumpTimer: 0
+  ghostJumpActive: 0
+  maximumSlopeAngle: 60
   wallJumpClimb: {x: 6, y: 35}
   wallJumpOff: {x: 8, y: 14}
   wallLeap: {x: 18, y: 28}
   wallSlideSpeedMax: 3
   wallStickTime: 5
-  timeToWallUnstick: 0
-  wallSliding: 0
-  grounded: 0
-  airborne: 0
 --- !u!114 &4604303377668982189
 MonoBehaviour:
   m_ObjectHideFlags: 0

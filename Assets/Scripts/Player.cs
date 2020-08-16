@@ -22,16 +22,24 @@ public class Player : MonoBehaviour
     private float accelerationTimeAirborn = 0.2f;
     private float accelerationTimeGrounded = 0.1f;
 
-    public float maxJumpHeight = 3.5f;
-    public float minJumpHeight = 1;
-
-    public float timeToJumpApex = 0.3f;
     private float gravity;
+
+    [SerializeField]
+    private float maxJumpHeight = 3.5f;
+    [SerializeField]
+    private float minJumpHeight = 1;
+    public float timeToJumpApex = 0.3f;
+
     private float maxJumpVelocity;
     private float minJumpVelocity;
 
-    public float ghostJumpTime = 0.1f;
-    private float timeToGhostJumpEnd;
+    public int jumpAmount = 1;
+    private int jumpCounter;
+
+    [SerializeField]
+    private float ghostJumpTime = 0.1f;
+    private float ghostJumpTimer;
+    [SerializeField] private bool ghostJumpActive;
 
     public float maximumSlopeAngle = 60.0f;
 
@@ -42,11 +50,6 @@ public class Player : MonoBehaviour
     public float wallStickTime = 0.25f;
     private float timeToWallUnstick;
     private int wallDirectionX;
-
-    [HideInInspector]
-    public bool grounded;
-    [HideInInspector]
-    public bool airborne;
 
 
     // Start is called before the first frame update
@@ -59,14 +62,17 @@ public class Player : MonoBehaviour
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
         minJumpHeight = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight); // https://www.youtube.com/watch?v=rVfR14UNNDo
         Debug.Log("Gravity: " + gravity + " Jump Velocity: " + maxJumpVelocity);
+
+        playerInfo.Reset();
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
+        // Calculate velocities 
         CalculateVelocity();
         WallSliding();
-        GhostJump();
+        UpdateJump();
 
         // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
         playerController.Move(velocity * Time.deltaTime, directionalInput);
@@ -92,8 +98,10 @@ public class Player : MonoBehaviour
 
     public void OnJumpInputDown()
     {
+         CanPlayerJump();
+
         // If the player is currently wall sliding
-        if (playerInfo.isWallsliding)
+        if (playerInfo.isWallsliding && playerInfo.canJump)
         {
             if (wallDirectionX == directionalInput.x)
             {
@@ -112,12 +120,12 @@ public class Player : MonoBehaviour
             }
         }
 
-        // If we stand on smth. or the player can ghostjump and doesn't press down we set maxJumpvelocity
-        if (playerController.collisionInfo.below)
-        {          
+        // If we stand on smth. and doesn't press down we set maxJumpvelocity
+        if (playerInfo.canJump)
+        {
             if (playerController.collisionInfo.slidingDownMaxSlope)
             {
-                if(directionalInput.x != -Mathf.Sign(playerController.collisionInfo.slopeNormal.x)) // if we are not jumping against max slope normal
+                if (directionalInput.x != -Mathf.Sign(playerController.collisionInfo.slopeNormal.x)) // if we are not jumping against max slope normal
                 {
                     velocity.y = maxJumpVelocity * playerController.collisionInfo.slopeNormal.y;
                     velocity.x = maxJumpVelocity * playerController.collisionInfo.slopeNormal.x;
@@ -129,6 +137,8 @@ public class Player : MonoBehaviour
             {
                 velocity.y = maxJumpVelocity;
             }
+
+            jumpCounter += 1;
         }
 
     }
@@ -141,28 +151,51 @@ public class Player : MonoBehaviour
         }
     }
 
-    //void GhostJump()
-    //{
-    //    if(playerController.collisionInfo.below)
-    //    {
-    //        playerInfo.canGhostJump = true;
-    //        timeToGhostJumpEnd = ghostJumpTime;
-    //    }
-    //    if(!playerController.collisionInfo.below)
-    //    {
-    //        timeToGhostJumpEnd -= Time.deltaTime;
 
-    //        if (timeToGhostJumpEnd <= 0)
-    //        {
-    //            timeToGhostJumpEnd = ghostJumpTime;
-    //            playerInfo.canGhostJump = false;
-    //            Debug.Log("GhostJump Ended");
-    //        }
-    //    }
+    private void CanPlayerJump()
+    {
+        playerInfo.canJump = false;
+        if (jumpCounter < jumpAmount)
+        {
+            if (playerController.collisionInfo.below || playerInfo.isWallsliding)
+            {
+                playerInfo.canJump = true;
+            }
 
-    //}
+            if (ghostJumpActive)
+            {
+                 playerInfo.canJump = true;
+            }
+        }
+    }
 
-    void WallSliding()
+    private void UpdateJump()
+    {
+        if (playerController.collisionInfo.below )
+        {
+            jumpCounter = 0;
+            ghostJumpActive = false;
+            ghostJumpTimer = ghostJumpTime;
+        }
+
+        if (ghostJumpTimer > 0 && ghostJumpActive)
+        {
+            ghostJumpTimer -= Time.deltaTime;
+        }
+
+        if (playerController.collisionInfo.lastFrameBelow == true && playerController.collisionInfo.below == false)
+        {
+            ghostJumpActive = true;
+        }
+
+        if (ghostJumpTimer < 0)
+        {
+            ghostJumpActive = false;
+
+        }
+    }
+
+    private void WallSliding()
     {
         // Figure out wall direction
         wallDirectionX = (playerController.collisionInfo.left) ? -1 : 1;
@@ -199,7 +232,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    void CalculateVelocity()
+    private void CalculateVelocity()
     {
         // Calculate the target X velocity based on input and movement speed. 
         float targetVelocityX = directionalInput.x * movementSpeed;
@@ -214,17 +247,16 @@ public class Player : MonoBehaviour
     public struct PlayerInfo
     {
         public bool alive, dead;
-        public bool isJumping, isGrounded;
         public bool isWallsliding;
-        public bool canGhostJump;
+        public bool canJump;
         public bool canDash;
 
         public void Reset()
         {
             alive = true;
             dead = false;
-            isGrounded = true;
-            canGhostJump = true;
+            isWallsliding = false;
+            canJump = true;
             canDash = true;
         }
     }
