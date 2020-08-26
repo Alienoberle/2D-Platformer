@@ -1956,10 +1956,5 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 4107503892621118844, guid: 5fec15b1d903b6e44ba3a34901a8c378,
-        type: 3}
-      propertyPath: jumpAmount
-      value: 3
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5fec15b1d903b6e44ba3a34901a8c378, type: 3}
