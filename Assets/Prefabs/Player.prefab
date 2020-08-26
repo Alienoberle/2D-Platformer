@@ -136,13 +136,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   directionalInput: {x: 0, y: 0}
   movementSpeed: 7
-  maxJumpHeight: 3.5
+  maxJumpHeight: 4
   minJumpHeight: 1
   timeToJumpApex: 0.25
   jumpAmount: 1
-  ghostJumpTime: 0.2
-  ghostJumpTimer: 0
-  ghostJumpActive: 0
+  ghostJumpTime: 0.1
   maximumSlopeAngle: 60
   wallJumpClimb: {x: 6, y: 35}
   wallJumpOff: {x: 8, y: 14}

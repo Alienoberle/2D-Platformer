@@ -24,11 +24,10 @@ public class Player : MonoBehaviour
 
     private float gravity;
 
-    [SerializeField]
-    private float maxJumpHeight = 3.5f;
-    [SerializeField]
-    private float minJumpHeight = 1;
-    public float timeToJumpApex = 0.3f;
+
+    [SerializeField] private float maxJumpHeight = 4f;
+    [SerializeField] private float minJumpHeight = 1;
+    public float timeToJumpApex = 0.25f;
 
     private float maxJumpVelocity;
     private float minJumpVelocity;
@@ -36,10 +35,10 @@ public class Player : MonoBehaviour
     public int jumpAmount = 1;
     private int jumpCounter;
 
-    [SerializeField]
-    private float ghostJumpTime = 0.1f;
+
+    [SerializeField] private float ghostJumpTime = 0.1f;
     private float ghostJumpTimer;
-    [SerializeField] private bool ghostJumpActive;
+    private bool ghostJumpActive;
 
     public float maximumSlopeAngle = 60.0f;
 
@@ -60,8 +59,8 @@ public class Player : MonoBehaviour
 
         gravity = -(2 * maxJumpHeight / Mathf.Pow(timeToJumpApex, 2));
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
-        minJumpHeight = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight); // https://www.youtube.com/watch?v=rVfR14UNNDo
-        Debug.Log("Gravity: " + gravity + " Jump Velocity: " + maxJumpVelocity);
+        minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight); // https://www.youtube.com/watch?v=rVfR14UNNDo
+        Debug.Log("Gravity: " + gravity + " Max. Jump Velocity: " + maxJumpVelocity + " Min. Jump Velocity:" + minJumpVelocity);
 
         playerInfo.Reset();
     }
@@ -96,12 +95,38 @@ public class Player : MonoBehaviour
         directionalInput = input;
     }
 
-    public void OnJumpInputDown()
+    private void UpdateJump()
+    {
+        if (playerController.collisionInfo.below)
+        {
+            jumpCounter = 0;
+            ghostJumpActive = false;
+            ghostJumpTimer = ghostJumpTime;
+        }
+
+        if (ghostJumpTimer > 0 && ghostJumpActive)
+        {
+            ghostJumpTimer -= Time.deltaTime;
+        }
+
+        if (playerController.collisionInfo.lastFrameBelow == true && playerController.collisionInfo.below == false)
+        {
+            ghostJumpActive = true;
+        }
+
+        if (ghostJumpTimer < 0)
+        {
+            ghostJumpActive = false;
+
+        }
+    }
+
+    public void OnJumpInput()
     {
          CanPlayerJump();
 
         // If the player is currently wall sliding
-        if (playerInfo.isWallsliding && playerInfo.canJump)
+        if (playerInfo.isWallsliding)
         {
             if (wallDirectionX == directionalInput.x)
             {
@@ -143,14 +168,13 @@ public class Player : MonoBehaviour
 
     }
 
-    public void OnJumpInputUp()
+    public void OnJumpInputRelease()
     {
-        if (velocity.y > minJumpVelocity)
+         if (velocity.y > minJumpVelocity)
         {
             velocity.y = minJumpVelocity;
         }
     }
-
 
     private void CanPlayerJump()
     {
@@ -166,32 +190,6 @@ public class Player : MonoBehaviour
             {
                  playerInfo.canJump = true;
             }
-        }
-    }
-
-    private void UpdateJump()
-    {
-        if (playerController.collisionInfo.below )
-        {
-            jumpCounter = 0;
-            ghostJumpActive = false;
-            ghostJumpTimer = ghostJumpTime;
-        }
-
-        if (ghostJumpTimer > 0 && ghostJumpActive)
-        {
-            ghostJumpTimer -= Time.deltaTime;
-        }
-
-        if (playerController.collisionInfo.lastFrameBelow == true && playerController.collisionInfo.below == false)
-        {
-            ghostJumpActive = true;
-        }
-
-        if (ghostJumpTimer < 0)
-        {
-            ghostJumpActive = false;
-
         }
     }
 
@@ -230,6 +228,11 @@ public class Player : MonoBehaviour
                 timeToWallUnstick = wallStickTime;
             }
         }
+    }
+
+    public void Dash()
+    {
+        Debug.Log("Dash");
     }
 
     private void CalculateVelocity()

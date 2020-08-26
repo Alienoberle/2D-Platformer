@@ -1,35 +1,64 @@
-﻿using System.Collections;
+﻿using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Utilities;
 
 
 [RequireComponent(typeof(Player))]
 [RequireComponent(typeof(PlayerController))]
 public class PlayerInput : MonoBehaviour
 {
-    public Vector2 directionalInput; 
-    
-    Player player;
-    PlayerController playerController;
+    private InputManager inputManager;
+    private Player player;
+    private PlayerController playerController;
 
-    void Start()
+    public Vector2 directionalInput;
+
+    private void Awake()
     {
+        inputManager = new InputManager();
         player = GetComponent<Player>();
         playerController = GetComponent<PlayerController>();
     }
 
-    void Update()
+    private void OnEnable()
     {
-        directionalInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        player.SetDirectionalInput(directionalInput);
-
-        if (Input.GetButtonDown("Jump"))
-        {
-            player.OnJumpInputDown();
-        }
-        if (Input.GetButtonUp("Jump"))
-        {
-            player.OnJumpInputUp();
-        }
+        inputManager.Player.Enable();
+        inputManager.Player.Movement.performed += Movement;
+        inputManager.Player.Jump.performed += Jump;
+        inputManager.Player.JumpRelease.performed += JumpRelease;
+        inputManager.Player.Dash.performed += Dash;
     }
+
+    private void OnDisable()
+    {
+        inputManager.Player.Disable();
+        inputManager.Player.Movement.performed -= Movement;
+        inputManager.Player.Jump.performed -= Jump;
+        inputManager.Player.JumpRelease.performed -= JumpRelease;
+        inputManager.Player.Dash.performed -= Dash;
+    }
+
+    private void Movement(InputAction.CallbackContext context)
+    {
+        directionalInput = inputManager.Player.Movement.ReadValue<Vector2>();
+        player.SetDirectionalInput(directionalInput);
+    }
+
+    private void Jump(InputAction.CallbackContext context)
+    {
+        player.OnJumpInput();
+    }
+
+    private void JumpRelease(InputAction.CallbackContext context)
+    {
+        player.OnJumpInputRelease();
+    }
+
+    private void Dash(InputAction.CallbackContext context)
+    {
+        player.Dash();
+    }
+
 }
