@@ -1,8 +1,7 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Utilities;
 
 
 [RequireComponent(typeof(Player))]
@@ -44,6 +43,12 @@ public class PlayerInput : MonoBehaviour
     {
         directionalInput = inputManager.Player.Movement.ReadValue<Vector2>();
         player.SetDirectionalInput(directionalInput);
+
+        if (directionalInput.y < -0.9)
+        { 
+          playerController.playerPressedDown = true;
+        } 
+        else playerController.playerPressedDown = false;
     }
 
     private void Jump(InputAction.CallbackContext context)

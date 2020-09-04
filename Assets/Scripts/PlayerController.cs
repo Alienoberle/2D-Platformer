@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 // How to set up playerController and extract Raycast class
 // https://www.youtube.com/watch?v=MbWK8bCAU2w
@@ -17,6 +17,8 @@ public class PlayerController : RaycastController
     [HideInInspector]
     public float maxSlopeAngle;
 
+    [HideInInspector]
+    public bool playerPressedDown;
 
     public override void Start()
     {
@@ -185,12 +187,13 @@ public class PlayerController : RaycastController
                     }
 
                     // and we want to move down (fall trough) we also just continue with the next ray
-                    if (playerInput.y == -1 && Input.GetButtonDown("Jump"))
+                    if (playerInput.y == -1 && playerPressedDown)
                     {
                         collisionInfo.fallingTroughPlatform = true;
                         Invoke("ResetFallingTroughPlatform", 0.25f);
                         continue;
                     }
+
                 }
 
                 moveAmount.y = (hit.distance - skinWidth) * directionY; // get the distance to collision - the skinwidth added to the rayLenght before 
