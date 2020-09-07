@@ -1,15 +1,24 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
+
+
 
 public class MainMenu : MonoBehaviour
 {
 
     public LevelLoader levelLoader;
+    [SerializeField] UnityEvent OnPlayEvent;
 
     private void Awake()
     {
-        levelLoader = FindObjectOfType<LevelLoader>();
+        if (levelLoader == null)
+        {
+            levelLoader = FindObjectOfType<LevelLoader>();
+            Debug.Log("Levelloader was not assigned. Check MainMenu script.");
+        }
+
     }
 
     public void Play()
