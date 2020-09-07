@@ -6,9 +6,6 @@ public class LevelLoader : MonoBehaviour
 {
 
     public Animator defaultTransitionAnimation;
-
-    [SerializeField]
-    private string nameOfSceneToLoad;
    
     [SerializeField]
     private float transitionTime = 1.0f;
