@@ -2,7 +2,7 @@
 
 public class CameraFollow : MonoBehaviour
 {
-    public Player player;
+    public PlayerMovement player;
     private PlayerController target;
     private PlayerInput playerInput;
 
@@ -36,7 +36,7 @@ public class CameraFollow : MonoBehaviour
         // Make sure we have a player
         if (player == null)
         {
-            player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+            player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMovement>();
             Debug.LogWarning("Player has not been found. Make sure the player is linked in the Inspector and the player and its bounding box is initialized before the camera.");
         }
 

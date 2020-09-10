@@ -7,22 +7,28 @@
  */
 
 [RequireComponent(typeof(PlayerController))]
-public class Player : MonoBehaviour
+[RequireComponent(typeof(PlayerAnimation))]
+public class PlayerMovement : MonoBehaviour
 {
     PlayerController playerController;
-    public PlayerInfo playerInfo;
+    PlayerAnimation playerAnimation;
 
-    [HideInInspector]
-    public Vector2 directionalInput;
-    Vector3 velocity;
+    [HideInInspector] public PlayerInfo playerInfo;
+    [HideInInspector] public Vector2 directionalInput;
+    private Vector3 velocity;
+
+    [SerializeField] private Animator animator;
+
+    [Header("Movement")]
     public float movementSpeed = 6;
     private float velocityXSmoothing;
     private float accelerationTimeAirborn = 0.2f;
     private float accelerationTimeGrounded = 0.1f;
+    public float maximumSlopeAngle = 60.0f;
 
     private float gravity;
 
-
+    [Header("Jumping")]
     [SerializeField] private float maxJumpHeight = 4f;
     [SerializeField] private float minJumpHeight = 1;
     public float timeToJumpApex = 0.25f;
@@ -38,11 +44,11 @@ public class Player : MonoBehaviour
     private float ghostJumpTimer;
     private bool ghostJumpActive;
 
-    public float maximumSlopeAngle = 60.0f;
-
+    [Header("Wall Jump")]
     public Vector2 wallJumpClimb;
     public Vector2 wallJumpOff;
     public Vector2 wallLeap;
+    [Header("Wall Sliding")]
     public float wallSlideSpeedMax = 3.0f;
     public float wallStickTime = 0.25f;
     private float timeToWallUnstick;
@@ -54,6 +60,8 @@ public class Player : MonoBehaviour
     {
         playerController = GetComponent<PlayerController>();
         playerController.maxSlopeAngle = maximumSlopeAngle;
+
+        playerAnimation = GetComponent<PlayerAnimation>();
 
         gravity = -(2 * maxJumpHeight / Mathf.Pow(timeToJumpApex, 2));
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
@@ -100,6 +108,7 @@ public class Player : MonoBehaviour
             jumpCounter = 0;
             ghostJumpActive = false;
             ghostJumpTimer = ghostJumpTime;
+
         }
 
         if (ghostJumpTimer > 0 && ghostJumpActive)
@@ -115,7 +124,24 @@ public class Player : MonoBehaviour
         if (ghostJumpTimer < 0)
         {
             ghostJumpActive = false;
+            animator.SetBool("IsJumping", false); // this is SHIT needs rework should be called when player controller detects that it is grounded 
+        }
+    }
 
+    private void CanPlayerJump()
+    {
+        playerInfo.canJump = false;
+        if (jumpCounter < jumpAmount)
+        {
+            if (playerController.collisionInfo.below || playerInfo.isWallsliding)
+            {
+                playerInfo.canJump = true;
+            }
+
+            if (ghostJumpActive)
+            {
+                playerInfo.canJump = true;
+            }
         }
     }
 
@@ -162,6 +188,7 @@ public class Player : MonoBehaviour
             }
 
             jumpCounter += 1;
+            animator.SetBool("IsJumping", true);
         }
 
     }
@@ -174,22 +201,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void CanPlayerJump()
-    {
-        playerInfo.canJump = false;
-        if (jumpCounter < jumpAmount)
-        {
-            if (playerController.collisionInfo.below || playerInfo.isWallsliding)
-            {
-                playerInfo.canJump = true;
-            }
 
-            if (ghostJumpActive)
-            {
-                playerInfo.canJump = true;
-            }
-        }
-    }
 
     private void WallSliding()
     {

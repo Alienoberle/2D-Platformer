@@ -2,12 +2,12 @@
 using UnityEngine.InputSystem;
 
 
-[RequireComponent(typeof(Player))]
+[RequireComponent(typeof(PlayerMovement))]
 [RequireComponent(typeof(PlayerController))]
 public class PlayerInput : MonoBehaviour
 {
     private InputManager inputManager;
-    private Player player;
+    private PlayerMovement player;
     private PlayerController playerController;
 
     public Vector2 directionalInput;
@@ -15,7 +15,7 @@ public class PlayerInput : MonoBehaviour
     private void Awake()
     {
         inputManager = new InputManager();
-        player = GetComponent<Player>();
+        player = GetComponent<PlayerMovement>();
         playerController = GetComponent<PlayerController>();
     }
 
