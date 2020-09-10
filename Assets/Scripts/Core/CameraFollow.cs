@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
@@ -8,7 +6,7 @@ public class CameraFollow : MonoBehaviour
     private PlayerController target;
     private PlayerInput playerInput;
 
-    
+
     FocusArea focusArea;
 
     [Tooltip("Defines the size of the focus area.")]
@@ -45,7 +43,7 @@ public class CameraFollow : MonoBehaviour
         // Grab the needed components from the player
         target = player.GetComponent<PlayerController>();
         playerInput = player.GetComponent<PlayerInput>();
-        
+
         // Make we have a focus area size at least the size of the player bounds
         if (focusAreaSize.x < target.collider.bounds.size.x || focusAreaSize.x < target.collider.bounds.size.y)
         {
@@ -64,7 +62,7 @@ public class CameraFollow : MonoBehaviour
 
         Vector2 focusPosition = focusArea.center + Vector2.up * verticalOffset;
 
-        if(focusArea.focusMovementLastFrame.x != 0)
+        if (focusArea.focusMovementLastFrame.x != 0)
         {
             // Figure out which direction the focus direction has move last frame
             lookAheadDirectionX = Mathf.Sign(focusArea.focusMovementLastFrame.x);
@@ -76,14 +74,14 @@ public class CameraFollow : MonoBehaviour
                 lookAheadStopped = false;
                 targetLookAheadX = lookAheadDirectionX * lookAheadDistanceX;
             }
-            else 
+            else
             {
                 if (!lookAheadStopped)
                 {
                     lookAheadStopped = true;
                     // We only add a fraction of the remaining distance to look ahead
                     targetLookAheadX = currentLookAheadX + ((lookAheadDirectionX * lookAheadDistanceX - currentLookAheadX) / 4f);
-                }              
+                }
             }
         }
 
@@ -91,7 +89,7 @@ public class CameraFollow : MonoBehaviour
         currentLookAheadX = Mathf.SmoothDamp(currentLookAheadX, targetLookAheadX, ref smoothLookVelocityX, lookSmoothTimeX);
         // smooth the vertical camera movement
         focusPosition.y = Mathf.SmoothDamp(transform.position.y, focusPosition.y, ref smoothLookVelocityY, lookSmoothTimeY);
-        
+
         focusPosition += Vector2.right * currentLookAheadX;
         transform.position = (Vector3)focusPosition + Vector3.forward * -10;
     }
@@ -102,7 +100,7 @@ public class CameraFollow : MonoBehaviour
         {
             Gizmos.color = new Color(1, 0, 0, 0.25f);
             Gizmos.DrawCube(focusArea.center, focusAreaSize);
-        }      
+        }
     }
 
     struct FocusArea
@@ -116,22 +114,22 @@ public class CameraFollow : MonoBehaviour
 
         public FocusArea(Bounds targetBounds, Vector2 size)
         {
-            left = targetBounds.center.x - size.x/2;
-            right = targetBounds.center.x + size.x/2;
+            left = targetBounds.center.x - size.x / 2;
+            right = targetBounds.center.x + size.x / 2;
             bottom = targetBounds.min.y;
             top = targetBounds.min.y + size.y;
 
             focusMovementLastFrame = Vector2.zero;
-            center = new Vector2((left+right)/2, (top+bottom)/2);
+            center = new Vector2((left + right) / 2, (top + bottom) / 2);
         }
         public void Update(Bounds targetBounds)
         {
             float shiftX = 0;
-            if(targetBounds.min.x < left)
+            if (targetBounds.min.x < left)
             {
                 shiftX = targetBounds.min.x - left;
             }
-            else if(targetBounds.max.x > right)
+            else if (targetBounds.max.x > right)
             {
                 shiftX = targetBounds.max.x - right;
             }
@@ -150,7 +148,7 @@ public class CameraFollow : MonoBehaviour
             bottom += shiftY;
             top += shiftY;
             center = new Vector2((left + right) / 2, (top + bottom) / 2);
-            
+
             // Store how far the focus area has move in the last frame
             focusMovementLastFrame = new Vector2(shiftX, shiftY);
         }

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 /*
  * Basic set up of the script
@@ -23,13 +21,13 @@ public class RaycastController : MonoBehaviour
     public int horizontalRayCount;
     [HideInInspector]
     public int verticalRayCount;
-        
+
     [HideInInspector]
     public float horizontalRaySpacing;
     [HideInInspector]
     public float verticalRaySpacing;
 
-    
+
     public virtual void Awake()
     {
         collider = GetComponent<BoxCollider2D>();

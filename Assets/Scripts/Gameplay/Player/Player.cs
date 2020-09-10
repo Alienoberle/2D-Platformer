@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 
 /*
@@ -82,7 +80,7 @@ public class Player : MonoBehaviour
             if (playerController.collisionInfo.slidingDownMaxSlope)
             {
                 velocity.y += playerController.collisionInfo.slopeNormal.y * -gravity * Time.deltaTime; // oppose velocity y by gravity over time 
-            } 
+            }
             else
             {
                 velocity.y = 0;
@@ -123,7 +121,7 @@ public class Player : MonoBehaviour
 
     public void OnJumpInput()
     {
-         CanPlayerJump();
+        CanPlayerJump();
 
         // If the player is currently wall sliding
         if (playerInfo.isWallsliding)
@@ -170,7 +168,7 @@ public class Player : MonoBehaviour
 
     public void OnJumpInputRelease()
     {
-         if (velocity.y > minJumpVelocity)
+        if (velocity.y > minJumpVelocity)
         {
             velocity.y = minJumpVelocity;
         }
@@ -188,7 +186,7 @@ public class Player : MonoBehaviour
 
             if (ghostJumpActive)
             {
-                 playerInfo.canJump = true;
+                playerInfo.canJump = true;
             }
         }
     }
@@ -198,7 +196,7 @@ public class Player : MonoBehaviour
         // Figure out wall direction
         wallDirectionX = (playerController.collisionInfo.left) ? -1 : 1;
 
-        
+
         playerInfo.isWallsliding = false;
         if ((playerController.collisionInfo.left || playerController.collisionInfo.right) && !playerController.collisionInfo.below && velocity.y < 0)
         {

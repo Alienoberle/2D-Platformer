@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -20,7 +19,7 @@ public class PlatformController : RaycastController
     Dictionary<Transform, PlayerController> passengerDictionary = new Dictionary<Transform, PlayerController>();
 
     public float speed;
-    [Range(1,3)]
+    [Range(1, 3)]
     public float easeAmount = 1;
     public float waitTime;
     public bool isCyclic;
@@ -46,25 +45,25 @@ public class PlatformController : RaycastController
 
     // Update is called once per frame
     void Update()
-    {      
+    {
         UpdateRaycastOrigins();
 
         Vector3 velocity = CalculatePlatformMovement();
 
         CalculatePassengerMovement(velocity);
-     
+
         MovePassengers(true);
-        transform.Translate(velocity);      
-        MovePassengers(false);      
+        transform.Translate(velocity);
+        MovePassengers(false);
     }
 
     private float Ease(float x)
     {
         if (easeAmount == 0)
         {
-            easeAmount += 1; 
+            easeAmount += 1;
         }
-        
+
         return Mathf.Pow(x, easeAmount) / (Mathf.Pow(x, easeAmount) + Mathf.Pow(1 - x, easeAmount));
     }
 
@@ -89,10 +88,10 @@ public class PlatformController : RaycastController
         Vector3 newPosition = Vector3.Lerp(globalWaypoints[fromWaypointIndex], globalWaypoints[toWaypointIndex], easedPercentBetweenWaypoints);
 
         // if we reached the goal waypoint
-        if(percentBetweenWaypoints >= 1)
+        if (percentBetweenWaypoints >= 1)
         {
             percentBetweenWaypoints = 0;
-            fromWaypointIndex ++;
+            fromWaypointIndex++;
 
             nextMoveTime = Time.time + waitTime; // each time we reach a waypoint we set next move time
 
@@ -112,13 +111,13 @@ public class PlatformController : RaycastController
 
     void MovePassengers(bool beforeMovingPlatform)
     {
-        foreach(PassengerMovement passenger in passengerMovement)
+        foreach (PassengerMovement passenger in passengerMovement)
         {
-            if(!passengerDictionary.ContainsKey(passenger.passengerTransform))
+            if (!passengerDictionary.ContainsKey(passenger.passengerTransform))
             {
                 passengerDictionary.Add(passenger.passengerTransform, passenger.passengerTransform.GetComponent<PlayerController>());
             }
-            if(passenger.movingBeforePlatform == beforeMovingPlatform)
+            if (passenger.movingBeforePlatform == beforeMovingPlatform)
             {
                 passengerDictionary[passenger.passengerTransform].Move(passenger.passengerVelocity, passenger.standingOnPlatform);
             }
@@ -211,7 +210,7 @@ public class PlatformController : RaycastController
                         movedPassengers.Add(hit.transform);
                         float pushX = velocity.x;
                         float pushY = velocity.y;
-                        
+
                         // Add new passenger movement info struct to the passengerMovement list
                         passengerMovement.Add(new PassengerMovement(hit.transform, new Vector3(pushX, pushY), true, false));
                     }
@@ -238,8 +237,8 @@ public class PlatformController : RaycastController
 
     void OnDrawGizmos()
     {
-       if(localWaypoints != null)
-       {
+        if (localWaypoints != null)
+        {
             Gizmos.color = Color.red;
             float size = 0.1f;
             collider = GetComponent<BoxCollider2D>();
@@ -248,7 +247,7 @@ public class PlatformController : RaycastController
             for (int i = 0; i < localWaypoints.Length; i++)
             {
                 // when the game is playing we do not want the waypoints to move with the platform
-                Vector3 globalWaypointPos = (Application.isPlaying)? globalWaypoints[i] : localWaypoints[i] + transform.position;
+                Vector3 globalWaypointPos = (Application.isPlaying) ? globalWaypoints[i] : localWaypoints[i] + transform.position;
 
                 // draw the size of the platform box collider
                 Gizmos.DrawLine(globalWaypointPos + new Vector3(-bounds.size.x / 2, -bounds.size.y / 2), globalWaypointPos + new Vector3(-bounds.size.x / 2, +bounds.size.y / 2));
@@ -260,6 +259,6 @@ public class PlatformController : RaycastController
                 Gizmos.DrawLine(globalWaypointPos - Vector3.up * size, globalWaypointPos + Vector3.up * size);
                 Gizmos.DrawLine(globalWaypointPos - Vector3.left * size, globalWaypointPos + Vector3.left * size);
             }
-        } 
+        }
     }
 }

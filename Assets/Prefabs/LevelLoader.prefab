@@ -58,7 +58,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!114 &5639407406947411356
 MonoBehaviour:
@@ -113,7 +113,7 @@ GameObject:
   - component: {fileID: 3735633269976408856}
   - component: {fileID: 3735633269976408859}
   m_Layer: 0
-  m_Name: FadeToBlackImage
+  m_Name: Crossfade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -202,7 +202,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3735633269976408837}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -215,7 +215,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3735633270939874022}
-  - component: {fileID: 2128889097711783688}
+  - component: {fileID: 5926870191994705334}
   m_Layer: 0
   m_Name: LevelLoader
   m_TagString: Untagged
@@ -238,7 +238,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2128889097711783688
+--- !u!114 &5926870191994705334
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -250,5 +250,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b786cd721e23fbf4991839313ff92c11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultTransitionAnimation: {fileID: 3735633269976408856}
-  transitionTime: 1
+  transitionList:
+  - transitionName: CrossfadeOut
+    transitionAnimation: {fileID: 3735633269976408856}
+    transitionType: StartTransitionIn
+    transitionTime: 1
+  - transitionName: CrossfadeIn
+    transitionAnimation: {fileID: 3735633269976408856}
+    transitionType: StartTransitionOut
+    transitionTime: 1
+  - transitionName: Default
+    transitionAnimation: {fileID: 3735633269976408856}
+    transitionType: StartTransitionIn
+    transitionTime: 1

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 
@@ -45,9 +43,9 @@ public class PlayerInput : MonoBehaviour
         player.SetDirectionalInput(directionalInput);
 
         if (directionalInput.y < -0.9)
-        { 
-          playerController.playerPressedDown = true;
-        } 
+        {
+            playerController.playerPressedDown = true;
+        }
         else playerController.playerPressedDown = false;
     }
 

@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.InputSystem;
+﻿using UnityEngine;
 
 // How to set up playerController and extract Raycast class
 // https://www.youtube.com/watch?v=MbWK8bCAU2w
@@ -9,7 +6,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : RaycastController
 {
     public CollisionInfo collisionInfo;
-    
+
     [HideInInspector]
     public Vector2 playerInput;
     private Vector2 initialVelocity;
@@ -26,7 +23,7 @@ public class PlayerController : RaycastController
 
         // just to give a starting direction
         collisionInfo.faceingDirection = 1;
-        
+
     }
 
     // Move overload Method that just calls the move method but with zero input in case of moving platforms
@@ -40,7 +37,7 @@ public class PlayerController : RaycastController
         UpdateRaycastOrigins();
         collisionInfo.Reset();
         initialVelocity = moveAmount;
-        
+
         // store the input
         this.playerInput = playerInput;
 
@@ -61,10 +58,10 @@ public class PlayerController : RaycastController
         {
             VerticalCollisions(ref moveAmount);
         }
-        
+
         transform.Translate(moveAmount);
 
-        if(standingOnPlatform)
+        if (standingOnPlatform)
         {
             collisionInfo.below = true;
         }
@@ -75,7 +72,7 @@ public class PlayerController : RaycastController
         float directionX = collisionInfo.faceingDirection; // direction +1 or -1 of the y moveAmount
         float rayLenght = Mathf.Abs(moveAmount.x) + skinWidth; // get the absolute lenght which is always positive and add the skinwidth
 
-        if(Mathf.Abs(moveAmount.x) < skinWidth)
+        if (Mathf.Abs(moveAmount.x) < skinWidth)
         {
             rayLenght = skinWidth * 2; // have minimal raylenght to detect the wall if standing still
         }
@@ -88,7 +85,7 @@ public class PlayerController : RaycastController
             Debug.DrawRay(rayOrigin, Vector2.right * directionX, Color.red);
 
             // directly continue with the next ray if the player is within a collision
-            if(hit.distance == 0)
+            if (hit.distance == 0)
             {
                 continue;
             }
@@ -99,27 +96,27 @@ public class PlayerController : RaycastController
                 float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
 
                 // we only want to check for slopes for the bottom most horizontal raycast, others could interfere
-                if(i == 0 && slopeAngle <= maxSlopeAngle)
+                if (i == 0 && slopeAngle <= maxSlopeAngle)
                 {
                     // if we notice we climb a slope we reset moveAmount to initial moveAmount in case we were descending a slope before
                     if (collisionInfo.descendingSlope)
                     {
-                        collisionInfo.descendingSlope = false;                        
+                        collisionInfo.descendingSlope = false;
                         moveAmount = initialVelocity;
                     }
 
                     float distanceToSlopeStart = 0;
-                    if(slopeAngle != collisionInfo.slopeAngleOld) // only when new slope
+                    if (slopeAngle != collisionInfo.slopeAngleOld) // only when new slope
                     {
                         distanceToSlopeStart = hit.distance - skinWidth;
                         moveAmount.x -= distanceToSlopeStart * directionX; // reduce the X moveAmount by the distance to slope so it only starts climibing when actually having reached the slope
                     }
 
                     ClimbSlope(ref moveAmount, slopeAngle, hit.normal); // actually climb slope 
-                    moveAmount.x += distanceToSlopeStart * directionX; 
-                }            
+                    moveAmount.x += distanceToSlopeStart * directionX;
+                }
 
-                if(!collisionInfo.climbingSlope || slopeAngle > maxSlopeAngle) // when climbing the slope we don't want to check collisions for the rest of the rays 
+                if (!collisionInfo.climbingSlope || slopeAngle > maxSlopeAngle) // when climbing the slope we don't want to check collisions for the rest of the rays 
                 {
                     moveAmount.x = (hit.distance - skinWidth) * directionX; // get the distance to collision - the skinwidth added to the rayLenght before 
                     rayLenght = hit.distance; // set to make sure the smallest ray is considered to not move trough objects
@@ -149,7 +146,7 @@ public class PlayerController : RaycastController
             moveAmount.y = climbVelocityY;
             moveAmount.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(moveAmount.x); // we want to keep the direction left = -1,  right = 1
 
-            collisionInfo.climbingSlope = true; 
+            collisionInfo.climbingSlope = true;
             collisionInfo.slopeAngle = slopeAngle;
             collisionInfo.slopeNormal = slopeNormal;
             collisionInfo.below = true; // since we are climbing we can safely assume that we are on the ground and have collision below us
@@ -243,7 +240,7 @@ public class PlayerController : RaycastController
         RaycastHit2D maxSlopeRight = Physics2D.Raycast(raycastOrigins.bottomRight, Vector2.down, Mathf.Abs(moveAmount.y) + skinWidth, collisionMask);
 
         // we only move on to sliding down, if only one of the side detects a hit and other is "up in air" to avoid jitter with super flat slopes
-        if(maxSlopeLeft ^ maxSlopeRight)
+        if (maxSlopeLeft ^ maxSlopeRight)
         {
             SlideDownMaxSlope(maxSlopeLeft, ref moveAmount);
             SlideDownMaxSlope(maxSlopeRight, ref moveAmount);
@@ -284,7 +281,7 @@ public class PlayerController : RaycastController
                 }
             }
         }
-        
+
     }
 
     void SlideDownMaxSlope(RaycastHit2D hit, ref Vector2 moveAmount)
@@ -296,8 +293,8 @@ public class PlayerController : RaycastController
 
             if (slopeAngle > maxSlopeAngle)
             {
-                moveAmount.x = slopeDirection * (Mathf.Abs(moveAmount.y) - hit.distance) / Mathf.Tan(slopeAngle * Mathf.Deg2Rad) ;
-                
+                moveAmount.x = slopeDirection * (Mathf.Abs(moveAmount.y) - hit.distance) / Mathf.Tan(slopeAngle * Mathf.Deg2Rad);
+
                 collisionInfo.slopeAngle = slopeAngle;
                 collisionInfo.slidingDownMaxSlope = true;
                 collisionInfo.slopeNormal = hit.normal;
@@ -311,7 +308,7 @@ public class PlayerController : RaycastController
     {
         collisionInfo.fallingTroughPlatform = false;
 
-    } 
+    }
 
     public struct CollisionInfo
     {

@@ -1,29 +1,31 @@
-﻿using System.Collections;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine;
 using UnityEngine.Events;
-
-
 
 public class MainMenu : MonoBehaviour
 {
+    [SerializeField] private LevelLoader levelLoader;
+    [SerializeField] private GameObject levelLoaderPrefab;
+    private GameObject levelLoaderInstance;
 
-    public LevelLoader levelLoader;
+    //[SerializeField] private LevelLoader levelLoader;
     [SerializeField] UnityEvent OnPlayEvent;
 
     private void Awake()
     {
+        // Make sure there is a level loader in the worst case spawn one
+        if (levelLoader == null)
+        { levelLoader = (LevelLoader)FindObjectOfType(typeof(LevelLoader)); }
+
         if (levelLoader == null)
         {
-            levelLoader = FindObjectOfType<LevelLoader>();
-            Debug.Log("Levelloader was not assigned. Check MainMenu script.");
+            levelLoaderInstance = Instantiate(levelLoaderPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+            levelLoader = levelLoaderInstance.GetComponent<LevelLoader>();
         }
-
     }
 
     public void Play()
     {
-        levelLoader.LoadLevel("Testmap");
+        levelLoader.LoadLevel("Testmap", "CrossfadeOut");
     }
 
     public void Options()
