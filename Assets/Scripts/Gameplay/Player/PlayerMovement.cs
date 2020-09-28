@@ -7,11 +7,9 @@
  */
 
 [RequireComponent(typeof(PlayerController))]
-[RequireComponent(typeof(PlayerAnimation))]
 public class PlayerMovement : MonoBehaviour
 {
     PlayerController playerController;
-    PlayerAnimation playerAnimation;
 
     [HideInInspector] public PlayerInfo playerInfo;
     [HideInInspector] public Vector2 directionalInput;
@@ -24,14 +22,14 @@ public class PlayerMovement : MonoBehaviour
     private float velocityXSmoothing;
     private float accelerationTimeAirborn = 0.2f;
     private float accelerationTimeGrounded = 0.1f;
-    public float maximumSlopeAngle = 60.0f;
+    [SerializeField] private float maximumSlopeAngle = 60.0f;
 
     private float gravity;
 
     [Header("Jumping")]
     [SerializeField] private float maxJumpHeight = 4f;
     [SerializeField] private float minJumpHeight = 1;
-    public float timeToJumpApex = 0.25f;
+    [SerializeField] private float timeToJumpApex = 0.25f;
 
     private float maxJumpVelocity;
     private float minJumpVelocity;
@@ -39,20 +37,30 @@ public class PlayerMovement : MonoBehaviour
     public int jumpAmount = 1;
     private int jumpCounter;
 
-
     [SerializeField] private float ghostJumpTime = 0.1f;
     private float ghostJumpTimer;
     private bool ghostJumpActive;
 
+    [Header("Dashing")]
+    [SerializeField] private float dashDistance = 5f;
+    [SerializeField] private float dashDuration = 0.2f;
+    private float dashVelocity;
+    private float dashTimer;
+    private float dashProgress = 0.5f;
+    public int dashAmount = 1;
+    private int dashCounter;
+    private int dashingDirectionX;
+
     [Header("Wall Jump")]
-    public Vector2 wallJumpClimb;
-    public Vector2 wallJumpOff;
-    public Vector2 wallLeap;
+    [SerializeField] private Vector2 wallJumpClimb;
+    [SerializeField] private Vector2 wallJumpOff;
+    [SerializeField] private Vector2 wallLeap;
     [Header("Wall Sliding")]
-    public float wallSlideSpeedMax = 3.0f;
-    public float wallStickTime = 0.25f;
+    [SerializeField] private float wallSlideSpeedMax = 3.0f;
+    [SerializeField] private float wallStickTime = 0.25f;
     private float timeToWallUnstick;
     private int wallDirectionX;
+
 
 
     // Start is called before the first frame update
@@ -61,12 +69,12 @@ public class PlayerMovement : MonoBehaviour
         playerController = GetComponent<PlayerController>();
         playerController.maxSlopeAngle = maximumSlopeAngle;
 
-        playerAnimation = GetComponent<PlayerAnimation>();
-
         gravity = -(2 * maxJumpHeight / Mathf.Pow(timeToJumpApex, 2));
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
-        minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight); // https://www.youtube.com/watch?v=rVfR14UNNDo
+        minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight); // check video for info https://www.youtube.com/watch?v=rVfR14UNNDo
         Debug.Log("Gravity: " + gravity + " Max. Jump Velocity: " + maxJumpVelocity + " Min. Jump Velocity:" + minJumpVelocity);
+
+        dashVelocity = dashDistance / dashDuration;
 
         playerInfo.Reset();
     }
@@ -77,10 +85,27 @@ public class PlayerMovement : MonoBehaviour
         // Calculate velocities 
         CalculateVelocity();
         WallSliding();
-        UpdateJump();
+        Dashing();
 
         // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
         playerController.Move(velocity * Time.deltaTime, directionalInput);
+
+        // Flip the players faceing direction if needed
+        if (directionalInput.x > 0 && playerInfo.facingDirection < 0 )
+        {
+            Flip();
+        }
+        if (directionalInput.x < 0 && playerInfo.facingDirection > 0)
+        {
+            Flip();
+        }
+
+        // Handle jumping
+        IsPlayerGrounded();
+        GhostJump();
+
+        // Trigger Run animation
+        animator.SetFloat("Speed", Mathf.Abs(velocity.x));
 
         // Reset gravity to 0 to avoid gravity amassing when simply standing around. We want to do this after we have moved the player with our input because platforms also move the player
         if (playerController.collisionInfo.above || playerController.collisionInfo.below)
@@ -93,7 +118,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 velocity.y = 0;
             }
-        }
+        }    
     }
 
     public void SetDirectionalInput(Vector2 input)
@@ -101,107 +126,17 @@ public class PlayerMovement : MonoBehaviour
         directionalInput = input;
     }
 
-    private void UpdateJump()
+    private void CalculateVelocity()
     {
-        if (playerController.collisionInfo.below)
-        {
-            jumpCounter = 0;
-            ghostJumpActive = false;
-            ghostJumpTimer = ghostJumpTime;
+        // Calculate the target X velocity based on input and movement speed. 
+        float targetVelocityX = directionalInput.x * movementSpeed;
 
-        }
+        // Reduce horizontal velocity when airborne
+        velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (playerController.collisionInfo.below) ? accelerationTimeGrounded : accelerationTimeAirborn);
 
-        if (ghostJumpTimer > 0 && ghostJumpActive)
-        {
-            ghostJumpTimer -= Time.deltaTime;
-        }
-
-        if (playerController.collisionInfo.lastFrameBelow == true && playerController.collisionInfo.below == false)
-        {
-            ghostJumpActive = true;
-        }
-
-        if (ghostJumpTimer < 0)
-        {
-            ghostJumpActive = false;
-            animator.SetBool("IsJumping", false); // this is SHIT needs rework should be called when player controller detects that it is grounded 
-        }
+        // Manipulate gravity slightly when falling to get more weight feel or give player more time to fix mistakes
+        velocity.y += gravity * Time.deltaTime;
     }
-
-    private void CanPlayerJump()
-    {
-        playerInfo.canJump = false;
-        if (jumpCounter < jumpAmount)
-        {
-            if (playerController.collisionInfo.below || playerInfo.isWallsliding)
-            {
-                playerInfo.canJump = true;
-            }
-
-            if (ghostJumpActive)
-            {
-                playerInfo.canJump = true;
-            }
-        }
-    }
-
-    public void OnJumpInput()
-    {
-        CanPlayerJump();
-
-        // If the player is currently wall sliding
-        if (playerInfo.isWallsliding)
-        {
-            if (wallDirectionX == directionalInput.x)
-            {
-                velocity.x = -wallDirectionX * wallJumpClimb.x;
-                velocity.y = wallJumpClimb.y;
-            }
-            else if (directionalInput.x == 0)
-            {
-                velocity.x = -wallDirectionX * wallJumpOff.x;
-                velocity.y = wallJumpOff.y;
-            }
-            else
-            {
-                velocity.x = -wallDirectionX * wallLeap.x;
-                velocity.y = wallLeap.y;
-            }
-        }
-
-        // If we stand on smth. and doesn't press down we set maxJumpvelocity
-        if (playerInfo.canJump)
-        {
-            if (playerController.collisionInfo.slidingDownMaxSlope)
-            {
-                if (directionalInput.x != -Mathf.Sign(playerController.collisionInfo.slopeNormal.x)) // if we are not jumping against max slope normal
-                {
-                    velocity.y = maxJumpVelocity * playerController.collisionInfo.slopeNormal.y;
-                    velocity.x = maxJumpVelocity * playerController.collisionInfo.slopeNormal.x;
-
-                }
-            }
-
-            else if (directionalInput.y != -1)
-            {
-                velocity.y = maxJumpVelocity;
-            }
-
-            jumpCounter += 1;
-            animator.SetBool("IsJumping", true);
-        }
-
-    }
-
-    public void OnJumpInputRelease()
-    {
-        if (velocity.y > minJumpVelocity)
-        {
-            velocity.y = minJumpVelocity;
-        }
-    }
-
-
 
     private void WallSliding()
     {
@@ -240,37 +175,218 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void Dash()
+    private void IsPlayerGrounded()
     {
-        Debug.Log("Dash");
+        if (playerController.collisionInfo.below)
+        {
+            playerInfo.isGrounded = true;
+            ResetJump();
+            ResetDash();
+        }
+        else
+        {
+            playerInfo.isGrounded = false;
+        }
     }
 
-    private void CalculateVelocity()
+    void Flip()
     {
-        // Calculate the target X velocity based on input and movement speed. 
-        float targetVelocityX = directionalInput.x * movementSpeed;
+        playerInfo.facingDirection = (int)Mathf.Sign(directionalInput.x);
 
-        // Reduce horizontal velocity when airborne
-        velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (playerController.collisionInfo.below) ? accelerationTimeGrounded : accelerationTimeAirborn);
+        // Multiply the player's x local scale by -1.
+        Vector3 theScale = transform.localScale;
+        theScale.x *= -1;
+        transform.localScale = theScale;
+    }
 
-        // Manipulate gravity slightly when falling to get more weight feel or give player more time to fix mistakes
-        velocity.y += gravity * Time.deltaTime;
+    private void CanPlayerJump()
+    {
+        playerInfo.canJump = false;
+        if (jumpCounter > 0)
+        {
+            if (playerInfo.isGrounded)
+            {
+                playerInfo.canJump = true;
+            }
+            else if (jumpAmount > 1)
+            {
+                playerInfo.canJump = true;
+            }
+            else if (playerInfo.isWallsliding)
+            {
+                playerInfo.canJump = true;
+            }
+            else if (ghostJumpActive)
+            {
+                playerInfo.canJump = true;
+            }
+        }
+    }
+
+    private void GhostJump()
+    {
+        if (ghostJumpTimer > 0 && ghostJumpActive)
+        {
+            ghostJumpTimer -= Time.deltaTime;
+        }
+
+        if (playerController.collisionInfo.lastFrameBelow == true && playerController.collisionInfo.below == false)
+        {
+            ghostJumpActive = true;
+        }
+
+        if (ghostJumpTimer < 0)
+        {
+            ghostJumpActive = false;
+        }
+    }
+
+    public void OnJumpInput()
+    {
+        CanPlayerJump();
+        // If the player is currently wall sliding
+        if (playerInfo.isWallsliding)
+        {
+            if (wallDirectionX == directionalInput.x)
+            {
+                velocity.x = -wallDirectionX * wallJumpClimb.x;
+                velocity.y = wallJumpClimb.y;
+            }
+            else if (directionalInput.x == 0)
+            {
+                velocity.x = -wallDirectionX * wallJumpOff.x;
+                velocity.y = wallJumpOff.y;
+            }
+            else
+            {
+                velocity.x = -wallDirectionX * wallLeap.x;
+                velocity.y = wallLeap.y;
+            }
+        }
+
+        if (playerInfo.canJump)
+        {
+            if (playerController.collisionInfo.slidingDownMaxSlope)
+            {
+                if (directionalInput.x != -Mathf.Sign(playerController.collisionInfo.slopeNormal.x)) // if we are not jumping against max slope normal
+                {
+                    velocity.y = maxJumpVelocity * playerController.collisionInfo.slopeNormal.y;
+                    velocity.x = maxJumpVelocity * playerController.collisionInfo.slopeNormal.x;
+
+                }
+            }
+
+            else if (directionalInput.y != -1)
+            {
+                velocity.y = maxJumpVelocity;
+            }
+
+            jumpCounter -= 1;
+            playerInfo.isJumping = true;
+            animator.SetBool("IsJumping", true);
+        }
+
+    }
+
+    public void OnJumpInputRelease()
+    {
+        if (velocity.y > minJumpVelocity)
+        {
+            velocity.y = minJumpVelocity;
+        }
+    }
+
+    public void ResetJump()
+    {
+        playerInfo.isJumping = false;
+        jumpCounter = jumpAmount;
+        animator.SetBool("IsJumping", false);
+
+        ghostJumpActive = false;
+        ghostJumpTimer = ghostJumpTime;
+    }
+
+    public void OnDashInput()
+    {
+        CanPlayerDash();
+        dashVelocity = dashDistance / dashDuration;
+        if (playerInfo.canDash)
+        {
+            if (directionalInput.x != 0)
+            {
+                dashingDirectionX = (int)Mathf.Sign(directionalInput.x);
+            }
+            else
+            {
+                dashingDirectionX = playerInfo.facingDirection;
+            }
+            dashCounter -= 1;
+            playerInfo.isDashing = true;
+            animator.SetBool("IsDashing", true);
+        }
+    }
+    
+    private void CanPlayerDash()
+    {
+        playerInfo.canDash = false;
+        if(dashCounter > 0)
+        {
+            playerInfo.canDash = true;
+        }
+    }
+
+    private void Dashing()
+    {
+        if (playerInfo.isDashing)
+        { 
+            velocity.y = 0;
+            velocity.x = dashVelocity * dashingDirectionX;
+            dashTimer -= Time.deltaTime;
+
+            if ((dashTimer * dashProgress) < 0)
+            {
+                float targetVelocityX = directionalInput.x * movementSpeed;
+                velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, dashTimer * (1-dashProgress));
+                dashTimer -= Time.deltaTime;
+            }
+            if(dashTimer < 0)
+            {
+                dashTimer = dashDuration;
+                playerInfo.isDashing = false;
+            }
+        }
+    }
+
+    public void ResetDash()
+    {
+        playerInfo.isDashing = false;
+        dashCounter = dashAmount;
+        animator.SetBool("IsDashing", false);
     }
 
     public struct PlayerInfo
     {
         public bool alive, dead;
-        public bool isWallsliding;
-        public bool canJump;
-        public bool canDash;
+        public bool isGrounded { get; set; }
+        public bool isWallsliding { get; set; }
+        public bool isJumping { get; set; }
+        public bool isDashing { get; set; }
+        public bool canJump { get; set; }
+        public bool canDash { get; set; }
+
+        public int facingDirection;
 
         public void Reset()
         {
             alive = true;
             dead = false;
+            isGrounded = true;
             isWallsliding = false;
+            isJumping = false;
+            isDashing = false;
             canJump = true;
             canDash = true;
+            facingDirection = 1;
         }
     }
 }

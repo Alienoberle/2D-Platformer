@@ -61,7 +61,7 @@ public class PlayerInput : MonoBehaviour
 
     private void Dash(InputAction.CallbackContext context)
     {
-        player.Dash();
+        player.OnDashInput();
     }
 
 }

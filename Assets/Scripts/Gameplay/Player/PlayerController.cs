@@ -69,7 +69,7 @@ public class PlayerController : RaycastController
 
     void HorizontalCollisions(ref Vector2 moveAmount)
     {
-        float directionX = collisionInfo.faceingDirection; // direction +1 or -1 of the y moveAmount
+        float directionX = collisionInfo.faceingDirection; // direction +1 or -1 of the x moveAmount
         float rayLenght = Mathf.Abs(moveAmount.x) + skinWidth; // get the absolute lenght which is always positive and add the skinwidth
 
         if (Mathf.Abs(moveAmount.x) < skinWidth)
@@ -232,7 +232,6 @@ public class PlayerController : RaycastController
             }
         }
     }
-
 
     private void DescendSlope(ref Vector2 moveAmount)
     {
