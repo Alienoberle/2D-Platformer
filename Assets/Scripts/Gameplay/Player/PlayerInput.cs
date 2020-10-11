@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 
@@ -9,6 +10,8 @@ public class PlayerInput : MonoBehaviour
     private InputManager inputManager;
     private PlayerMovement player;
     private PlayerController playerController;
+
+    private Health health; // test stuff
 
     public Vector2 directionalInput;
 
@@ -26,6 +29,7 @@ public class PlayerInput : MonoBehaviour
         inputManager.Player.Jump.performed += Jump;
         inputManager.Player.JumpRelease.performed += JumpRelease;
         inputManager.Player.Dash.performed += Dash;
+        inputManager.Player.Debug.performed += DebugInput;  
     }
 
     private void OnDisable()
@@ -35,6 +39,7 @@ public class PlayerInput : MonoBehaviour
         inputManager.Player.Jump.performed -= Jump;
         inputManager.Player.JumpRelease.performed -= JumpRelease;
         inputManager.Player.Dash.performed -= Dash;
+        inputManager.Player.Debug.performed -= DebugInput;
     }
 
     private void Movement(InputAction.CallbackContext context)
@@ -64,4 +69,9 @@ public class PlayerInput : MonoBehaviour
         player.OnDashInput();
     }
 
+    private void DebugInput(InputAction.CallbackContext context)
+    {
+        health = GetComponent<Health>(); 
+        health.ModifyHealth(-1);
+    }
 }

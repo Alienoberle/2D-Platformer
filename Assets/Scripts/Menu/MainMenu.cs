@@ -7,7 +7,6 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject levelLoaderPrefab;
     private GameObject levelLoaderInstance;
 
-    //[SerializeField] private LevelLoader levelLoader;
     [SerializeField] UnityEvent OnPlayEvent;
 
     private void Awake()
