@@ -1,19 +1,23 @@
-﻿using UnityEngine;
-using UnityEditor.UI;
-using UnityEngine.UI;
+﻿using Ludiq;
 using System;
+using UnityEngine;
+using UnityEngine.UI;
+
 
 public class HealthElement : MonoBehaviour
 {
     [SerializeField]
     private Health playerHealth;
-    [SerializeField]
     private int maxHealth;
 
+    //[SerializeField]
+    //private Sprite healthEmpty;
+    //[SerializeField]
+    //private Sprite healthFull;
     [SerializeField]
-    private Sprite healthEmpty;
+    private Color healthFull;
     [SerializeField]
-    private Sprite healthFull;
+    private Color healthEmpty;
     [SerializeField]
     private Image[] healthArray;
 
@@ -27,6 +31,7 @@ public class HealthElement : MonoBehaviour
         UpdateHealthElement(99, 0);
 
         playerHealth.OnHealthChanged += UpdateHealthElement;
+        playerHealth.OnHealthZero += OnHealthZero;
     }
 
     private void UpdateHealthElement(float currentHealth, float healthChange)
@@ -35,11 +40,11 @@ public class HealthElement : MonoBehaviour
         {
             if (i < currentHealth)
             {
-                healthArray[i].sprite = healthFull;
+                healthArray[i].color = healthFull;
             }
             else
             {
-                healthArray[i].sprite = healthEmpty;
+                healthArray[i].color = healthEmpty;
             }
         }
     }
@@ -57,5 +62,16 @@ public class HealthElement : MonoBehaviour
                 healthArray[i].enabled = false;
             }
         }
+    }
+
+    private void OnHealthZero(GameObject obj)
+    {
+        Debug.Log("DEAD!");
+    }
+
+    private void OnDisable()
+    {
+        playerHealth.OnHealthChanged -= UpdateHealthElement;
+        playerHealth.OnHealthZero -= OnHealthZero;
     }
 }
