@@ -259,7 +259,3 @@ MonoBehaviour:
     transitionAnimation: {fileID: 3735633269976408856}
     transitionType: StartTransitionOut
     transitionTime: 1
-  - transitionName: Default
-    transitionAnimation: {fileID: 3735633269976408856}
-    transitionType: StartTransitionIn
-    transitionTime: 1

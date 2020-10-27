@@ -10,10 +10,6 @@ public class HealthElement : MonoBehaviour
     private Health playerHealth;
     private int maxHealth;
 
-    //[SerializeField]
-    //private Sprite healthEmpty;
-    //[SerializeField]
-    //private Sprite healthFull;
     [SerializeField]
     private Color healthFull;
     [SerializeField]
@@ -22,9 +18,7 @@ public class HealthElement : MonoBehaviour
     private Image[] healthArray;
 
 
-
-
-    private void Awake()
+    private void OnEnable()
     {
         maxHealth = playerHealth.maxHealth;
         UpdateMaxHealth();
@@ -33,8 +27,7 @@ public class HealthElement : MonoBehaviour
         playerHealth.OnHealthChanged += UpdateHealthElement;
         playerHealth.OnHealthZero += OnHealthZero;
     }
-
-    private void UpdateHealthElement(float currentHealth, float healthChange)
+    private void UpdateHealthElement(int currentHealth, int healthChange)
     {
         for (int i = 0; i < healthArray.Length; i++)
         {
@@ -48,7 +41,6 @@ public class HealthElement : MonoBehaviour
             }
         }
     }
-
     private void UpdateMaxHealth()
     {
         for (int i = 0; i < healthArray.Length; i++)
@@ -63,12 +55,10 @@ public class HealthElement : MonoBehaviour
             }
         }
     }
-
-    private void OnHealthZero(GameObject obj)
+    private void OnHealthZero(ScriptableObject obj)
     {
-        Debug.Log("DEAD!");
+        // Play VFX and SFX on bar?
     }
-
     private void OnDisable()
     {
         playerHealth.OnHealthChanged -= UpdateHealthElement;

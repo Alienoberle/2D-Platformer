@@ -4,12 +4,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// This class handles the loading and transition from one scene to another
+/// </summary>
+
 public class LevelLoader : MonoBehaviour
 {
-    private Transition transition;
-    [SerializeField] 
-    private List<Transition> transitionList;
+    public static LevelLoader instance
+    {
+        get
+        {
+            if (_instance == null) _instance = FindObjectOfType<LevelLoader>();
+            if (_instance == null)
+            {
+                GameObject spawned = (GameObject)Instantiate(Resources.Load("LevelLoader"));
+                //the spawned object's Awake() will run at this point, setting _instance to itself
+            }
+            return _instance;
+        }
+    }
+    private static LevelLoader _instance;
 
+
+    private Transition transition;
+    [SerializeField]private List<Transition> transitionList;
+
+    void Awake()
+    {
+        _instance = this;
+    }
 
     public void LoadLevel(string nameOfSceneToLoad, string transitionName)
     {

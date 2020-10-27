@@ -11,8 +11,6 @@ public class PlayerInput : MonoBehaviour
     private PlayerMovement player;
     private PlayerController playerController;
 
-    private Health health; // test stuff
-
     public Vector2 directionalInput;
 
     private void Awake()
@@ -71,7 +69,6 @@ public class PlayerInput : MonoBehaviour
 
     private void DebugInput(InputAction.CallbackContext context)
     {
-        health = GetComponent<Health>(); 
-        health.ModifyHealth(-1);
+
     }
 }

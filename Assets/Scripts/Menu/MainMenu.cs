@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 
+/// <summary>
+/// This class handles the main menu functionality
+/// </summary>
+
 public class MainMenu : MonoBehaviour
 {
     [SerializeField] private LevelLoader levelLoader;

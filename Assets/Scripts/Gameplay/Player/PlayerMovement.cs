@@ -366,7 +366,6 @@ public class PlayerMovement : MonoBehaviour
 
     public struct PlayerInfo
     {
-        public bool alive, dead;
         public bool isGrounded { get; set; }
         public bool isWallsliding { get; set; }
         public bool isJumping { get; set; }
@@ -378,8 +377,6 @@ public class PlayerMovement : MonoBehaviour
 
         public void Reset()
         {
-            alive = true;
-            dead = false;
             isGrounded = true;
             isWallsliding = false;
             isJumping = false;
