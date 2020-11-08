@@ -217,12 +217,12 @@ GameObject:
   - component: {fileID: 3735633270939874022}
   - component: {fileID: 5926870191994705334}
   m_Layer: 0
-  m_Name: LevelLoader
+  m_Name: SceneTransition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3735633270939874022
 Transform:
   m_ObjectHideFlags: 0
@@ -250,12 +250,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b786cd721e23fbf4991839313ff92c11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sceneTransitionPrefab: {fileID: 3735633270939874016}
+  transition:
+    transitionName: 
+    transitionAnimation: {fileID: 0}
+    transitionType: 
+    transitionTime: 0
   transitionList:
-  - transitionName: CrossfadeOut
+  - transitionName: CrossfadeIn
     transitionAnimation: {fileID: 3735633269976408856}
     transitionType: StartTransitionIn
     transitionTime: 1
-  - transitionName: CrossfadeIn
+  - transitionName: CrossfadeOut
     transitionAnimation: {fileID: 3735633269976408856}
     transitionType: StartTransitionOut
     transitionTime: 1
+  onTransitionFinished:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11400000, guid: 3a68e6f80ab2eec4c8e063600bc965b1, type: 2}
+        m_MethodName: Raise
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2

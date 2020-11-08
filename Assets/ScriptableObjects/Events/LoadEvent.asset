@@ -9,10 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d10b38245d93e85448a6248bd4e9868d, type: 3}
-  m_Name: Level01
+  m_Script: {fileID: 11500000, guid: fb3a750fd6d66ee46aeddce725fe4129, type: 3}
+  m_Name: LoadEvent
   m_EditorClassIdentifier: 
-  sceneName: Level01
-  shortDescription: 
-  music: {fileID: 0}
-  musicVolume: 1

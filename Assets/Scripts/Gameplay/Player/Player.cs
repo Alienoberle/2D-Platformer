@@ -1,9 +1,28 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditorInternal;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerInput))]
+[RequireComponent(typeof(PlayerMovement))]
+[RequireComponent(typeof(PlayerController))]
 public class Player : MonoBehaviour
 {
+    // Singleton set up
+    private static Player _instance;
+    public static Player instance
+    {
+        get
+        {
+            if (_instance == null) _instance = FindObjectOfType<Player>();
+            if (_instance == null)
+            {
+                Debug.Log("No player found");
+            }
+            return _instance;
+        }
+    }
+
     public bool isAlive { get; set; }
     public Health playerHealth;
 

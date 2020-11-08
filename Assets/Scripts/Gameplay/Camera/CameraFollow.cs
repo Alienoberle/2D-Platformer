@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
+    private PlayerInput playerInput;
     public PlayerMovement player;
     private PlayerController target;
-    private PlayerInput playerInput;
-
 
     FocusArea focusArea;
 
@@ -33,12 +33,7 @@ public class CameraFollow : MonoBehaviour
 
     void Start()
     {
-        // Make sure we have a player
-        if (player == null)
-        {
-            player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMovement>();
-            Debug.LogWarning("Player has not been found. Make sure the player is linked in the Inspector and the player and its bounding box is initialized before the camera.");
-        }
+        player = Player.instance.GetComponent<PlayerMovement>();
 
         // Grab the needed components from the player
         target = player.GetComponent<PlayerController>();

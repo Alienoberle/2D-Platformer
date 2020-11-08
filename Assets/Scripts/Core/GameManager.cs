@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     // Singleton set up
+    private static GameManager _instance;
     public static GameManager instance
     {
         get
@@ -19,33 +20,18 @@ public class GameManager : MonoBehaviour
             return _instance;
         }
     }   
-    private static GameManager _instance;
+
     public bool gameIsRunning { get; set; }
     public bool gameIsPaused { get; set; }
 
-
-    void Awake()
+    private void Awake()
     {
         _instance = this;
     }
 
-    private void OnEnable()
+    public void ExitGame()
     {
-
-    }
-
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-
-    }
-
-    private void OnDisable()
-    {
-
+        Application.Quit();
+        Debug.Log("Quite Game");
     }
 }

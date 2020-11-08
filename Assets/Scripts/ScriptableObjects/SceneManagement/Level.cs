@@ -4,7 +4,7 @@
 /// This class contains Settings specific to Locations only
 /// </summary>
 
-[CreateAssetMenu(fileName = "NewLevel", menuName = "ScriptableObject/Level")]
+[CreateAssetMenu(fileName = "NewLevel", menuName = "ScriptableObject/SceneManagement/Level")]
 public class Level : GameScene
 {
 	[Header("Audio")]
