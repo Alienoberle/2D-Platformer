@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 
 /// <summary>
 /// This class handles the loading and transition from one scene to another
@@ -11,41 +10,53 @@ using UnityEngine.SceneManagement;
 
 public class SceneTransition : MonoBehaviour
 {
+    private Transition transition;
     [SerializeField] private GameObject sceneTransitionPrefab;
-    [SerializeField] private Transition transition;
+    [SerializeField] private Canvas canvas;
+    [Space(10)]
     [SerializeField] private List<Transition> transitionList;
-    [SerializeField] private UnityEvent onTransitionFinished;
 
-    public void LevelTransition(string transitionName)
+    private SceneLoader sceneLoader;
+
+    private void Awake()
     {
-        sceneTransitionPrefab.SetActive(true);
+        sceneLoader = SceneLoader.instance;
+    }
+    private void EnableSceneTransitionCanvas()
+    {
+        canvas.enabled = true;
+    }
+    private void DisableSceneTransitionCanvas()
+    {
+        canvas.enabled = false;
+    }
+    public void LevelTransition(string transitionName, string transitionType)
+    {
+        EnableSceneTransitionCanvas();
         foreach (Transition _transition in transitionList)
        {
-            if(_transition.transitionName == transitionName)
+            if(_transition.transitionName == transitionName && _transition.transitionType == transitionType)
             {
-                transition.transitionAnimation = _transition.transitionAnimation;
                 transition.transitionType = _transition.transitionType;
+                transition.transitionAnimation = _transition.transitionAnimation;
                 transition.transitionTime = _transition.transitionTime;
             }
        }
         transition.transitionAnimation.SetTrigger(transition.transitionType);
         StartCoroutine(TransitionProgress(transition.transitionTime));
     }
-
     IEnumerator TransitionProgress(float transitionTime)
     {
         yield return new WaitForSeconds(transitionTime);
-        sceneTransitionPrefab.SetActive(false);
-        onTransitionFinished.Invoke();
-        Debug.Log("Transition Finished");
+        DisableSceneTransitionCanvas();
     }
-
-    [Serializable]
+    
+    [Serializable] 
     public struct Transition
     {
         public string transitionName;
-        public Animator transitionAnimation;
         public string transitionType;
+        public Animator transitionAnimation;
         public float transitionTime;
     }
 }

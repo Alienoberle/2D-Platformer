@@ -665,7 +665,7 @@ MonoBehaviour:
   scenesToLoad:
   - {fileID: 11400000, guid: cac43cca3bee9574eb5d1571b3262fe4, type: 2}
   - {fileID: 11400000, guid: caee3c2dfb815df40acf39245da6ce2a, type: 2}
-  showLoadingScreen: 0
+  showLoadingScreen: 1
   showTransition: 1
 --- !u!1 &1504948403
 GameObject:

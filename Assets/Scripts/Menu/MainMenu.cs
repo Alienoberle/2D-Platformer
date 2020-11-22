@@ -11,12 +11,10 @@ public class MainMenu : MonoBehaviour
 
     [Header("Play")]
     public GameScene[] scenesToLoad;
-    public bool showLoadingScreen;
-    public bool showTransition;
 
     public void Play()
     {
-        loadEvent.Raise(scenesToLoad, showTransition, showLoadingScreen);
+        loadEvent.Raise(scenesToLoad);
         Debug.Log("Play");
     }
 

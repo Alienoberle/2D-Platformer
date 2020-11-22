@@ -14,5 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneName: TestMap
   shortDescription: 
+  showSceneTransition: 1
+  transitionName: Crossfade
+  showLoadingScreen: 1
   music: {fileID: 0}
   musicVolume: 1
