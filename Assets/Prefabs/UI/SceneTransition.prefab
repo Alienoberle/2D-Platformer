@@ -360,6 +360,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneTransitionPrefab: {fileID: 3735633270939874016}
   canvas: {fileID: 7965378178640411595}
+  sceneLoader: {fileID: 0}
+  loadingscreen: {fileID: 0}
   transitionList:
   - transitionName: Crossfade
     transitionType: TransitionIn
@@ -377,17 +379,3 @@ MonoBehaviour:
     transitionType: TransitionOut
     transitionAnimation: {fileID: 6966707155875662951}
     transitionTime: 1
-  onTransitionFinished:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 11400000, guid: 3a68e6f80ab2eec4c8e063600bc965b1, type: 2}
-        m_MethodName: Raise
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2

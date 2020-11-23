@@ -10,62 +10,66 @@ public class LoadingScreen : MonoBehaviour
 	[Header("Loading Screen")]
 	[SerializeField] private Canvas canvas;
 	[SerializeField] private Image progressBar;
+	[SerializeField] private float minLoadingScreenTime = 2.0f;
+	private bool minTimerRunning = false;
 
 	private SceneLoader sceneLoader;
-	//List of the scenes that are being loaded and progress tracked of
-	private List<AsyncOperation> scenesToLoadAsyncOperations = new List<AsyncOperation>();
+	public event Action OnLoadingscreenFinish = delegate { };
 
-    private void Awake()
+
+	private void Awake()
     {
 		sceneLoader = SceneLoader.instance;
 	}
-	private void OnEnable()
-	{
-		sceneLoader.OnSceneLoadingFinished += DisableLoadingCanvas;
-	}
-	private void OnDisable()
-	{
-		sceneLoader.OnSceneLoadingFinished -= DisableLoadingCanvas;
-	}
-	public void ShowLoadingScreen(List<AsyncOperation> listOfScenesToLoadAsyncOperations)
+    private void OnEnable()
     {
-		EnableLoadingCanvas();
-		scenesToLoadAsyncOperations = listOfScenesToLoadAsyncOperations;
-		StartCoroutine(TrackLoadingProgressCoroutine());
-	}
-    private void EnableLoadingCanvas()
-    {
-		canvas.enabled = true;
+		sceneLoader.OnSceneLoadingStarted += EnableLoadingScreen;
+		sceneLoader.OnSceneLoadingFinished += DisableLoadingScreen;
     }
-	private void DisableLoadingCanvas()
-	{
-		canvas.enabled = false;
+	public void EnableLoadingScreen() // REFACTOR SO IT WAITS UNTIL TRANSITION IS DONE
+    {
+        if (sceneLoader.showLoadingScreen)
+        {
+			canvas.enabled = true;
+			StartCoroutine(TrackLoadingProgressCoroutine());
+			StartCoroutine(MinLoadingScreenTimer());
+		}
 	}
 	IEnumerator TrackLoadingProgressCoroutine()
 	{
 		float totalProgress = 0;
-		// When the scene reaches 0.9f, it means that it is loaded
-		// The remaining 0.1f are for the integration
+		
+		// When the total progress reaches 0.9f, it means that it is loaded, the remaining 0.1f are for transition etc.
 		while (totalProgress <= 0.9f)
 		{
+			totalProgress = sceneLoader.loadingProgress;
 
-			// Reset the progress for the new values
-			totalProgress = 0;
-			// Iterate through all the scenes to load
-			for (int i = 0; i < scenesToLoadAsyncOperations.Count; ++i)
-			{
-				Debug.Log("Scene" + i + " :" + scenesToLoadAsyncOperations[i].isDone + "progress = " + scenesToLoadAsyncOperations[i].progress);
-				// Adding the scene progress to the total progress
-				totalProgress += scenesToLoadAsyncOperations[i].progress;
-			}
 			// The fillAmount for all scenes, so we devide the progress by the number of scenes to load
-			progressBar.fillAmount = totalProgress / scenesToLoadAsyncOperations.Count;
-			Debug.Log("progress bar" + progressBar.fillAmount + "and value =" + totalProgress / scenesToLoadAsyncOperations.Count);
+			progressBar.fillAmount = totalProgress;
+			Debug.Log("Progress bar " + progressBar.fillAmount + "and value = " + totalProgress);
 
 			yield return null;
 		}
-
-		scenesToLoadAsyncOperations.Clear();
-		DisableLoadingCanvas();
+	}
+	IEnumerator MinLoadingScreenTimer()
+    {
+		minTimerRunning = true;
+		yield return new WaitForSeconds(minLoadingScreenTime);
+		minTimerRunning = false;
+		DisableLoadingScreen();
+	}
+	private void DisableLoadingScreen()
+	{
+		if (!minTimerRunning)
+        {
+			OnLoadingscreenFinish();
+			StopCoroutine(TrackLoadingProgressCoroutine());
+			canvas.enabled = false;
+		}
+	}
+	private void OnDisable()
+	{
+		sceneLoader.OnSceneLoadingStarted -= EnableLoadingScreen;
+		sceneLoader.OnSceneLoadingFinished -= DisableLoadingScreen;
 	}
 }

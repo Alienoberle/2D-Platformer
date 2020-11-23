@@ -23,10 +23,6 @@ public class SceneLoader : MonoBehaviour
 			return _instance;
 		}
 	}
-
-	public event Action OnSceneLoadingStarted = delegate { };
-	public event Action OnSceneLoadingFinished = delegate { };
-
 	[Header("Initialization Scene")]
 	public GameScene initializationScene;
 	[Header("Load on start")]
@@ -43,12 +39,16 @@ public class SceneLoader : MonoBehaviour
 
 	[Header("Loading Screen")]
 	[SerializeField] private LoadingScreen loadingScreen;
-	private bool showLoadingScreen;
+	public bool showLoadingScreen { get; private set; }
 
 	[Header("Scene Transition")]
 	[SerializeField] private SceneTransition sceneTransitionPrefab;
-	private bool showTransition;
-	private string transitionName;
+	public bool showTransition { get; private set; }
+	public string transitionName { get; private set; }
+	
+	public event Action OnSceneLoadingStarted = delegate { };
+	public event Action OnSceneLoadingFinished = delegate { };
+	public float loadingProgress { get; private set; }
 
 	private void Awake()
     {
@@ -65,62 +65,37 @@ public class SceneLoader : MonoBehaviour
 	{
 		_loadEvent.loadEvent += LoadScenes;
 	}
-	private void OnDisable()
-	{
-		_loadEvent.loadEvent -= LoadScenes;
-	}
 	private void LoadMainMenu()
 	{
 		LoadScenes(mainMenuScenes);
 	}
 	///<summary> This function loads the scenes passed as array parameter </summary>
 	public void LoadScenes(GameScene[] locationsToLoad)
-	{
-		//Add all current open scenes to unload list 
+    {
 		AddScenesToUnload();
-
-		_activeScene = locationsToLoad[0];
-		OnSceneLoadingStarted();
+        _activeScene = locationsToLoad[0];
+		ResetTransitionAndLoadingscreenCheckVariables();
 
 		for (int i = 0; i < locationsToLoad.Length; ++i)
-		{
-			String currentSceneName = locationsToLoad[i].sceneName;
-			if (!CheckLoadState(currentSceneName))
-			{
-				//Add the scene to the list of scenes to load asynchronously in the background
-				_scenesToLoadAsyncOperations.Add(SceneManager.LoadSceneAsync(currentSceneName, LoadSceneMode.Additive));
-			}
-
-			if (locationsToLoad[i].showSceneTransition)
-			{
-				showTransition = true;
-				transitionName = locationsToLoad[i].transitionName;
-			}
-			if (locationsToLoad[i].showLoadingScreen)
+        {
+            String currentSceneName = locationsToLoad[i].sceneName;
+            if (!CheckLoadState(currentSceneName))
             {
-				showLoadingScreen = true;
-			}
-		}
+                //Add the scene to the list of scenes to load asynchronously in the background
+                _scenesToLoadAsyncOperations.Add(SceneManager.LoadSceneAsync(currentSceneName, LoadSceneMode.Additive));
+            }
 
-		//set the first scene in the list as active scene after it finished loading
+            ShowTransitionCheck(locationsToLoad, i);
+            ShowLoadingscreenCheck(locationsToLoad, i);
+        }
+		
+		OnSceneLoadingStarted();
 		_scenesToLoadAsyncOperations[0].completed += SetActiveScene;
+		_scenesToLoadAsyncOperations[locationsToLoad.Length - 1].completed += SceneLoadingCompleted;
 
-        _scenesToLoadAsyncOperations[locationsToLoad.Length - 1].completed += SceneLoadingCompleted;
-
-        if (showTransition)
-        {
-            sceneTransitionPrefab.LevelTransition(transitionName, "TransitionIn");
-
-        }
-        if (showLoadingScreen)
-        {
-            loadingScreen.ShowLoadingScreen(_scenesToLoadAsyncOperations);
-        }
-
-        // clean up scenes to load list and unload no longer needed scenes
-        _scenesToLoadAsyncOperations.Clear();
-		UnloadScenes();
-	}
+		StartCoroutine(TrackLoadingProgress());
+        UnloadScenes();
+    }
     ///<summary> This function checks if a scene is already loaded </summary>
     public bool CheckLoadState(String sceneName)
 	{
@@ -141,6 +116,28 @@ public class SceneLoader : MonoBehaviour
 	private void SceneLoadingCompleted(AsyncOperation obj)
 	{
 		OnSceneLoadingFinished();
+	}
+	IEnumerator TrackLoadingProgress()
+	{
+		loadingProgress = 0;
+		//When the scene reaches 0.9f, it means that it is loaded
+		//The remaining 0.1f are for the integration
+		while (loadingProgress <= 0.9f)
+		{
+
+			//Reset the progress for the new values
+			loadingProgress = 0;
+			//Iterate through all the scenes to load
+			for (int i = 0; i < _scenesToLoadAsyncOperations.Count; ++i)
+			{
+				Debug.Log("Scene_" + i + ": Loaded = " + _scenesToLoadAsyncOperations[i].isDone + " Progress = " + _scenesToLoadAsyncOperations[i].progress);
+				//Adding the scene progress to the total progress
+				loadingProgress += _scenesToLoadAsyncOperations[i].progress;
+			}
+			yield return null;
+		}
+		//Clear the scenes to load
+		_scenesToLoadAsyncOperations.Clear();
 	}
 	public void AddScenesToUnload()
 	{
@@ -166,5 +163,30 @@ public class SceneLoader : MonoBehaviour
 			}
 		}
 		_ScenesToUnload.Clear();
+	}
+	private void ShowTransitionCheck(GameScene[] locationsToLoad, int i)
+	{
+		if (locationsToLoad[i].showSceneTransition && !showTransition)
+		{
+			showTransition = true;
+			transitionName = locationsToLoad[i].transitionName;
+		}
+	}
+	private void ShowLoadingscreenCheck(GameScene[] locationsToLoad, int i)
+	{
+		if (locationsToLoad[i].showLoadingScreen && !showLoadingScreen)
+		{
+			showLoadingScreen = true;
+		}
+	}
+    private void ResetTransitionAndLoadingscreenCheckVariables()
+    {
+		showLoadingScreen = false;
+		showTransition = false;
+		transitionName = "";
+	}
+	private void OnDisable()
+	{
+		_loadEvent.loadEvent -= LoadScenes;
 	}
 }

@@ -13,26 +13,36 @@ public class SceneTransition : MonoBehaviour
     private Transition transition;
     [SerializeField] private GameObject sceneTransitionPrefab;
     [SerializeField] private Canvas canvas;
+    [SerializeField] private SceneLoader sceneLoader;
+    [SerializeField] private LoadingScreen loadingscreen;
     [Space(10)]
     [SerializeField] private List<Transition> transitionList;
 
-    private SceneLoader sceneLoader;
+    public event Action OnTransitionFinish = delegate { };
 
-    private void Awake()
+    private void OnEnable()
     {
-        sceneLoader = SceneLoader.instance;
+        sceneLoader.OnSceneLoadingStarted += TransitionOut;
+        loadingscreen.OnLoadingscreenFinish += TransitionIn;
     }
-    private void EnableSceneTransitionCanvas()
+    private void TransitionOut()
     {
-        canvas.enabled = true;
+        if (sceneLoader.showTransition)
+        {
+            canvas.enabled = true;
+            LevelTransition(sceneLoader.transitionName, "TransitionOut");
+        }
     }
-    private void DisableSceneTransitionCanvas()
+    private void TransitionIn()
     {
-        canvas.enabled = false;
+        if (sceneLoader.showTransition)
+        {
+            canvas.enabled = true;
+            LevelTransition(sceneLoader.transitionName, "TransitionIn");
+        }
     }
     public void LevelTransition(string transitionName, string transitionType)
     {
-        EnableSceneTransitionCanvas();
         foreach (Transition _transition in transitionList)
        {
             if(_transition.transitionName == transitionName && _transition.transitionType == transitionType)
@@ -48,9 +58,14 @@ public class SceneTransition : MonoBehaviour
     IEnumerator TransitionProgress(float transitionTime)
     {
         yield return new WaitForSeconds(transitionTime);
-        DisableSceneTransitionCanvas();
+        canvas.enabled = false;
+        OnTransitionFinish();
     }
-    
+    private void OnDisable()
+    {
+        sceneLoader.OnSceneLoadingStarted -= TransitionOut;
+        loadingscreen.OnLoadingscreenFinish -= TransitionIn;
+    }
     [Serializable] 
     public struct Transition
     {
