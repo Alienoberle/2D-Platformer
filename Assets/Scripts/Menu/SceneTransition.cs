@@ -18,12 +18,11 @@ public class SceneTransition : MonoBehaviour
     [Space(10)]
     [SerializeField] private List<Transition> transitionList;
 
-    public event Action OnTransitionFinish = delegate { };
+    private bool lastTransitionTypeOut;
 
     private void OnEnable()
     {
         sceneLoader.OnSceneLoadingStarted += TransitionOut;
-        loadingscreen.OnLoadingscreenFinish += TransitionIn;
     }
     private void TransitionOut()
     {
@@ -31,14 +30,20 @@ public class SceneTransition : MonoBehaviour
         {
             canvas.enabled = true;
             LevelTransition(sceneLoader.transitionName, "TransitionOut");
+            lastTransitionTypeOut = true;
+        }
+        else
+        {
+            loadingscreen.EnableLoadingScreen();
         }
     }
-    private void TransitionIn()
+    public void TransitionIn()
     {
         if (sceneLoader.showTransition)
         {
             canvas.enabled = true;
             LevelTransition(sceneLoader.transitionName, "TransitionIn");
+            lastTransitionTypeOut = false;
         }
     }
     public void LevelTransition(string transitionName, string transitionType)
@@ -58,13 +63,16 @@ public class SceneTransition : MonoBehaviour
     IEnumerator TransitionProgress(float transitionTime)
     {
         yield return new WaitForSeconds(transitionTime);
+        TransitionFinished();
+    }
+    private void TransitionFinished()
+    {
         canvas.enabled = false;
-        OnTransitionFinish();
+        if(lastTransitionTypeOut) loadingscreen.EnableLoadingScreen();
     }
     private void OnDisable()
     {
         sceneLoader.OnSceneLoadingStarted -= TransitionOut;
-        loadingscreen.OnLoadingscreenFinish -= TransitionIn;
     }
     [Serializable] 
     public struct Transition

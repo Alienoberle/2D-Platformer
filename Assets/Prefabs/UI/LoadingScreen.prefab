@@ -46,6 +46,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canvas: {fileID: 2354657513328982211}
   progressBar: {fileID: 830491615268485551}
+  minLoadingScreenTime: 2
+  sceneLoader: {fileID: 0}
+  sceneTransition: {fileID: 0}
 --- !u!1 &4576290365963215303
 GameObject:
   m_ObjectHideFlags: 0

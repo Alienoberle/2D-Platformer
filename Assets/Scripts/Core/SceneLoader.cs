@@ -37,17 +37,11 @@ public class SceneLoader : MonoBehaviour
 	// Keep track of the scene we want to set as active (for lighting/skybox)
 	private GameScene _activeScene;
 
-	[Header("Loading Screen")]
-	[SerializeField] private LoadingScreen loadingScreen;
-	public bool showLoadingScreen { get; private set; }
-
-	[Header("Scene Transition")]
-	[SerializeField] private SceneTransition sceneTransitionPrefab;
-	public bool showTransition { get; private set; }
-	public string transitionName { get; private set; }
-	
 	public event Action OnSceneLoadingStarted = delegate { };
 	public event Action OnSceneLoadingFinished = delegate { };
+	public bool showLoadingScreen { get; private set; }
+	public bool showTransition { get; private set; }
+	public string transitionName { get; private set; }
 	public float loadingProgress { get; private set; }
 
 	private void Awake()

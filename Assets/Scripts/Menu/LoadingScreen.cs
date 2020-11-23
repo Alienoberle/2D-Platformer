@@ -12,30 +12,24 @@ public class LoadingScreen : MonoBehaviour
 	[SerializeField] private Image progressBar;
 	[SerializeField] private float minLoadingScreenTime = 2.0f;
 	private bool minTimerRunning = false;
+	
+	[SerializeField] private SceneLoader sceneLoader;
+	[SerializeField] private SceneTransition sceneTransition;
 
-	private SceneLoader sceneLoader;
-	public event Action OnLoadingscreenFinish = delegate { };
-
-
-	private void Awake()
-    {
-		sceneLoader = SceneLoader.instance;
-	}
     private void OnEnable()
     {
-		sceneLoader.OnSceneLoadingStarted += EnableLoadingScreen;
-		sceneLoader.OnSceneLoadingFinished += DisableLoadingScreen;
+		sceneLoader.OnSceneLoadingFinished += LoadingFinished;
     }
-	public void EnableLoadingScreen() // REFACTOR SO IT WAITS UNTIL TRANSITION IS DONE
+	public void EnableLoadingScreen() 
     {
         if (sceneLoader.showLoadingScreen)
         {
 			canvas.enabled = true;
-			StartCoroutine(TrackLoadingProgressCoroutine());
-			StartCoroutine(MinLoadingScreenTimer());
+			StartCoroutine(UpdateLoadingProgressCoroutine());
+			if (!minTimerRunning) StartCoroutine(MinLoadingTimeCoroutine());
 		}
 	}
-	IEnumerator TrackLoadingProgressCoroutine()
+	IEnumerator UpdateLoadingProgressCoroutine()
 	{
 		float totalProgress = 0;
 		
@@ -51,25 +45,25 @@ public class LoadingScreen : MonoBehaviour
 			yield return null;
 		}
 	}
-	IEnumerator MinLoadingScreenTimer()
+	private void LoadingFinished()
+    {
+        if (!minTimerRunning) StartCoroutine(MinLoadingTimeCoroutine());
+	}
+	IEnumerator MinLoadingTimeCoroutine()
     {
 		minTimerRunning = true;
 		yield return new WaitForSeconds(minLoadingScreenTime);
 		minTimerRunning = false;
 		DisableLoadingScreen();
 	}
-	private void DisableLoadingScreen()
+	public void DisableLoadingScreen()
 	{
-		if (!minTimerRunning)
-        {
-			OnLoadingscreenFinish();
-			StopCoroutine(TrackLoadingProgressCoroutine());
-			canvas.enabled = false;
-		}
+		StopCoroutine(UpdateLoadingProgressCoroutine());
+		sceneTransition.TransitionIn(); 
+		canvas.enabled = false;
 	}
 	private void OnDisable()
 	{
-		sceneLoader.OnSceneLoadingStarted -= EnableLoadingScreen;
 		sceneLoader.OnSceneLoadingFinished -= DisableLoadingScreen;
 	}
 }

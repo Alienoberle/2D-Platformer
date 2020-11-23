@@ -47,8 +47,4 @@ MonoBehaviour:
     type: 2}
   mainMenuScenes:
   - {fileID: 11400000, guid: 591e890b93304624da217d02fe133d07, type: 2}
-  loadingScreenPrefab: {fileID: 0}
-  loadingInterface: {fileID: 0}
-  loadingProgressBar: {fileID: 0}
-  sceneTransitionPrefab: {fileID: 0}
   _loadEvent: {fileID: 11400000, guid: 26bf2286505339c4ca4bc9f95d148f71, type: 2}
