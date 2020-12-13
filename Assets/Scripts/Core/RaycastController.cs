@@ -12,7 +12,7 @@ public class RaycastController : MonoBehaviour
     public LayerMask collisionMask;
 
     [HideInInspector]
-    public new BoxCollider2D collider;
+    public new Collider2D collider;
 
     public RaycastOrigins raycastOrigins;
     public const float skinWidth = 0.015f;
