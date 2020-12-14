@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 public class PlayerInput : MonoBehaviour
 {
     private InputManager inputManager;
-    private PlayerMovement player;
+    private PlayerMovement playerMovement;
     private PlayerController playerController;
 
     public Vector2 directionalInput;
@@ -16,7 +16,7 @@ public class PlayerInput : MonoBehaviour
     private void Awake()
     {
         inputManager = new InputManager();
-        player = GetComponent<PlayerMovement>();
+        playerMovement = GetComponent<PlayerMovement>();
         playerController = GetComponent<PlayerController>();
     }
 
@@ -43,7 +43,7 @@ public class PlayerInput : MonoBehaviour
     private void Movement(InputAction.CallbackContext context)
     {
         directionalInput = inputManager.Player.Movement.ReadValue<Vector2>();
-        player.SetDirectionalInput(directionalInput);
+        playerMovement.SetDirectionalInput(directionalInput);
 
         if (directionalInput.y < -0.9)
         {
@@ -54,17 +54,17 @@ public class PlayerInput : MonoBehaviour
 
     private void Jump(InputAction.CallbackContext context)
     {
-        player.OnJumpInput();
+        playerMovement.OnJumpInput();
     }
 
     private void JumpRelease(InputAction.CallbackContext context)
     {
-        player.OnJumpInputRelease();
+        playerMovement.OnJumpInputRelease();
     }
 
     private void Dash(InputAction.CallbackContext context)
     {
-        player.OnDashInput();
+        playerMovement.OnDashInput();
     }
 
     private void DebugInput(InputAction.CallbackContext context)

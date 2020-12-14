@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Pathfinding;
 
+[RequireComponent(typeof(EnemyController))]
 public class EnemyMovement : MonoBehaviour
 {
     [SerializeField] private Transform target;
@@ -20,7 +21,7 @@ public class EnemyMovement : MonoBehaviour
     private int currentWaypoint = 0;
     private bool reachedEnd = false;
 
-    void Start()
+    void Awake()
     {
         enemyController = GetComponent<EnemyController>();
         enemyController.maxSlopeAngle = maximumSlopeAngle;

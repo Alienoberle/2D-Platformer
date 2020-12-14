@@ -6,22 +6,14 @@
 public class EnemyController : RaycastController
 {
     public CollisionInfo collisionInfo;
-
-    [HideInInspector]
     private Vector2 initialVelocity;
-
-    [HideInInspector]
     public float maxSlopeAngle;
-
-    [HideInInspector]
-    public bool fallThrough;
+    private bool fallThrough;
 
     public override void Start()
     {
         base.Start();
-
-        // just to give a starting direction
-        collisionInfo.faceingDirection = 1;
+        collisionInfo.faceingDirection = 1; // just to give a starting direction
     }
 
     // Move overload Method that just calls the move method in case of moving platforms
@@ -304,7 +296,6 @@ public class EnemyController : RaycastController
     void ResetFallingTroughPlatform()
     {
         collisionInfo.fallingTroughPlatform = false;
-
     }
 
     public struct CollisionInfo
