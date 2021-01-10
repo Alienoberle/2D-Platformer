@@ -1,91 +1,112 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using Pathfinding;
 
 [RequireComponent(typeof(EnemyController))]
 public class EnemyMovement : MonoBehaviour
 {
-    [SerializeField] private Transform target;
     EnemyController enemyController;
 
+    private Transform chaseTarget;
+    private Vector3 targetLocation;
     private Vector3 velocity;
-    private float gravity;
+    public bool active { get; private set; }
 
     [Header("Movement")]
     public float movementSpeed;
     public float maximumSlopeAngle;
     [Header("Pathfinding")]
-    public float nextWaypointDistance;
+    public float nextWaypointDistance = 0.1f;
 
     private Seeker seeker;
     private Path currentPath;
     private int currentWaypoint = 0;
     private bool reachedEnd = false;
 
-    void Awake()
+    public event Action OnTargetReached = delegate { };
+
+    private void Awake()
     {
         enemyController = GetComponent<EnemyController>();
         enemyController.maxSlopeAngle = maximumSlopeAngle;
         seeker = GetComponent<Seeker>();
-        gravity = -1;
-
-        InvokeRepeating("UpdatePath", 0f, 1f);
     }
-
-    void Update()
+    public void GoToTarget(Vector3 target)
     {
-        CheckReachedEnd();
-        CalculateVelocity();
-        CheckDistanceToNextWaypoint();
+        targetLocation = target;
+        UpdatePath();
+        active = true;
+    }
+    public void ChaseTarget(Transform target, float repathRate)
+    {
+        chaseTarget = target;
+        InvokeRepeating("UpdatePath", repathRate, repathRate);
+        active = true;
+    }
+    private void OnPathCalculationComplete(Path path)
+    {
+        if (!path.error)
+        {
+            currentPath = path;
+            currentWaypoint = 0;
+        }
+    }
+    private void UpdatePath()
+    {
+        if (chaseTarget != null)
+        {
+            targetLocation = chaseTarget.position;
+        }
+        if (seeker.IsDone())
+        {
+            seeker.StartPath(transform.position, targetLocation, OnPathCalculationComplete);
+        }
+    }
+    private void Update()
+    {
+        if (active)
+        {
+            if (currentPath == null)
+            {
+                return;
+            }
 
-        // Hand over the input and calcualted velocity to the enemycontroller handling the actual movement and collision
-        enemyController.Move(velocity * Time.deltaTime, false);
+            reachedEnd = false;
+            float distanceToWaypoint;
+            while (true)
+            {
+                distanceToWaypoint = Vector3.Distance(transform.position, currentPath.vectorPath[currentWaypoint]);
+                if (distanceToWaypoint < nextWaypointDistance)
+                {
+                    if (currentWaypoint + 1 < currentPath.vectorPath.Count)
+                    {
+                        currentWaypoint++;
+                    }
+                    else
+                    {
+                        reachedEnd = true;
+                        active = false;
+                        OnTargetReached();
+                        break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            CalculateVelocity();
+            enemyController.Move(velocity * Time.deltaTime, false);
+        }      
     }
 
     private void CalculateVelocity()
     {
-        Vector2 direction = (Vector2)(currentPath.vectorPath[currentWaypoint] - transform.position).normalized;
-        velocity = direction * movementSpeed;
-        Debug.Log(currentPath.vectorPath[currentWaypoint]);
-        Debug.Log(direction);
-    }
-
-    private void UpdatePath()
-    {
-        if (seeker.IsDone())
+        if (!reachedEnd)
         {
-            seeker.StartPath(transform.position, target.position, OnPathComplete);
-        }
-    }
-    private void CheckDistanceToNextWaypoint()
-    {
-        float distance = Vector2.Distance(transform.position, currentPath.vectorPath[currentWaypoint]);
-        if(distance < nextWaypointDistance)
-        {
-            currentWaypoint++;
-        }
-    }
-    private void CheckReachedEnd()
-    {
-        if (currentPath == null)
-        {
-            return;
-        }
-        if (currentWaypoint >= currentPath.vectorPath.Count)
-        {
-            reachedEnd = true;
-            return;
-        }
-        else
-        {
-            reachedEnd = false;
-        }
-    }
-    private void OnPathComplete(Path path)
-    {
-        if(!path.error)
-        {
-            currentPath = path;
-            currentWaypoint = 0;
+            Vector2 direction = (currentPath.vectorPath[currentWaypoint] - transform.position).normalized;
+            velocity = direction * movementSpeed;
         }
     }
 }

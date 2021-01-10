@@ -708,12 +708,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &532605047 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1000165113333201217, guid: 5fec15b1d903b6e44ba3a34901a8c378,
-    type: 3}
-  m_PrefabInstance: {fileID: 6793821108186073191}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &702925885
 GameObject:
   m_ObjectHideFlags: 0
@@ -1225,7 +1219,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1067171045}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.19, y: -0.2800002, z: 30}
+  m_LocalPosition: {x: -4.19, y: 1.45, z: 30}
   m_LocalScale: {x: 3, y: 0.5, z: 1}
   m_Children: []
   m_Father: {fileID: 1985054425}
@@ -2226,30 +2220,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy
       objectReference: {fileID: 0}
-    - target: {fileID: 4754146408135612613, guid: 355eb74f490f368438367799c2e3c6d1,
-        type: 3}
-      propertyPath: target
-      value: 
-      objectReference: {fileID: 532605047}
-    - target: {fileID: 4754146408135612613, guid: 355eb74f490f368438367799c2e3c6d1,
-        type: 3}
-      propertyPath: nextWaypointDistance
-      value: 1.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 6530882795315801061, guid: 355eb74f490f368438367799c2e3c6d1,
-        type: 3}
-      propertyPath: collisionMask.m_Bits
-      value: 512
-      objectReference: {fileID: 0}
     - target: {fileID: 8845041002982363934, guid: 355eb74f490f368438367799c2e3c6d1,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.86
+      value: -10.43
       objectReference: {fileID: 0}
     - target: {fileID: 8845041002982363934, guid: 355eb74f490f368438367799c2e3c6d1,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -5.08
+      value: -4.99
       objectReference: {fileID: 0}
     - target: {fileID: 8845041002982363934, guid: 355eb74f490f368438367799c2e3c6d1,
         type: 3}

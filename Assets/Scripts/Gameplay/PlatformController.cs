@@ -235,11 +235,11 @@ public class PlatformController : RaycastController
         }
     }
 
-    void OnDrawGizmos()
+    void OnDrawGizmosSelected()
     {
         if (localWaypoints != null)
         {
-            Gizmos.color = Color.red;
+            Gizmos.color = Color.yellow;
             float size = 0.1f;
             collider = GetComponent<BoxCollider2D>();
             Bounds bounds = collider.bounds;
