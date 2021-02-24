@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    private PlayerInput playerInput;
+    private PlayerInputHandler playerInput;
     public PlayerMovement player;
     private PlayerController target;
 
@@ -37,7 +37,7 @@ public class CameraFollow : MonoBehaviour
 
         // Grab the needed components from the player
         target = player.GetComponent<PlayerController>();
-        playerInput = player.GetComponent<PlayerInput>();
+        playerInput = player.GetComponent<PlayerInputHandler>();
 
         // Make we have a focus area size at least the size of the player bounds
         if (focusAreaSize.x < target.collider.bounds.size.x || focusAreaSize.x < target.collider.bounds.size.y)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditorInternal;
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerInput))]
+[RequireComponent(typeof(PlayerInputHandler))]
 [RequireComponent(typeof(PlayerMovement))]
 [RequireComponent(typeof(PlayerController))]
 public class Player : MonoBehaviour

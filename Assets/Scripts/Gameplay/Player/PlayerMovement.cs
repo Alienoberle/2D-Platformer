@@ -72,7 +72,6 @@ public class PlayerMovement : MonoBehaviour
         gravity = -(2 * maxJumpHeight / Mathf.Pow(timeToJumpApex, 2));
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
         minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight); // check video for info https://www.youtube.com/watch?v=rVfR14UNNDo
-        Debug.Log("Gravity: " + gravity + " Max. Jump Velocity: " + maxJumpVelocity + " Min. Jump Velocity:" + minJumpVelocity);
 
         dashVelocity = dashDistance / dashDuration;
 
@@ -118,7 +117,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 velocity.y = 0;
             }
-        }    
+        }
     }
 
     public void SetDirectionalInput(Vector2 input)
@@ -194,9 +193,9 @@ public class PlayerMovement : MonoBehaviour
         playerInfo.facingDirection = (int)Mathf.Sign(directionalInput.x);
 
         // Multiply the player's x local scale by -1.
-        Vector3 theScale = transform.localScale;
-        theScale.x *= -1;
-        transform.localScale = theScale;
+        Vector3 newScale = transform.localScale;
+        newScale.x *= -1;
+        transform.localScale = newScale;
     }
 
     private void CanPlayerJump()

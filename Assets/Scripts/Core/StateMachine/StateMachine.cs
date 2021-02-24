@@ -9,14 +9,21 @@ public class StateMachine : MonoBehaviour
     private List<Transition> currentTransitions = new List<Transition>();
     private List<Transition> anyTransitions = new List<Transition>();
     private static List<Transition> emptyTransitions = new List<Transition>(0);
-   
-    public void Tick()
-    {
-        var transition = GetTransition();
-        if (transition != null)
-            SetState(transition.To);
 
-        currentState?.Tick();
+    public void AddTransition(IState from, IState to, Func<bool> predicate)
+    {
+        if (transitionList.TryGetValue(from.GetType(), out var transitions) == false)
+        {
+            transitions = new List<Transition>();
+            //transitionList[from.GetType()] = transitions;
+            transitionList.Add(from.GetType(), transitions);
+        }
+
+        transitions.Add(new Transition(to, predicate));
+    }
+    public void AddAnyTransition(IState state, Func<bool> predicate)
+    {
+        anyTransitions.Add(new Transition(state, predicate));
     }
     public void SetState(IState state)
     {
@@ -32,31 +39,13 @@ public class StateMachine : MonoBehaviour
 
         currentState.OnEnter();
     }
-    public void AddTransition(IState from, IState to, Func<bool> predicate)
+    public void Tick()
     {
-        if (transitionList.TryGetValue(from.GetType(), out var transitions) == false)
-        {
-            transitions = new List<Transition>();
-            //transitionList[from.GetType()] = transitions;
-            transitionList.Add(from.GetType(),transitions);
-        }
+        var transition = GetTransition();
+        if (transition != null)
+            SetState(transition.To);
 
-        transitions.Add(new Transition(to, predicate));
-        Debug.Log(transitions.Count);
-    }
-    public void AddAnyTransition(IState state, Func<bool> predicate)
-    {
-        anyTransitions.Add(new Transition(state, predicate));
-    }
-    private class Transition
-    {
-        public Func<bool> Condition { get;  }
-        public IState To { get; }
-        public Transition(IState to, Func<bool> condition)
-        {
-            To = to;
-            Condition = condition;
-        }
+        currentState?.Tick();
     }
     private Transition GetTransition()
     {
@@ -70,5 +59,16 @@ public class StateMachine : MonoBehaviour
 
         return null;
     }
+    private class Transition
+    {
+        public Func<bool> Condition { get;  }
+        public IState To { get; }
+        public Transition(IState to, Func<bool> condition)
+        {
+            To = to;
+            Condition = condition;
+        }
+    }
+
 }
 

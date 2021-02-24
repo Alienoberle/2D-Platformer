@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
             }
             return _instance;
         }
-    }   
+    }
 
     public bool gameIsRunning { get; set; }
     public bool gameIsPaused { get; set; }
@@ -28,6 +28,8 @@ public class GameManager : MonoBehaviour
     {
         _instance = this;
     }
+
+
 
     public void ExitGame()
     {

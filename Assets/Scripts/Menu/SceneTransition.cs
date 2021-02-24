@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 /// <summary>
 /// This class handles the loading and transition from one scene to another
@@ -14,37 +13,23 @@ public class SceneTransition : MonoBehaviour
     [SerializeField] private GameObject sceneTransitionPrefab;
     [SerializeField] private Canvas canvas;
     [SerializeField] private SceneLoader sceneLoader;
-    [SerializeField] private LoadingScreen loadingscreen;
     [Space(10)]
     [SerializeField] private List<Transition> transitionList;
 
-    private bool lastTransitionTypeOut;
+    private bool isTransitionTypeOut;
+    public event Action<bool> OnTransitionFinished = delegate { };
 
-    private void OnEnable()
+    public void TransitionOut()
     {
-        sceneLoader.OnSceneLoadingStarted += TransitionOut;
-    }
-    private void TransitionOut()
-    {
-        if (sceneLoader.showTransition)
-        {
-            canvas.enabled = true;
-            LevelTransition(sceneLoader.transitionName, "TransitionOut");
-            lastTransitionTypeOut = true;
-        }
-        else
-        {
-            loadingscreen.EnableLoadingScreen();
-        }
+        canvas.enabled = true;
+        LevelTransition(sceneLoader.transitionName, "TransitionOut");
+        isTransitionTypeOut = true;
     }
     public void TransitionIn()
     {
-        if (sceneLoader.showTransition)
-        {
-            canvas.enabled = true;
-            LevelTransition(sceneLoader.transitionName, "TransitionIn");
-            lastTransitionTypeOut = false;
-        }
+        canvas.enabled = true;
+        LevelTransition(sceneLoader.transitionName, "TransitionIn");
+        isTransitionTypeOut = false;
     }
     public void LevelTransition(string transitionName, string transitionType)
     {
@@ -67,13 +52,10 @@ public class SceneTransition : MonoBehaviour
     }
     private void TransitionFinished()
     {
-        canvas.enabled = false;
-        if(lastTransitionTypeOut) loadingscreen.EnableLoadingScreen();
+        OnTransitionFinished(isTransitionTypeOut);
+        canvas.enabled = false;   
     }
-    private void OnDisable()
-    {
-        sceneLoader.OnSceneLoadingStarted -= TransitionOut;
-    }
+
     [Serializable] 
     public struct Transition
     {

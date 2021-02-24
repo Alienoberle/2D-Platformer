@@ -2220,6 +2220,36 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 8107307061001419662, guid: 355eb74f490f368438367799c2e3c6d1,
+        type: 3}
+      propertyPath: waypoints.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8107307061001419662, guid: 355eb74f490f368438367799c2e3c6d1,
+        type: 3}
+      propertyPath: waypoints.Array.data[2].x
+      value: -8.77
+      objectReference: {fileID: 0}
+    - target: {fileID: 8107307061001419662, guid: 355eb74f490f368438367799c2e3c6d1,
+        type: 3}
+      propertyPath: waypoints.Array.data[2].y
+      value: 2.63
+      objectReference: {fileID: 0}
+    - target: {fileID: 8107307061001419662, guid: 355eb74f490f368438367799c2e3c6d1,
+        type: 3}
+      propertyPath: patrol
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8107307061001419662, guid: 355eb74f490f368438367799c2e3c6d1,
+        type: 3}
+      propertyPath: waypoints.Array.data[3].x
+      value: -4.53
+      objectReference: {fileID: 0}
+    - target: {fileID: 8107307061001419662, guid: 355eb74f490f368438367799c2e3c6d1,
+        type: 3}
+      propertyPath: waypoints.Array.data[3].y
+      value: 3.44
+      objectReference: {fileID: 0}
     - target: {fileID: 8845041002982363934, guid: 355eb74f490f368438367799c2e3c6d1,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2284,6 +2314,23 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1866778190, guid: 5fec15b1d903b6e44ba3a34901a8c378, type: 3}
+      propertyPath: m_DefaultControlScheme
+      value: Keyboard and Mouse
+      objectReference: {fileID: 0}
+    - target: {fileID: 1866778190, guid: 5fec15b1d903b6e44ba3a34901a8c378, type: 3}
+      propertyPath: m_NeverAutoSwitchControlSchemes
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1866778190, guid: 5fec15b1d903b6e44ba3a34901a8c378, type: 3}
+      propertyPath: m_DefaultActionMap
+      value: Debug
+      objectReference: {fileID: 0}
+    - target: {fileID: 99512042830155702, guid: 5fec15b1d903b6e44ba3a34901a8c378,
+        type: 3}
+      propertyPath: playerInputComponent
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1000165113333201217, guid: 5fec15b1d903b6e44ba3a34901a8c378,
         type: 3}
       propertyPath: m_LocalPosition.x

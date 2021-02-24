@@ -7,15 +7,10 @@ public class PlayerController : RaycastController
 {
     public CollisionInfo collisionInfo;
 
-    [HideInInspector]
-    public Vector2 playerInput;
+    [HideInInspector] public Vector2 playerInput;
     private Vector2 initialVelocity;
-
-    [HideInInspector]
-    public float maxSlopeAngle;
-
-    [HideInInspector]
-    public bool playerPressedDown;
+    [HideInInspector] public float maxSlopeAngle;
+    [HideInInspector] public bool playerPressedDown;
 
     public override void Start()
     {

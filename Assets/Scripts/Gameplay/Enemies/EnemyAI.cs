@@ -1,48 +1,47 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[RequireComponent(typeof(EnemyMovement))]
+[RequireComponent(typeof(EnemyPathfinding))]
 public class EnemyAI : MonoBehaviour
 {
+    private Vector3 startingPosition;
     private StateMachine stateMachine;
-    private EnemyMovement enemyMovement;
+    private EnemyPathfinding enemyMovement;
+    private GameObject player;
+    private PlayerTrigger playerTrigger;
     
-    private bool idle = false;
-    [SerializeField] private bool chase = false;
     [SerializeField] private Vector3[] waypoints;
-    [SerializeField] private Player player;
-
 
     private void Awake()
     {
+        startingPosition = transform.root.position;
         stateMachine = new StateMachine();
-        enemyMovement = GetComponent<EnemyMovement>();
-        player = Player.instance;
-
+        enemyMovement = GetComponent<EnemyPathfinding>();
+        player = Player.instance.transform.root.gameObject;
+        playerTrigger = GetComponentInChildren<PlayerTrigger>();
+ 
+        // Defines the possible States of the Enemy
         var idle = new Idle(this, enemyMovement);
-        var patrol = new Patrol(this, enemyMovement, waypoints);
-        var chase = new Chase(this, enemyMovement, player.transform);
+        var patrol = new Patrol(enemyMovement, startingPosition, waypoints);
+        var chase = new Chase(enemyMovement, player);
 
-        void AddTransition(IState from, IState to, Func<bool> condition)
-        {
-            stateMachine.AddTransition(from, to, condition);
-        }
+        //Add all possible transitions between states
         AddTransition(idle, patrol, HasPatrolRoute());
-        AddTransition(patrol, chase, ChasePlayer());
+        AddTransition(patrol, chase, PlayerIsInRange());
+        AddTransition(chase, patrol, LostPlayer());
 
         stateMachine.SetState(idle);
 
-        stateMachine.AddAnyTransition(idle, () => this.idle == true);
+        stateMachine.AddAnyTransition(idle, HasNoPatrolRoute());
 
+        void AddTransition(IState from, IState to, Func<bool> condition) => stateMachine.AddTransition(from, to, condition);
+        Func<bool> HasNoPatrolRoute() => () => waypoints == null;
         Func<bool> HasPatrolRoute() => () => waypoints != null;
-        Func<bool> ChasePlayer() => () => this.chase == true;
+        Func<bool> PlayerIsInRange() => () => playerTrigger.isPlayerInTrigger == true;
+        Func<bool> LostPlayer() => () => playerTrigger.isPlayerInTrigger == false;
     }
-
     private void Update() => stateMachine.Tick();
-
 
     private void OnDrawGizmosSelected()
     {
@@ -69,7 +68,7 @@ public class EnemyAI : MonoBehaviour
             for (int i = 0; i < waypoints.Length; i++)
             {
                 // when the game is playing we do not want the waypoints to move with the enemy
-                Vector3 globalWaypointPos = (Application.isPlaying) ? waypoints[i] : waypoints[i] + transform.position;
+                Vector3 globalWaypointPos = (Application.isPlaying) ? waypoints[i] + startingPosition : waypoints[i] + transform.position;
 
                 // draw the size of the platform box collider
                 Gizmos.DrawLine(globalWaypointPos + new Vector3(-bounds.size.x / 2, -bounds.size.y / 2), globalWaypointPos + new Vector3(-bounds.size.x / 2, +bounds.size.y / 2));

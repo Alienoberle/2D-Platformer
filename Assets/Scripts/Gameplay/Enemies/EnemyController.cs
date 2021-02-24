@@ -6,9 +6,10 @@
 public class EnemyController : RaycastController
 {
     public CollisionInfo collisionInfo;
+
     private Vector2 initialVelocity;
-    [HideInInspector]public float maxSlopeAngle;
-    private bool fallThrough;
+    [HideInInspector] public float maxSlopeAngle;
+    private bool fallThrough = false;
 
     public override void Start()
     {

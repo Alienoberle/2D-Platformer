@@ -23,19 +23,21 @@ public class SceneLoader : MonoBehaviour
 			return _instance;
 		}
 	}
+	
 	[Header("Initialization Scene")]
 	public GameScene initializationScene;
 	[Header("Load on start")]
 	public GameScene[] mainMenuScenes;
 
 	[Header("Load Event")]
-	// The load event we are listening to
-	[SerializeField] private LoadEvent _loadEvent = default;
-	// List of the scenes to load and track progress
-	private List<AsyncOperation> _scenesToLoadAsyncOperations = new List<AsyncOperation>();
+	[SerializeField] private LoadEvent _loadEvent = default; // The load event we are listening to
+	private GameScene[] locationsToLoad;
+	private List<AsyncOperation> _scenesToLoadAsyncOperations = new List<AsyncOperation>(); // List of the scenes to load and track progress
 	private List<Scene> _ScenesToUnload = new List<Scene>();
-	// Keep track of the scene we want to set as active (for lighting/skybox)
-	private GameScene _activeScene;
+	private GameScene _activeScene; // Keep track of the scene we want to set as active (for lighting/skybox)
+
+	[SerializeField] private SceneTransition sceneTransition;
+	[SerializeField] private LoadingScreen loadingScreen;
 
 	public event Action OnSceneLoadingStarted = delegate { };
 	public event Action OnSceneLoadingFinished = delegate { };
@@ -47,7 +49,8 @@ public class SceneLoader : MonoBehaviour
 	private void Awake()
     {
 		_instance = this;
-    }
+		_loadEvent.loadEvent += TransitionAndLoadinscreenCheck;
+	}
 	private void Start()
 	{
 		if (SceneManager.GetActiveScene().name == initializationScene.sceneName)
@@ -55,20 +58,86 @@ public class SceneLoader : MonoBehaviour
 			LoadMainMenu();
 		}
 	}
-	private void OnEnable()
-	{
-		_loadEvent.loadEvent += LoadScenes;
-	}
 	private void LoadMainMenu()
 	{
 		LoadScenes(mainMenuScenes);
+	}
+	private void TransitionAndLoadinscreenCheck(GameScene[] locationsToLoad)
+	{
+		showTransition = false;
+		foreach (GameScene gameScene in locationsToLoad)
+		{
+			if (gameScene.showSceneTransition)
+			{
+				transitionName = gameScene.transitionName;
+				showTransition = true;
+				break;
+			}
+		}
+		showLoadingScreen = false;
+		foreach (GameScene gameScene in locationsToLoad)
+		{
+			if (gameScene.showLoadingScreen)
+			{
+				showLoadingScreen = true;
+				break;
+			}
+		}
+		this.locationsToLoad = locationsToLoad;
+		StartTransitionOut();
+	}
+
+	private void StartTransitionOut()
+    {
+		if (showTransition)
+        {
+			if(showLoadingScreen)
+            {
+				sceneTransition.OnTransitionFinished += ShowLoadingScreen;
+			}
+			else
+            {
+				LoadScenes(locationsToLoad);
+				OnSceneLoadingFinished += StartTransitionIn;
+			}
+			sceneTransition.TransitionOut();
+		}
+		else
+        {
+			ShowLoadingScreen(true);
+		}
+	}
+	private void ShowLoadingScreen(bool isTransitionTypeOut)
+	{
+        if (isTransitionTypeOut)
+        {
+			LoadScenes(locationsToLoad);
+			if (showLoadingScreen)
+			{
+				loadingScreen.OnLoadingScreenFinished += StartTransitionIn;
+				loadingScreen.EnableLoadingScreen();
+			}
+            else
+            {
+				OnSceneLoadingFinished += StartTransitionIn;
+			}
+		}
+		sceneTransition.OnTransitionFinished -= ShowLoadingScreen;
+	}
+	private void StartTransitionIn()
+	{
+		if (showTransition)
+        {
+			sceneTransition.TransitionIn();
+		}
+		loadingScreen.OnLoadingScreenFinished -= StartTransitionIn;
+		OnSceneLoadingFinished -= StartTransitionIn;
 	}
 	///<summary> This function loads the scenes passed as array parameter </summary>
 	public void LoadScenes(GameScene[] locationsToLoad)
     {
 		AddScenesToUnload();
         _activeScene = locationsToLoad[0];
-		ResetTransitionAndLoadingscreenCheckVariables();
 
 		for (int i = 0; i < locationsToLoad.Length; ++i)
         {
@@ -78,9 +147,6 @@ public class SceneLoader : MonoBehaviour
                 //Add the scene to the list of scenes to load asynchronously in the background
                 _scenesToLoadAsyncOperations.Add(SceneManager.LoadSceneAsync(currentSceneName, LoadSceneMode.Additive));
             }
-
-            ShowTransitionCheck(locationsToLoad, i);
-            ShowLoadingscreenCheck(locationsToLoad, i);
         }
 		
 		OnSceneLoadingStarted();
@@ -124,7 +190,7 @@ public class SceneLoader : MonoBehaviour
 			//Iterate through all the scenes to load
 			for (int i = 0; i < _scenesToLoadAsyncOperations.Count; ++i)
 			{
-				Debug.Log("Scene_" + i + ": Loaded = " + _scenesToLoadAsyncOperations[i].isDone + " Progress = " + _scenesToLoadAsyncOperations[i].progress);
+				//Debug.Log("Scene_" + i + ": Loaded = " + _scenesToLoadAsyncOperations[i].isDone + " Progress = " + _scenesToLoadAsyncOperations[i].progress);
 				//Adding the scene progress to the total progress
 				loadingProgress += _scenesToLoadAsyncOperations[i].progress;
 			}
@@ -140,7 +206,7 @@ public class SceneLoader : MonoBehaviour
 			Scene scene = SceneManager.GetSceneAt(i);
 			if (scene.name != initializationScene.sceneName)
 			{
-				Debug.Log("Added scene to unload = " + scene.name);
+				//Debug.Log("Added scene to unload = " + scene.name);
 				//Add the scene to the list of the scenes to unload
 				_ScenesToUnload.Add(scene);
 			}
@@ -158,29 +224,10 @@ public class SceneLoader : MonoBehaviour
 		}
 		_ScenesToUnload.Clear();
 	}
-	private void ShowTransitionCheck(GameScene[] locationsToLoad, int i)
-	{
-		if (locationsToLoad[i].showSceneTransition && !showTransition)
-		{
-			showTransition = true;
-			transitionName = locationsToLoad[i].transitionName;
-		}
-	}
-	private void ShowLoadingscreenCheck(GameScene[] locationsToLoad, int i)
-	{
-		if (locationsToLoad[i].showLoadingScreen && !showLoadingScreen)
-		{
-			showLoadingScreen = true;
-		}
-	}
-    private void ResetTransitionAndLoadingscreenCheckVariables()
+    private void OnDestroy()
     {
-		showLoadingScreen = false;
-		showTransition = false;
-		transitionName = "";
-	}
-	private void OnDisable()
-	{
 		_loadEvent.loadEvent -= LoadScenes;
+		loadingScreen.OnLoadingScreenFinished -= StartTransitionIn;
+		sceneTransition.OnTransitionFinished -= ShowLoadingScreen;
 	}
 }

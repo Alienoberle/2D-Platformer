@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// This class handles the main menu functionality
@@ -8,9 +10,16 @@ using UnityEngine.Events;
 public class MainMenu : MonoBehaviour
 {
     [SerializeField] private LoadEvent loadEvent;
+    [SerializeField] private GameObject firstSelected;
 
     [Header("Play")]
     public GameScene[] scenesToLoad;
+
+    public void OpenMainMenu()
+    {
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(firstSelected);
+    }
 
     public void Play()
     {
