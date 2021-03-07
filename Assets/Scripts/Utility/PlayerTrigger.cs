@@ -23,7 +23,6 @@ public class PlayerTrigger : MonoBehaviour
             playerInTrigger = true;
             PlayerEntersTrigger.Invoke();
             OnTriggerEnter(this.transform.root.gameObject);
-            Debug.Log("PlayerEnter");
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
@@ -33,7 +32,6 @@ public class PlayerTrigger : MonoBehaviour
             playerInTrigger = false;
             PlayerExitsTrigger.Invoke();
             OnTriggerExit(this.transform.root.gameObject);
-            Debug.Log("PlayerExit");
         }
     }
 }

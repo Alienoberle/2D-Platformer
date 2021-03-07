@@ -3,21 +3,23 @@
 public class Idle : IState
 {
     public string name {get {return "Idle";}}
-    private EnemyAI _enemyAI;
-    private EnemyPathfinding _enemyMovement;
+    private readonly EnemyPathfinding enemyMovement;
+    private readonly Animator animator;
 
-    public Idle(EnemyAI enemyAI, EnemyPathfinding enemyMovement)
+    public Idle(EnemyPathfinding enemyMovement, Animator animator)
     {
-        _enemyAI = enemyAI;
-        _enemyMovement = enemyMovement;
+        this.enemyMovement = enemyMovement;
+        this.animator = animator;
     }
     public void Tick()
     {
     }
     public void OnEnter()
     {
+        animator.SetTrigger("Idle");
     }
     public void OnExit()
     {
+        animator.ResetTrigger("Idle");
     }
 }

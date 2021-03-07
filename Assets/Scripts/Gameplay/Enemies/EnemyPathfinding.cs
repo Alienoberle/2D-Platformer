@@ -5,7 +5,7 @@ using Pathfinding;
 [RequireComponent(typeof(EnemyController))]
 public class EnemyPathfinding : MonoBehaviour
 {
-    EnemyController enemyController;
+    private EnemyController enemyController;
 
     private Transform chaseTarget;
     private Vector3 target;

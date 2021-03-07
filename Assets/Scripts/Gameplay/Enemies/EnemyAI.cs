@@ -7,6 +7,7 @@ public class EnemyAI : MonoBehaviour
 {
     private Vector3 startingPosition;
     private StateMachine stateMachine;
+    private Animator animator;
     private EnemyPathfinding enemyMovement;
     private GameObject player;
     private PlayerTrigger playerTrigger;
@@ -17,19 +18,21 @@ public class EnemyAI : MonoBehaviour
     {
         startingPosition = transform.root.position;
         stateMachine = new StateMachine();
+        animator = GetComponent<Animator>();
         enemyMovement = GetComponent<EnemyPathfinding>();
         player = Player.instance.transform.root.gameObject;
         playerTrigger = GetComponentInChildren<PlayerTrigger>();
  
         // Defines the possible States of the Enemy
-        var idle = new Idle(this, enemyMovement);
-        var patrol = new Patrol(enemyMovement, startingPosition, waypoints);
-        var chase = new Chase(enemyMovement, player);
+        var idle = new Idle(enemyMovement, animator);
+        var patrol = new Patrol(enemyMovement, startingPosition, waypoints, animator);
+        var chase = new Chase(enemyMovement, player, animator);
 
-        //Add all possible transitions between states
+        //Add all possible transitions between states defined above
         AddTransition(idle, patrol, HasPatrolRoute());
         AddTransition(patrol, chase, PlayerIsInRange());
         AddTransition(chase, patrol, LostPlayer());
+        AddTransition(chase, patrol, IsStuck());
 
         stateMachine.SetState(idle);
 
@@ -40,6 +43,7 @@ public class EnemyAI : MonoBehaviour
         Func<bool> HasPatrolRoute() => () => waypoints != null;
         Func<bool> PlayerIsInRange() => () => playerTrigger.isPlayerInTrigger == true;
         Func<bool> LostPlayer() => () => playerTrigger.isPlayerInTrigger == false;
+        Func<bool> IsStuck() => () => chase.timeStuck > 1.5f;
     }
     private void Update() => stateMachine.Tick();
 
