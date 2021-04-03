@@ -1,8 +1,5 @@
 ﻿using UnityEngine;
 
-// How to set up playerController and extract Raycast class
-// https://www.youtube.com/watch?v=MbWK8bCAU2w
-
 public class EnemyController : RaycastController
 {
     public CollisionInfo collisionInfo;
