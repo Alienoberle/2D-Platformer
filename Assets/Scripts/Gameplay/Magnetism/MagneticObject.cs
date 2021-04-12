@@ -9,13 +9,16 @@ public class MagneticObject : MonoBehaviour
 	private MagnetismController magnetismController;
     public Rigidbody2D Rigidbody { get; private set; }
 	public Collider2D Collider { get; private set; }
-	public MagnetCharge magnetCharge { get; set; }
-	public bool isDynamic { get; set; }
 
-	public MagneticObject(MagnetCharge magnetCharge, bool isDynamic)
+	public float charge = 0;
+	public MagnetCharge magnetCharge { get; set; }
+	public bool isMoveable;
+	public float magneticDistance;
+
+	public MagneticObject(float charge, bool isMoveable)
 	{
-		this.magnetCharge = magnetCharge;
-		this.isDynamic = isDynamic;
+		this.charge = charge;
+		this.isMoveable = isMoveable;
 	}
     private void Awake()
     {
@@ -25,18 +28,18 @@ public class MagneticObject : MonoBehaviour
 	}
 	private void OnEnable()
 	{
-		magnetismController.AddToList(this);
+		magnetismController.AddToList(this, isMoveable);
 	}
 
 	private void OnDisable()
 	{
-		magnetismController.RemoveFromList(this);
+		magnetismController.RemoveFromList(this, isMoveable);
 	}
 
 	public enum MagnetCharge
 	{
-		neutral = 0,
-		positive = 10,
-		negative = 20,
+		negative = 1,
+		neutral = 2,
+		positive = 3,
 	}
 }

@@ -19,51 +19,73 @@ public class MagnetismController : MonoBehaviour
 		}
 	}
 
-	public static List<MagneticObject> magneticObjectsList = new List<MagneticObject>();
-	private Rigidbody2D rigidBody;
-	private Collider2D collider;
-	
-	const float G = 667.4f;
+	public static List<MagneticObject> allMagneticObjects = new List<MagneticObject>();
+	public static List<MagneticObject> movableMagneticObjects = new List<MagneticObject>();
+
+	private float cycleInterval = 0.01f;
+	const float G = 100;
 
 	private void Awake()
 	{
 		_instance = this;
 
-		if (magneticObjectsList == null)
-			magneticObjectsList = new List<MagneticObject>();
+		if (allMagneticObjects == null)
+			allMagneticObjects = new List<MagneticObject>();
 
-		rigidBody = GetComponent<Rigidbody2D>();
-		collider = GetComponent<Collider2D>();
+		if (movableMagneticObjects == null)
+			movableMagneticObjects = new List<MagneticObject>();
 	}
 	private void FixedUpdate()
 	{
-        foreach (MagneticObject magnet in magneticObjectsList)
+        foreach (MagneticObject magneticObject in movableMagneticObjects)
         {
-            Attract(magnet);
+            ApplyMagneticForce(magneticObject);
         }
     }
-	public void AddToList(MagneticObject magneticObject)
+	public void AddToList(MagneticObject magneticObject, bool isMoveable)
     {
-		magneticObjectsList.Add(magneticObject);
+		allMagneticObjects.Add(magneticObject);
+		if (isMoveable)
+			movableMagneticObjects.Add(magneticObject);
 	}
-	public void RemoveFromList(MagneticObject magneticObject)
+	public void RemoveFromList(MagneticObject magneticObject, bool isMoveable)
 	{
-		magneticObjectsList.Remove(magneticObject);
+
+		allMagneticObjects.Remove(magneticObject);
+		if (isMoveable)
+			movableMagneticObjects.Remove(magneticObject);
 	}
 
-    private void Attract(MagneticObject objToAttract)
+	public IEnumerator Cycle(MagneticObject magneticObject)
     {
-        Rigidbody2D rbToAttract = objToAttract.Rigidbody;
-
-        Vector3 direction = rigidBody.position - rbToAttract.position;
-        float distance = direction.sqrMagnitude;
-
-        if (distance == 0f)
-            return;
-
-        float forceMagnitude = G * (rigidBody.mass * rbToAttract.mass) / distance;
-        Vector3 force = direction.normalized * forceMagnitude;
-
-        rbToAttract.AddForce(force);
+        while (true)
+        {
+			ApplyMagneticForce(magneticObject);
+			yield return new WaitForSeconds(cycleInterval);
+        }
     }
+
+    private void ApplyMagneticForce(MagneticObject magneticObjectToMove)
+    {
+		Vector3 force = Vector3.zero;
+		Rigidbody2D rbToMove = magneticObjectToMove.Rigidbody;
+
+		foreach(MagneticObject otherMagneticObject in allMagneticObjects)
+        {
+			if (magneticObjectToMove == otherMagneticObject)
+				continue;
+
+			Vector3 direction = rbToMove.position - otherMagneticObject.Rigidbody.position;
+			float distance = direction.sqrMagnitude;
+
+			if (distance == 0f)
+				return;
+
+			float forceMagnitude = G * (magneticObjectToMove.charge * otherMagneticObject.charge) / distance;
+			force += direction.normalized * forceMagnitude;
+
+			rbToMove.AddForce(force);
+			//rbToMove.velocity = direction.normalized * forceMagnitude * Time.deltaTime;
+		}
+	}
 }

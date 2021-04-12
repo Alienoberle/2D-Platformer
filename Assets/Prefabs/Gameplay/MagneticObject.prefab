@@ -13,10 +13,9 @@ GameObject:
   - component: {fileID: 7047730257992765995}
   - component: {fileID: 3163360769041538470}
   - component: {fileID: 3491815254645581843}
-  - component: {fileID: 3435792033020281395}
-  - component: {fileID: 7864147416988207544}
+  - component: {fileID: -8082998199551736256}
   m_Layer: 0
-  m_Name: MagneticObject
+  m_Name: MagneticObject_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -132,39 +131,17 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!250 &3435792033020281395
-PointEffector2D:
+--- !u!114 &-8082998199551736256
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5221695799327854992}
   m_Enabled: 1
-  m_UseColliderMask: 1
-  m_ColliderMask:
-    serializedVersion: 2
-    m_Bits: 2048
-  m_ForceMagnitude: -10
-  m_ForceVariation: 0
-  m_DistanceScale: 1
-  m_ForceSource: 0
-  m_ForceTarget: 0
-  m_ForceMode: 0
-  m_Drag: 0
-  m_AngularDrag: 0
---- !u!58 &7864147416988207544
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5221695799327854992}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 1
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 10
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4cea5371dd2ac247b47ac93a8240d7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  charge: -1
+  isMoveable: 0
