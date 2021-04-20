@@ -22,8 +22,7 @@ public class MagnetismController : MonoBehaviour
 	public static List<MagneticObject> allMagneticObjects = new List<MagneticObject>();
 	public static List<MagneticObject> movableMagneticObjects = new List<MagneticObject>();
 
-	private float cycleInterval = 0.01f;
-	const float G = 100;
+	const float magnetismFactor = 100;
 
 	private void Awake()
 	{
@@ -56,18 +55,9 @@ public class MagnetismController : MonoBehaviour
 			movableMagneticObjects.Remove(magneticObject);
 	}
 
-	public IEnumerator Cycle(MagneticObject magneticObject)
-    {
-        while (true)
-        {
-			ApplyMagneticForce(magneticObject);
-			yield return new WaitForSeconds(cycleInterval);
-        }
-    }
-
     private void ApplyMagneticForce(MagneticObject magneticObjectToMove)
     {
-		Vector3 force = Vector3.zero;
+		Vector2 force = Vector2.zero;
 		Rigidbody2D rbToMove = magneticObjectToMove.Rigidbody;
 
 		foreach(MagneticObject otherMagneticObject in allMagneticObjects)
@@ -75,17 +65,22 @@ public class MagnetismController : MonoBehaviour
 			if (magneticObjectToMove == otherMagneticObject)
 				continue;
 
-			Vector3 direction = rbToMove.position - otherMagneticObject.Rigidbody.position;
-			float distance = direction.sqrMagnitude;
+			Vector2 closestPoint = otherMagneticObject.Collider.ClosestPoint(rbToMove.position);
+			Vector2 direction = rbToMove.position - closestPoint;
+			float distance = Vector2.Distance(rbToMove.position, closestPoint);
 
 			if (distance == 0f)
-				return;
+				continue;
 
-			float forceMagnitude = G * (magneticObjectToMove.charge * otherMagneticObject.charge) / distance;
-			force += direction.normalized * forceMagnitude;
+            if (distance > otherMagneticObject.magneticDistance)
+                continue;
 
-			rbToMove.AddForce(force);
-			//rbToMove.velocity = direction.normalized * forceMagnitude * Time.deltaTime;
+            float forceMagnitude = Mathf.Clamp(magnetismFactor * (magneticObjectToMove.charge * otherMagneticObject.charge) / Mathf.Pow(distance, 3), -500, 500) ;
+			force += direction.normalized * forceMagnitude ;
+
 		}
+
+		rbToMove.AddForce(force);
+		Debug.Log(magneticObjectToMove.name + " is moved by: " + force);
 	}
 }
