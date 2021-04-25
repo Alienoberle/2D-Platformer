@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - MoveThrough
+  - Magnet
+  - MagnetField
   layers:
   - Default
   - TransparentFX

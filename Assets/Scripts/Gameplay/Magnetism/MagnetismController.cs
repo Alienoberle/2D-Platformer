@@ -41,13 +41,13 @@ public class MagnetismController : MonoBehaviour
             ApplyMagneticForce(magneticObject);
         }
     }
-	public void AddToList(MagneticObject magneticObject, bool isMoveable)
+	public void RegisterMagneticObject(MagneticObject magneticObject, bool isMoveable)
     {
 		allMagneticObjects.Add(magneticObject);
 		if (isMoveable)
 			movableMagneticObjects.Add(magneticObject);
 	}
-	public void RemoveFromList(MagneticObject magneticObject, bool isMoveable)
+	public void UnRegisterMagneticObject(MagneticObject magneticObject, bool isMoveable)
 	{
 
 		allMagneticObjects.Remove(magneticObject);
@@ -55,32 +55,57 @@ public class MagnetismController : MonoBehaviour
 			movableMagneticObjects.Remove(magneticObject);
 	}
 
-    private void ApplyMagneticForce(MagneticObject magneticObjectToMove)
-    {
+ //   private void ApplyMagneticForce(MagneticObject magneticObjectToMove)
+ //   {
+	//	Vector2 force = Vector2.zero;
+	//	Rigidbody2D rbToMove = magneticObjectToMove.Rigidbody;
+
+	//	foreach(MagneticObject otherMagneticObject in allMagneticObjects)
+ //       {
+	//		if (magneticObjectToMove == otherMagneticObject)
+	//			continue;
+
+	//		Vector2 closestPoint = otherMagneticObject.Collider.ClosestPoint(rbToMove.position);
+	//		Vector2 direction = rbToMove.position - closestPoint;
+	//		float distance = Vector2.Distance(rbToMove.position, closestPoint);
+
+	//		if (distance == 0f)
+	//			continue;
+
+ //           if (distance > otherMagneticObject.magneticDistance)
+ //               continue;
+
+ //           float forceMagnitude = Mathf.Clamp(magnetismFactor * (magneticObjectToMove.charge * otherMagneticObject.charge) / Mathf.Pow(distance, 3), -500, 500) ;
+	//		force += direction.normalized * forceMagnitude ;
+
+	//	}
+
+	//	rbToMove.AddForce(force);
+	//	//Debug.Log(magneticObjectToMove.name + " is moved by: " + force);
+	//}
+	private void ApplyMagneticForce(MagneticObject objectToMove)
+	{
 		Vector2 force = Vector2.zero;
-		Rigidbody2D rbToMove = magneticObjectToMove.Rigidbody;
+		Rigidbody2D rbToMove = objectToMove.Rigidbody;
 
-		foreach(MagneticObject otherMagneticObject in allMagneticObjects)
-        {
-			if (magneticObjectToMove == otherMagneticObject)
-				continue;
+		if (objectToMove.inRangeOfMagnets.Count < 1)
+			return;
 
-			Vector2 closestPoint = otherMagneticObject.Collider.ClosestPoint(rbToMove.position);
+		foreach (MagneticObject otherObject in objectToMove.inRangeOfMagnets)
+		{
+			Vector2 closestPoint = otherObject.Collider.ClosestPoint(rbToMove.position);
 			Vector2 direction = rbToMove.position - closestPoint;
 			float distance = Vector2.Distance(rbToMove.position, closestPoint);
 
 			if (distance == 0f)
 				continue;
 
-            if (distance > otherMagneticObject.magneticDistance)
-                continue;
-
-            float forceMagnitude = Mathf.Clamp(magnetismFactor * (magneticObjectToMove.charge * otherMagneticObject.charge) / Mathf.Pow(distance, 3), -500, 500) ;
-			force += direction.normalized * forceMagnitude ;
+			float forceMagnitude = Mathf.Clamp(magnetismFactor * (objectToMove.charge * otherObject.charge) / Mathf.Pow(distance, 3), -300, 300);
+			force += direction.normalized * forceMagnitude;
 
 		}
 
 		rbToMove.AddForce(force);
-		Debug.Log(magneticObjectToMove.name + " is moved by: " + force);
+		Debug.Log(objectToMove.name + " is moved by: " + force);
 	}
 }
