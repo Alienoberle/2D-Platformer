@@ -4,8 +4,8 @@ using UnityEditorInternal;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerInputHandler))]
-[RequireComponent(typeof(PlayerMovement))]
 [RequireComponent(typeof(PlayerController))]
+[RequireComponent(typeof(PlayerCollision))]
 public class Player : MonoBehaviour
 {
     // Singleton set up

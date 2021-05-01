@@ -1,33 +1,40 @@
 ﻿using UnityEngine;
 
-public class EnemyController : RaycastController
+// How to set up playerController and extract Raycast class
+// https://www.youtube.com/watch?v=MbWK8bCAU2w
+
+public class PlayerCollision : RaycastController
 {
     public CollisionInfo collisionInfo;
 
+    [HideInInspector] public Vector2 playerInput;
     private Vector2 initialVelocity;
     [HideInInspector] public float maxSlopeAngle;
-    private bool fallThrough = false;
+    [HideInInspector] public bool playerPressedDown;
 
     public override void Start()
     {
         base.Start();
-        collisionInfo.faceingDirection = 1; // just to give a starting direction
+
+        // just to give a starting direction
+        collisionInfo.faceingDirection = 1;
+
     }
 
-    // Move overload Method that just calls the move method in case of moving platforms
+    // Move overload Method that just calls the move method but with zero input in case of moving platforms
     public void Move(Vector2 moveAmount, bool standingOnPlatform)
     {
-        Move(moveAmount, false, standingOnPlatform);
+        Move(moveAmount, Vector2.zero, standingOnPlatform);
     }
 
-    public void Move(Vector2 moveAmount, bool fallThrough, bool standingOnPlatform = false)
+    public void Move(Vector2 moveAmount, Vector2 playerInput, bool standingOnPlatform = false)
     {
         UpdateRaycastOrigins();
         collisionInfo.Reset();
         initialVelocity = moveAmount;
 
         // store the input
-        this.fallThrough = fallThrough;
+        this.playerInput = playerInput;
 
         if (moveAmount.y < 0)
         {
@@ -172,7 +179,7 @@ public class EnemyController : RaycastController
                     }
 
                     // and we want to move down (fall trough) we also just continue with the next ray
-                    if (fallThrough)
+                    if (playerInput.y == -1 && playerPressedDown)
                     {
                         collisionInfo.fallingTroughPlatform = true;
                         Invoke("ResetFallingTroughPlatform", 0.25f);
@@ -294,6 +301,7 @@ public class EnemyController : RaycastController
     void ResetFallingTroughPlatform()
     {
         collisionInfo.fallingTroughPlatform = false;
+
     }
 
     public struct CollisionInfo

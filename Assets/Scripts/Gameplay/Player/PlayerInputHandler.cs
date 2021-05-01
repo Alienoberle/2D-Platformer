@@ -3,21 +3,21 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 
-[RequireComponent(typeof(PlayerMovement))]
 [RequireComponent(typeof(PlayerController))]
+[RequireComponent(typeof(PlayerCollision))]
 public class PlayerInputHandler : MonoBehaviour
 {
     private PlayerControls playerControls;
-    private PlayerMovement playerMovement;
     private PlayerController playerController;
+    private PlayerCollision playerCollision;
 
     public Vector2 directionalInput { get; private set; } 
 
     private void Awake()
     {
         playerControls = new PlayerControls();
-        playerMovement = GetComponent<PlayerMovement>();
         playerController = GetComponent<PlayerController>();
+        playerCollision = GetComponent<PlayerCollision>();
     }
 
     private void OnEnable()
@@ -26,7 +26,11 @@ public class PlayerInputHandler : MonoBehaviour
         playerControls.Player.Movement.performed += Movement;
         playerControls.Player.Jump.performed += Jump;
         playerControls.Player.JumpRelease.performed += JumpRelease;
-        playerControls.Player.Dash.performed += Dash; 
+        playerControls.Player.Dash.performed += Dash;
+        playerControls.Player.ChargePos.performed += ChargePositive;
+        playerControls.Player.ChargePos.canceled += ChargePositive;
+        playerControls.Player.ChargeNeg.performed += ChargeNegative;
+        playerControls.Player.ChargeNeg.canceled += ChargeNegative;
     }
 
     private void OnDisable()
@@ -36,33 +40,52 @@ public class PlayerInputHandler : MonoBehaviour
         playerControls.Player.Jump.performed -= Jump;
         playerControls.Player.JumpRelease.performed -= JumpRelease;
         playerControls.Player.Dash.performed -= Dash;
+        playerControls.Player.ChargePos.performed -= ChargePositive;
+        playerControls.Player.ChargePos.canceled -= ChargePositive;
+        playerControls.Player.ChargeNeg.performed -= ChargeNegative;
+        playerControls.Player.ChargeNeg.canceled -= ChargeNegative;
     }
 
     private void Movement(InputAction.CallbackContext context)
     {
         directionalInput = context.ReadValue<Vector2>();
-        playerMovement.SetDirectionalInput(directionalInput);
+        playerController.SetDirectionalInput(directionalInput);
 
         if (directionalInput.y < -0.9)
         {
-            playerController.playerPressedDown = true;
+            playerCollision.playerPressedDown = true;
         }
-        else playerController.playerPressedDown = false;
+        else playerCollision.playerPressedDown = false;
     }
 
     private void Jump(InputAction.CallbackContext context)
     {
-        playerMovement.OnJumpInput();
+        playerController.OnJumpInput();
     }
 
     private void JumpRelease(InputAction.CallbackContext context)
     {
-        playerMovement.OnJumpInputRelease();
+        playerController.OnJumpInputRelease();
     }
 
     private void Dash(InputAction.CallbackContext context)
     {
-        playerMovement.OnDashInput();
+        playerController.OnDashInput();
+    }
+
+    private void ChargePositive(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            playerController.OnChangeCharge(MagnetCharge.positive);
+        else
+            playerController.OnChangeCharge(MagnetCharge.neutral);
+    }
+    private void ChargeNegative(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            playerController.OnChangeCharge(MagnetCharge.negative);
+        else
+            playerController.OnChangeCharge(MagnetCharge.neutral);
     }
 
     public void EnablePlayerControls()
@@ -73,5 +96,7 @@ public class PlayerInputHandler : MonoBehaviour
     {
         playerControls.Player.Disable();
     }
+
+    
 
 }

@@ -9,16 +9,20 @@ public class MagneticObject : MonoBehaviour
 	private MagnetismController magnetismController;
     public Rigidbody2D Rigidbody { get; private set; }
 	public Collider2D Collider { get; private set; }
-	public float charge = 0;
-	public MagnetCharge magnetCharge { get; set; }
+
+	public MagnetCharge magnetCharge;
+	public float chargeStrenght = 1;
+	public float currentCharge { get; private set; }
+
 	[SerializeField] private bool isMoveable;
-	public float magneticDistance;
+
 	public List<MagneticObject> magnetsInRange;
 	public List<MagneticObject> inRangeOfMagnets;
+	private Vector2 magneticForce;
 
 	public MagneticObject(float charge, bool isMoveable)
 	{
-		this.charge = charge;
+		this.currentCharge = charge;
 		this.isMoveable = isMoveable;
 	}
     private void Awake()
@@ -31,6 +35,7 @@ public class MagneticObject : MonoBehaviour
 	}
 	private void OnEnable()
 	{
+		CalculateMagneticCharge(magnetCharge);
 		magnetismController.RegisterMagneticObject(this, isMoveable);
 	}
 
@@ -40,9 +45,18 @@ public class MagneticObject : MonoBehaviour
 		magnetsInRange.Clear();
 	}
 
+	public void ApplyMagneticForce(Vector2 forceToApply)
+    {
+		Rigidbody.AddForce(forceToApply);
+
+		magneticForce = forceToApply;
+		Debug.Log(this.name + " is moved by: " + forceToApply);
+	}
+
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Magnet"))
+        if (other.CompareTag("Magnet") || other.CompareTag("Player"))
         {
 			magnetsInRange.Add(other.GetComponent<MagneticObject>());
 			other.GetComponent<MagneticObject>().inRangeOfMagnets.Add(this);
@@ -50,10 +64,13 @@ public class MagneticObject : MonoBehaviour
 	}
 	private void OnTriggerExit2D(Collider2D other)
 	{
-		if (other.CompareTag("Magnet"))
+		if (other.CompareTag("Magnet") || other.CompareTag("Player"))
 		{
 			magnetsInRange.Remove(other.GetComponent<MagneticObject>());
 			other.GetComponent<MagneticObject>().inRangeOfMagnets.Remove(this);
+			//other.transform.root.GetComponent<MagneticObject>().ApplyMagneticForce(Vector2.zero);
+
+			// need to find a way to stop the player from continueing sliding after leaving the magnetig trigger
 		}
 	}
 	public void ToggleMoveable(bool isMoveable)
@@ -64,18 +81,29 @@ public class MagneticObject : MonoBehaviour
 		else
 			magnetismController.UnRegisterMagneticObject(this, isMoveable);
 	}
-
-	public enum MagnetCharge
-	{
-		negative = 1,
-		neutral = 2,
-		positive = 3,
+	public void CalculateMagneticCharge(MagnetCharge newCharge)
+    {
+		float sign;
+        switch (newCharge)
+        {
+			case MagnetCharge.negative:
+				sign = -1;
+				currentCharge = chargeStrenght * sign;
+				break;
+			case MagnetCharge.positive:
+				sign = 1;
+				currentCharge = chargeStrenght * sign;
+				break;
+			case MagnetCharge.neutral:
+				sign = 0;
+				currentCharge = chargeStrenght * sign;
+				break;
+		}
+		Debug.Log($"New charge is {newCharge} with a strenght of {currentCharge}");
 	}
-
-	private void OnDrawGizmosSelected()
-	{
-		Gizmos.color = Color.yellow;
-		Gizmos.DrawWireSphere(transform.position, magneticDistance);
-
+    private void OnDrawGizmosSelected()
+    {
+		Gizmos.color = Color.cyan;
+		Gizmos.DrawRay(transform.position, magneticForce);
 	}
 }

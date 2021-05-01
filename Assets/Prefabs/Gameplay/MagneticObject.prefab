@@ -175,12 +175,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4cea5371dd2ac247b47ac93a8240d7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Collider: {fileID: 3163360769041538470}
-  Magnetfields:
-  - {fileID: 3527314049162435566}
   charge: 1
-  isMoveable: 0
-  magneticDistance: 10
+  isMoveable: 1
+  magnetsInRange: []
+  inRangeOfMagnets: []
 --- !u!1 &8074737331929313446
 GameObject:
   m_ObjectHideFlags: 0

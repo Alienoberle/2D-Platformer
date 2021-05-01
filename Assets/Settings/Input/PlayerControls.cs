@@ -40,7 +40,7 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""id"": ""9af59bdf-9844-4091-8f88-1ea0add26c11"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": """"
+                    ""interactions"": ""Press(behavior=1)""
                 },
                 {
                     ""name"": ""Dash"",
@@ -54,6 +54,22 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""name"": ""PauseMenu"",
                     ""type"": ""Button"",
                     ""id"": ""4d5761b1-9d67-4134-bd19-bb22a21d95fc"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""ChargePos"",
+                    ""type"": ""Button"",
+                    ""id"": ""78df36cc-6196-4b24-a729-bbba2be34084"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press(behavior=2)""
+                },
+                {
+                    ""name"": ""ChargeNeg"",
+                    ""type"": ""Button"",
+                    ""id"": ""d2eec447-9810-44b7-a3b3-87cf0ae7f2e7"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -218,7 +234,7 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""name"": """",
                     ""id"": ""4cd94d49-1586-4741-9ca1-a5efcf27ee19"",
                     ""path"": ""<Keyboard>/space"",
-                    ""interactions"": ""Press(behavior=1)"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
                     ""action"": ""JumpRelease"",
@@ -229,7 +245,7 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""name"": """",
                     ""id"": ""8ca12607-9819-4551-9775-24f6c7487454"",
                     ""path"": ""<XInputController>/buttonSouth"",
-                    ""interactions"": ""Press(behavior=1)"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Xbox Controller"",
                     ""action"": ""JumpRelease"",
@@ -255,6 +271,50 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": ""Xbox Controller"",
                     ""action"": ""PauseMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d58a2929-edc7-4b29-a75c-4678f4a51b5d"",
+                    ""path"": ""<XInputController>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Xbox Controller"",
+                    ""action"": ""ChargePos"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1fce5c48-1f0e-4e32-b982-dbcbaa355068"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""ChargePos"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cc5f1cff-3b86-47cd-8104-f62cc6f077f0"",
+                    ""path"": ""<XInputController>/leftTrigger"",
+                    ""interactions"": ""Hold"",
+                    ""processors"": """",
+                    ""groups"": ""Xbox Controller"",
+                    ""action"": ""ChargeNeg"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9c8c5c55-e48a-4020-b612-8cfd3249aae3"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": ""Hold"",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""ChargeNeg"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -676,6 +736,8 @@ public class @PlayerControls : IInputActionCollection, IDisposable
         m_Player_JumpRelease = m_Player.FindAction("JumpRelease", throwIfNotFound: true);
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         m_Player_PauseMenu = m_Player.FindAction("PauseMenu", throwIfNotFound: true);
+        m_Player_ChargePos = m_Player.FindAction("ChargePos", throwIfNotFound: true);
+        m_Player_ChargeNeg = m_Player.FindAction("ChargeNeg", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -745,6 +807,8 @@ public class @PlayerControls : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_JumpRelease;
     private readonly InputAction m_Player_Dash;
     private readonly InputAction m_Player_PauseMenu;
+    private readonly InputAction m_Player_ChargePos;
+    private readonly InputAction m_Player_ChargeNeg;
     public struct PlayerActions
     {
         private @PlayerControls m_Wrapper;
@@ -754,6 +818,8 @@ public class @PlayerControls : IInputActionCollection, IDisposable
         public InputAction @JumpRelease => m_Wrapper.m_Player_JumpRelease;
         public InputAction @Dash => m_Wrapper.m_Player_Dash;
         public InputAction @PauseMenu => m_Wrapper.m_Player_PauseMenu;
+        public InputAction @ChargePos => m_Wrapper.m_Player_ChargePos;
+        public InputAction @ChargeNeg => m_Wrapper.m_Player_ChargeNeg;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -778,6 +844,12 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                 @PauseMenu.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPauseMenu;
                 @PauseMenu.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPauseMenu;
                 @PauseMenu.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnPauseMenu;
+                @ChargePos.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnChargePos;
+                @ChargePos.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnChargePos;
+                @ChargePos.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnChargePos;
+                @ChargeNeg.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnChargeNeg;
+                @ChargeNeg.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnChargeNeg;
+                @ChargeNeg.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnChargeNeg;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -797,6 +869,12 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                 @PauseMenu.started += instance.OnPauseMenu;
                 @PauseMenu.performed += instance.OnPauseMenu;
                 @PauseMenu.canceled += instance.OnPauseMenu;
+                @ChargePos.started += instance.OnChargePos;
+                @ChargePos.performed += instance.OnChargePos;
+                @ChargePos.canceled += instance.OnChargePos;
+                @ChargeNeg.started += instance.OnChargeNeg;
+                @ChargeNeg.performed += instance.OnChargeNeg;
+                @ChargeNeg.canceled += instance.OnChargeNeg;
             }
         }
     }
@@ -964,6 +1042,8 @@ public class @PlayerControls : IInputActionCollection, IDisposable
         void OnJumpRelease(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
         void OnPauseMenu(InputAction.CallbackContext context);
+        void OnChargePos(InputAction.CallbackContext context);
+        void OnChargeNeg(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

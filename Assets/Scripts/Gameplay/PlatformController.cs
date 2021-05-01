@@ -16,7 +16,7 @@ public class PlatformController : RaycastController
     public LayerMask passengerMask;
 
     List<PassengerMovement> passengerMovement;
-    Dictionary<Transform, PlayerController> passengerDictionary = new Dictionary<Transform, PlayerController>();
+    Dictionary<Transform, PlayerCollision> passengerDictionary = new Dictionary<Transform, PlayerCollision>();
 
     public float speed;
     [Range(1, 3)]
@@ -115,7 +115,7 @@ public class PlatformController : RaycastController
         {
             if (!passengerDictionary.ContainsKey(passenger.passengerTransform))
             {
-                passengerDictionary.Add(passenger.passengerTransform, passenger.passengerTransform.GetComponent<PlayerController>());
+                passengerDictionary.Add(passenger.passengerTransform, passenger.passengerTransform.GetComponent<PlayerCollision>());
             }
             if (passenger.movingBeforePlatform == beforeMovingPlatform)
             {

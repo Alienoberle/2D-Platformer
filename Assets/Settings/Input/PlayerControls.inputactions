@@ -1,5 +1,5 @@
 {
-    "name": "InputManager",
+    "name": "PlayerControls",
     "maps": [
         {
             "name": "Player",
@@ -27,7 +27,7 @@
                     "id": "9af59bdf-9844-4091-8f88-1ea0add26c11",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "Press(behavior=1)"
                 },
                 {
                     "name": "Dash",
@@ -41,6 +41,22 @@
                     "name": "PauseMenu",
                     "type": "Button",
                     "id": "4d5761b1-9d67-4134-bd19-bb22a21d95fc",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "ChargePos",
+                    "type": "Button",
+                    "id": "78df36cc-6196-4b24-a729-bbba2be34084",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press(behavior=2)"
+                },
+                {
+                    "name": "ChargeNeg",
+                    "type": "Button",
+                    "id": "d2eec447-9810-44b7-a3b3-87cf0ae7f2e7",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
@@ -205,7 +221,7 @@
                     "name": "",
                     "id": "4cd94d49-1586-4741-9ca1-a5efcf27ee19",
                     "path": "<Keyboard>/space",
-                    "interactions": "Press(behavior=1)",
+                    "interactions": "",
                     "processors": "",
                     "groups": "Keyboard and Mouse",
                     "action": "JumpRelease",
@@ -216,7 +232,7 @@
                     "name": "",
                     "id": "8ca12607-9819-4551-9775-24f6c7487454",
                     "path": "<XInputController>/buttonSouth",
-                    "interactions": "Press(behavior=1)",
+                    "interactions": "",
                     "processors": "",
                     "groups": "Xbox Controller",
                     "action": "JumpRelease",
@@ -242,6 +258,50 @@
                     "processors": "",
                     "groups": "Xbox Controller",
                     "action": "PauseMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d58a2929-edc7-4b29-a75c-4678f4a51b5d",
+                    "path": "<XInputController>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Xbox Controller",
+                    "action": "ChargePos",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1fce5c48-1f0e-4e32-b982-dbcbaa355068",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard and Mouse",
+                    "action": "ChargePos",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cc5f1cff-3b86-47cd-8104-f62cc6f077f0",
+                    "path": "<XInputController>/leftTrigger",
+                    "interactions": "Hold",
+                    "processors": "",
+                    "groups": "Xbox Controller",
+                    "action": "ChargeNeg",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9c8c5c55-e48a-4020-b612-8cfd3249aae3",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "Hold",
+                    "processors": "",
+                    "groups": "Keyboard and Mouse",
+                    "action": "ChargeNeg",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

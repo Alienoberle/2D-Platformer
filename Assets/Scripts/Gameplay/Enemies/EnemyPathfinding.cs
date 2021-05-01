@@ -2,10 +2,10 @@
 using UnityEngine;
 using Pathfinding;
 
-[RequireComponent(typeof(EnemyController))]
+[RequireComponent(typeof(EnemyCollision))]
 public class EnemyPathfinding : MonoBehaviour
 {
-    private EnemyController enemyController;
+    private EnemyCollision enemyCollision;
 
     private Transform chaseTarget;
     private Vector3 target;
@@ -28,8 +28,8 @@ public class EnemyPathfinding : MonoBehaviour
 
     private void Awake()
     {
-        enemyController = GetComponent<EnemyController>();
-        enemyController.maxSlopeAngle = maximumSlopeAngle;
+        enemyCollision = GetComponent<EnemyCollision>();
+        enemyCollision.maxSlopeAngle = maximumSlopeAngle;
         seeker = GetComponent<Seeker>();
     }
     public void GoToTarget(Vector3 target)
@@ -92,7 +92,7 @@ public class EnemyPathfinding : MonoBehaviour
             }
 
             CalculateVelocity();
-            enemyController.Move(velocity * Time.deltaTime, false);
+            enemyCollision.Move(velocity * Time.deltaTime, false);
         }      
     }
 

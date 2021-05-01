@@ -1,345 +1,397 @@
 ﻿using UnityEngine;
 
-// How to set up playerController and extract Raycast class
-// https://www.youtube.com/watch?v=MbWK8bCAU2w
 
-public class PlayerController : RaycastController
+/*
+ * Basic set up of the script
+ * https://youtu.be/MbWK8bCAU2w?list=PLFt_AvWsXl0f0hqURlhyIoAabKPgRsqjz
+ */
+
+[RequireComponent(typeof(PlayerCollision))]
+public class PlayerController : MonoBehaviour
 {
-    public CollisionInfo collisionInfo;
+    PlayerCollision playerCollision;
+    MagneticObject magnetComponent;
 
-    [HideInInspector] public Vector2 playerInput;
-    private Vector2 initialVelocity;
-    [HideInInspector] public float maxSlopeAngle;
-    [HideInInspector] public bool playerPressedDown;
+    [HideInInspector] public PlayerInfo playerInfo;
+    [HideInInspector] public Vector2 directionalInput;
+    private Vector3 velocity;
 
-    public override void Start()
+    [SerializeField] private Animator animator;
+
+    [Header("Movement")]
+    public float movementSpeed = 6;
+    private float velocityXSmoothing;
+    private float accelerationTimeAirborn = 0.2f;
+    private float accelerationTimeGrounded = 0.1f;
+    [SerializeField] private float maximumSlopeAngle = 60.0f;
+
+    private float gravity;
+
+    [Header("Jumping")]
+    [SerializeField] private float maxJumpHeight = 4f;
+    [SerializeField] private float minJumpHeight = 1;
+    [SerializeField] private float timeToJumpApex = 0.25f;
+
+    private float maxJumpVelocity;
+    private float minJumpVelocity;
+
+    public int jumpAmount = 1;
+    private int jumpCounter;
+
+    [SerializeField] private float ghostJumpTime = 0.1f;
+    private float ghostJumpTimer;
+    private bool ghostJumpActive;
+
+    [Header("Dashing")]
+    [SerializeField] private float dashDistance = 5f;
+    [SerializeField] private float dashDuration = 0.2f;
+    private float dashVelocity;
+    private float dashTimer;
+    private float dashProgress = 0.5f;
+    public int dashAmount = 1;
+    private int dashCounter;
+    private int dashingDirectionX;
+
+    [Header("Wall Jump")]
+    [SerializeField] private Vector2 wallJumpClimb;
+    [SerializeField] private Vector2 wallJumpOff;
+    [SerializeField] private Vector2 wallLeap;
+    [Header("Wall Sliding")]
+    [SerializeField] private float wallSlideSpeedMax = 3.0f;
+    [SerializeField] private float wallStickTime = 0.25f;
+    private float timeToWallUnstick;
+    private int wallDirectionX;
+
+
+    private void Awake()
     {
-        base.Start();
+        playerCollision = GetComponent<PlayerCollision>();
+        playerCollision.maxSlopeAngle = maximumSlopeAngle;
 
-        // just to give a starting direction
-        collisionInfo.faceingDirection = 1;
-
+        magnetComponent = GetComponent<MagneticObject>();
     }
 
-    // Move overload Method that just calls the move method but with zero input in case of moving platforms
-    public void Move(Vector2 moveAmount, bool standingOnPlatform)
+    private void Start()
     {
-        Move(moveAmount, Vector2.zero, standingOnPlatform);
+        gravity = -(2 * maxJumpHeight / Mathf.Pow(timeToJumpApex, 2));
+        maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
+        minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight); // check video for info https://www.youtube.com/watch?v=rVfR14UNNDo
+
+        dashVelocity = dashDistance / dashDuration;
+
+        playerInfo.Reset();
     }
 
-    public void Move(Vector2 moveAmount, Vector2 playerInput, bool standingOnPlatform = false)
+    // Update is called once per frame
+    private void Update()
     {
-        UpdateRaycastOrigins();
-        collisionInfo.Reset();
-        initialVelocity = moveAmount;
+        // Calculate velocities 
+        CalculateVelocity();
+        WallSliding();
+        Dashing();
 
-        // store the input
-        this.playerInput = playerInput;
+        // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
+        playerCollision.Move(velocity * Time.deltaTime, directionalInput);
 
-        if (moveAmount.y < 0)
+        // Flip the players faceing direction if needed
+        if (directionalInput.x > 0 && playerInfo.facingDirection < 0 )
         {
-            DescendSlope(ref moveAmount);
+            Flip();
+        }
+        if (directionalInput.x < 0 && playerInfo.facingDirection > 0)
+        {
+            Flip();
         }
 
-        // determine the facing direction and store it for later use. do it after descend slope as this may change (force) direction
-        if (moveAmount.x != 0)
+        // Handle jumping
+        IsPlayerGrounded();
+        GhostJump();
+
+        // Trigger Run animation
+        animator.SetFloat("Speed", Mathf.Abs(velocity.x));
+
+        // Reset gravity to 0 to avoid gravity amassing when simply standing around. We want to do this after we have moved the player with our input because platforms also move the player
+        if (playerCollision.collisionInfo.above || playerCollision.collisionInfo.below)
         {
-            collisionInfo.faceingDirection = (int)Mathf.Sign(moveAmount.x);
-        }
-
-        HorizontalCollisions(ref moveAmount);
-
-        if (moveAmount.y != 0)
-        {
-            VerticalCollisions(ref moveAmount);
-        }
-
-        transform.Translate(moveAmount);
-
-        if (standingOnPlatform)
-        {
-            collisionInfo.below = true;
-        }
-    }
-
-    void HorizontalCollisions(ref Vector2 moveAmount)
-    {
-        float directionX = collisionInfo.faceingDirection; // direction +1 or -1 of the x moveAmount
-        float rayLenght = Mathf.Abs(moveAmount.x) + skinWidth; // get the absolute lenght which is always positive and add the skinwidth
-
-        if (Mathf.Abs(moveAmount.x) < skinWidth)
-        {
-            rayLenght = skinWidth * 2; // have minimal raylenght to detect the wall if standing still
-        }
-
-        for (int i = 0; i < horizontalRayCount; i++)
-        {
-            Vector2 rayOrigin = (directionX == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight;
-            rayOrigin += Vector2.up * horizontalRaySpacing * i;
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLenght, collisionMask);
-            Debug.DrawRay(rayOrigin, Vector2.right * directionX, Color.red);
-
-            // directly continue with the next ray if the player is within a collision
-            if (hit.distance == 0)
+            if (playerCollision.collisionInfo.slidingDownMaxSlope)
             {
-                continue;
+                velocity.y += playerCollision.collisionInfo.slopeNormal.y * -gravity * Time.deltaTime; // oppose velocity y by gravity over time 
             }
-
-            if (hit)
+            else
             {
-                // calculate the angel between the normal vector or the slope hit and the up vector which is the same as the angle of the slope
-                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
-
-                // we only want to check for slopes for the bottom most horizontal raycast, others could interfere
-                if (i == 0 && slopeAngle <= maxSlopeAngle)
-                {
-                    // if we notice we climb a slope we reset moveAmount to initial moveAmount in case we were descending a slope before
-                    if (collisionInfo.descendingSlope)
-                    {
-                        collisionInfo.descendingSlope = false;
-                        moveAmount = initialVelocity;
-                    }
-
-                    float distanceToSlopeStart = 0;
-                    if (slopeAngle != collisionInfo.slopeAngleOld) // only when new slope
-                    {
-                        distanceToSlopeStart = hit.distance - skinWidth;
-                        moveAmount.x -= distanceToSlopeStart * directionX; // reduce the X moveAmount by the distance to slope so it only starts climibing when actually having reached the slope
-                    }
-
-                    ClimbSlope(ref moveAmount, slopeAngle, hit.normal); // actually climb slope 
-                    moveAmount.x += distanceToSlopeStart * directionX;
-                }
-
-                if (!collisionInfo.climbingSlope || slopeAngle > maxSlopeAngle) // when climbing the slope we don't want to check collisions for the rest of the rays 
-                {
-                    moveAmount.x = (hit.distance - skinWidth) * directionX; // get the distance to collision - the skinwidth added to the rayLenght before 
-                    rayLenght = hit.distance; // set to make sure the smallest ray is considered to not move trough objects
-
-                    // to avoid bouncing behavoir when encountering horizontal collision when climbing slopes, we also have to update Y moveAmount 
-                    if (collisionInfo.climbingSlope)
-                    {
-                        moveAmount.y = Mathf.Tan(collisionInfo.slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(moveAmount.x);
-                    }
-
-                    collisionInfo.left = directionX == -1; // if we hit smth. and we are going left we set collision info 'left'
-                    collisionInfo.right = directionX == 1; // if we hit smth. and are going right we set collisin info 'right'
-                }
+                velocity.y = 0;
             }
         }
     }
 
-    // speed should while climbing should be the same as whe movin normally. So velocityX will be the targetdistance we want to move up the slope. 
-    // based on that targetdistance and the slopeAngle we want to figure out what our velocities x & y have to be.
-    private void ClimbSlope(ref Vector2 moveAmount, float slopeAngle, Vector2 slopeNormal)
+    public void SetDirectionalInput(Vector2 input)
     {
-        float moveDistance = Mathf.Abs(moveAmount.x); // get the positive distance
-        float climbVelocityY = Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance;
-
-        if (moveAmount.y <= climbVelocityY) // jump y moveAmount is greater than climb moveAmount
-        {
-            moveAmount.y = climbVelocityY;
-            moveAmount.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(moveAmount.x); // we want to keep the direction left = -1,  right = 1
-
-            collisionInfo.climbingSlope = true;
-            collisionInfo.slopeAngle = slopeAngle;
-            collisionInfo.slopeNormal = slopeNormal;
-            collisionInfo.below = true; // since we are climbing we can safely assume that we are on the ground and have collision below us
-
-        }
+        directionalInput = input;
     }
 
-    void VerticalCollisions(ref Vector2 moveAmount)
+    private void CalculateVelocity()
     {
-        float directionY = Mathf.Sign(moveAmount.y); // direction +1 or -1 of the y moveAmount
-        float rayLenght = Mathf.Abs(moveAmount.y) + skinWidth; // get the absolute lenght which is always positive and add the inset
+        // Calculate the target X velocity based on input and movement speed. 
+        float targetVelocityX = directionalInput.x * movementSpeed;
 
-        for (int i = 0; i < verticalRayCount; i++)
+        // Reduce horizontal velocity when airborne
+        velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (playerCollision.collisionInfo.below) ? accelerationTimeGrounded : accelerationTimeAirborn);
+
+        // Manipulate gravity slightly when falling to get more weight feel or give player more time to fix mistakes
+        velocity.y += gravity * Time.deltaTime;
+    }
+
+    private void WallSliding()
+    {
+        // Figure out wall direction
+        wallDirectionX = (playerCollision.collisionInfo.left) ? -1 : 1;
+
+
+        playerInfo.isWallsliding = false;
+        if ((playerCollision.collisionInfo.left || playerCollision.collisionInfo.right) && !playerCollision.collisionInfo.below && velocity.y < 0)
         {
-            Vector2 rayOrigin = (directionY == -1) ? raycastOrigins.bottomLeft : raycastOrigins.topLeft;
-            rayOrigin += Vector2.right * (verticalRaySpacing * i + moveAmount.x); // + moveAmount x to also check the place we will be after moving
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, rayLenght, collisionMask);
-
-            Debug.DrawRay(rayOrigin, Vector2.up * directionY, Color.red);
-
-            if (hit)
+            // Set wallSlideSpeedMax
+            playerInfo.isWallsliding = true;
+            if (velocity.y < -wallSlideSpeedMax)
             {
-                // check if the collision has the move trough tag 
-                if (hit.collider.tag == "MoveThrough")
-                {
-                    // and we are moving up (jumping through) we just continue with the next ray
-                    if (directionY == 1 || hit.distance == 0)
-                    {
-                        continue;
-                    }
-
-                    if (collisionInfo.fallingTroughPlatform)
-                    {
-                        continue;
-                    }
-
-                    // and we want to move down (fall trough) we also just continue with the next ray
-                    if (playerInput.y == -1 && playerPressedDown)
-                    {
-                        collisionInfo.fallingTroughPlatform = true;
-                        Invoke("ResetFallingTroughPlatform", 0.25f);
-                        continue;
-                    }
-
-                }
-
-                moveAmount.y = (hit.distance - skinWidth) * directionY; // get the distance to collision - the skinwidth added to the rayLenght before 
-                rayLenght = hit.distance; // set to make sure the ray without skin is considered to not move trough objects
-
-                // If we climb and collide with smth. above use we need to also calculate the x moveAmount accordingly to avoid bouncing
-                if (collisionInfo.climbingSlope)
-                {
-                    moveAmount.x = moveAmount.y / Mathf.Tan(collisionInfo.slopeAngle * Mathf.Deg2Rad) * Mathf.Sign(moveAmount.x);
-                }
-
-                collisionInfo.below = directionY == -1; // if we hit smth. and we are going downwards we set collision info 'below'
-                collisionInfo.above = directionY == 1; // if we hit smth. and are going upwards we set collisin info 'above'
+                velocity.y = -wallSlideSpeedMax;
             }
-        }
 
-        // when climbing a slope fire a horizontal ray on the height where we will be once we move up the slope to check if there is a new slope 
-        if (collisionInfo.climbingSlope)
-        {
-            float directionX = Mathf.Sign(moveAmount.x);
-            float rayLenghtX = Mathf.Abs(moveAmount.x) + skinWidth;
-
-            Vector2 rayOrigin = ((directionX == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight) + (Vector2.up * moveAmount.y);
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLenghtX, collisionMask);
-
-            Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLenghtX, Color.red);
-
-            if (hit)
+            if (timeToWallUnstick > 0)
             {
-                float newSlopeAngle = Vector2.Angle(hit.normal, Vector2.up);
-                Debug.Log(newSlopeAngle);
-                if (newSlopeAngle != collisionInfo.slopeAngle)
+                velocity.x = 0;
+                velocityXSmoothing = 0;
+
+                if (directionalInput.x != wallDirectionX && directionalInput.x != 0)
                 {
-                    moveAmount.x = (hit.distance - skinWidth) * directionX;
-                    collisionInfo.slopeAngle = newSlopeAngle;
-                    collisionInfo.slopeNormal = hit.normal;
-                    collisionInfo.below = true; // since we are climbing we can safely assume that we are on the ground and have collision below us
+                    timeToWallUnstick -= Time.deltaTime;
                 }
+                else
+                {
+                    timeToWallUnstick = wallStickTime;
+                }
+            }
+            else
+            {
+                timeToWallUnstick = wallStickTime;
             }
         }
     }
 
-    private void DescendSlope(ref Vector2 moveAmount)
+    private void IsPlayerGrounded()
     {
-        RaycastHit2D maxSlopeLeft = Physics2D.Raycast(raycastOrigins.bottomLeft, Vector2.down, Mathf.Abs(moveAmount.y) + skinWidth, collisionMask);
-        RaycastHit2D maxSlopeRight = Physics2D.Raycast(raycastOrigins.bottomRight, Vector2.down, Mathf.Abs(moveAmount.y) + skinWidth, collisionMask);
-
-        // we only move on to sliding down, if only one of the side detects a hit and other is "up in air" to avoid jitter with super flat slopes
-        if (maxSlopeLeft ^ maxSlopeRight)
+        if (playerCollision.collisionInfo.below)
         {
-            SlideDownMaxSlope(maxSlopeLeft, ref moveAmount);
-            SlideDownMaxSlope(maxSlopeRight, ref moveAmount);
+            playerInfo.isGrounded = true;
+            ResetJump();
+            ResetDash();
+        }
+        else
+        {
+            playerInfo.isGrounded = false;
+        }
+    }
+
+    void Flip()
+    {
+        playerInfo.facingDirection = (int)Mathf.Sign(directionalInput.x);
+
+        // Multiply the player's x local scale by -1.
+        Vector3 newScale = transform.localScale;
+        newScale.x *= -1;
+        transform.localScale = newScale;
+    }
+
+    private void CanPlayerJump()
+    {
+        playerInfo.canJump = false;
+        if (jumpCounter > 0)
+        {
+            if (playerInfo.isGrounded)
+            {
+                playerInfo.canJump = true;
+            }
+            else if (jumpAmount > 1)
+            {
+                playerInfo.canJump = true;
+            }
+            else if (playerInfo.isWallsliding)
+            {
+                playerInfo.canJump = true;
+            }
+            else if (ghostJumpActive)
+            {
+                playerInfo.canJump = true;
+            }
+        }
+    }
+
+    private void GhostJump()
+    {
+        if (ghostJumpTimer > 0 && ghostJumpActive)
+        {
+            ghostJumpTimer -= Time.deltaTime;
         }
 
-        if (!collisionInfo.slidingDownMaxSlope)
+        if (playerCollision.collisionInfo.lastFrameBelow == true && playerCollision.collisionInfo.below == false)
         {
-            float directionX = Mathf.Sign(moveAmount.x);
-            Vector2 rayOrigin = (directionX == -1) ? raycastOrigins.bottomRight : raycastOrigins.bottomLeft;
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, Mathf.Infinity, collisionMask);
-            Debug.DrawRay(rayOrigin, Vector2.down, Color.magenta);
+            ghostJumpActive = true;
+        }
 
-            if (hit)
+        if (ghostJumpTimer < 0)
+        {
+            ghostJumpActive = false;
+        }
+    }
+
+    public void OnJumpInput()
+    {
+        CanPlayerJump();
+        // If the player is currently wall sliding
+        if (playerInfo.isWallsliding)
+        {
+            if (wallDirectionX == directionalInput.x)
             {
-                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+                velocity.x = -wallDirectionX * wallJumpClimb.x;
+                velocity.y = wallJumpClimb.y;
+            }
+            else if (directionalInput.x == 0)
+            {
+                velocity.x = -wallDirectionX * wallJumpOff.x;
+                velocity.y = wallJumpOff.y;
+            }
+            else
+            {
+                velocity.x = -wallDirectionX * wallLeap.x;
+                velocity.y = wallLeap.y;
+            }
+        }
 
-                if (slopeAngle != 0 && slopeAngle <= maxSlopeAngle)
+        if (playerInfo.canJump)
+        {
+            if (playerCollision.collisionInfo.slidingDownMaxSlope)
+            {
+                if (directionalInput.x != -Mathf.Sign(playerCollision.collisionInfo.slopeNormal.x)) // if we are not jumping against max slope normal
                 {
-                    // check which direction the slope is facing and compare that to the players movement direction and if they are, we are moving down the slope
-                    if (Mathf.Sign(hit.normal.x) == directionX)
-                    {
-                        // want to check if we are close enough for the slope to actually take effect
-                        float distanceToSlope = hit.distance - skinWidth;
-                        if (distanceToSlope <= Mathf.Tan(slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(moveAmount.x)) // distance to slope shorter than what we would have to move on the y axis based on angle and x moveAmount
-                        {
-                            float moveDistance = Mathf.Abs(moveAmount.x); // get the positive distance 
-                            float descendVelocity = Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance;
+                    velocity.y = maxJumpVelocity * playerCollision.collisionInfo.slopeNormal.y;
+                    velocity.x = maxJumpVelocity * playerCollision.collisionInfo.slopeNormal.x;
 
-                            moveAmount.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(moveAmount.x);
-                            moveAmount.y -= descendVelocity;
-
-                            collisionInfo.slopeAngle = slopeAngle;
-                            collisionInfo.descendingSlope = true;
-                            collisionInfo.slopeNormal = hit.normal;
-                            collisionInfo.below = true; // since we are descending a slope we can safely assume that we are on the ground and have collision below us
-                        }
-                    }
                 }
             }
+
+            else if (directionalInput.y != -1)
+            {
+                velocity.y = maxJumpVelocity;
+            }
+
+            jumpCounter -= 1;
+            playerInfo.isJumping = true;
+            animator.SetBool("IsJumping", true);
         }
 
     }
 
-    void SlideDownMaxSlope(RaycastHit2D hit, ref Vector2 moveAmount)
+    public void OnJumpInputRelease()
     {
-        if (hit)
+        if (velocity.y > minJumpVelocity)
         {
-            float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
-            float slopeDirection = hit.normal.x;
+            velocity.y = minJumpVelocity;
+        }
+    }
 
-            if (slopeAngle > maxSlopeAngle)
+    public void ResetJump()
+    {
+        playerInfo.isJumping = false;
+        jumpCounter = jumpAmount;
+        animator.SetBool("IsJumping", false);
+
+        ghostJumpActive = false;
+        ghostJumpTimer = ghostJumpTime;
+    }
+
+    public void OnDashInput()
+    {
+        CanPlayerDash();
+        dashVelocity = dashDistance / dashDuration;
+        if (playerInfo.canDash)
+        {
+            if (directionalInput.x != 0)
             {
-                moveAmount.x = slopeDirection * (Mathf.Abs(moveAmount.y) - hit.distance) / Mathf.Tan(slopeAngle * Mathf.Deg2Rad);
+                dashingDirectionX = (int)Mathf.Sign(directionalInput.x);
+            }
+            else
+            {
+                dashingDirectionX = playerInfo.facingDirection;
+            }
+            dashCounter -= 1;
+            playerInfo.isDashing = true;
+            animator.SetBool("IsDashing", true);
+        }
+    }
+    
+    private void CanPlayerDash()
+    {
+        playerInfo.canDash = false;
+        if(dashCounter > 0)
+        {
+            playerInfo.canDash = true;
+        }
+    }
 
-                collisionInfo.slopeAngle = slopeAngle;
-                collisionInfo.slidingDownMaxSlope = true;
-                collisionInfo.slopeNormal = hit.normal;
-                collisionInfo.below = true; // since we are descending a slope we can safely assume that we are on the ground and have collision below us
+    private void Dashing()
+    {
+        if (playerInfo.isDashing)
+        { 
+            velocity.y = 0;
+            velocity.x = dashVelocity * dashingDirectionX;
+            dashTimer -= Time.deltaTime;
 
+            if ((dashTimer * dashProgress) < 0)
+            {
+                float targetVelocityX = directionalInput.x * movementSpeed;
+                velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, dashTimer * (1-dashProgress));
+                dashTimer -= Time.deltaTime;
+            }
+            if(dashTimer < 0)
+            {
+                dashTimer = dashDuration;
+                playerInfo.isDashing = false;
             }
         }
     }
 
-    void ResetFallingTroughPlatform()
+    public void ResetDash()
     {
-        collisionInfo.fallingTroughPlatform = false;
-
+        playerInfo.isDashing = false;
+        dashCounter = dashAmount;
+        animator.SetBool("IsDashing", false);
     }
 
-    public struct CollisionInfo
+    public void OnChangeCharge(MagnetCharge newCharge)
     {
-        public bool above, below;
-        public bool left, right;
+        magnetComponent.CalculateMagneticCharge(newCharge);
+    }
 
-        public bool lastFrameBelow;
+    public struct PlayerInfo
+    {
+        public bool isGrounded { get; set; }
+        public bool isWallsliding { get; set; }
+        public bool isJumping { get; set; }
+        public bool isDashing { get; set; }
+        public bool canJump { get; set; }
+        public bool canDash { get; set; }
 
-        public bool climbingSlope;
-        public bool descendingSlope;
-        public bool slidingDownMaxSlope;
-
-        public float slopeAngle;
-        public float slopeAngleOld;
-        public Vector2 slopeNormal;
-
-        public int faceingDirection;
-
-        public bool fallingTroughPlatform;
-
-        public Vector2 initialVelocity;
+        public int facingDirection;
 
         public void Reset()
         {
-            lastFrameBelow = below;
-
-            above = below = false;
-            left = right = false;
-            climbingSlope = false;
-            descendingSlope = false;
-            slidingDownMaxSlope = false;
-
-            slopeAngleOld = slopeAngle;
-            slopeAngle = 0;
-            slopeNormal = Vector2.zero;
+            isGrounded = true;
+            isWallsliding = false;
+            isJumping = false;
+            isDashing = false;
+            canJump = true;
+            canDash = true;
+            facingDirection = 1;
         }
     }
 }
-
-
