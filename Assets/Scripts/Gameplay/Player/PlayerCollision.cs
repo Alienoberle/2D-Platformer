@@ -8,13 +8,18 @@ public class PlayerCollision : RaycastController
     public CollisionInfo collisionInfo;
 
     [HideInInspector] public Vector2 playerInput;
+
     private Vector2 initialVelocity;
+    private Rigidbody2D rigidBody;
+    private Vector2 newPosition;
+
     [HideInInspector] public float maxSlopeAngle;
     [HideInInspector] public bool playerPressedDown;
 
     public override void Start()
     {
         base.Start();
+        rigidBody = GetComponent<Rigidbody2D>();
 
         // just to give a starting direction
         collisionInfo.faceingDirection = 1;
@@ -54,7 +59,12 @@ public class PlayerCollision : RaycastController
             VerticalCollisions(ref moveAmount);
         }
 
-        transform.Translate(moveAmount);
+        //transform.Translate(moveAmount); // works nicely but completely ignores physics
+        //transform.position = newPosition; // same as above
+
+        newPosition = new Vector2(transform.position.x, transform.position.y) + moveAmount;
+        rigidBody.MovePosition(newPosition);
+
 
         if (standingOnPlatform)
         {

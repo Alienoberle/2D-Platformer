@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -10,21 +13,18 @@ public class MagneticObject : MonoBehaviour
     public Rigidbody2D Rigidbody { get; private set; }
 	public Collider2D Collider { get; private set; }
 
-	public MagnetCharge magnetCharge;
-	public float chargeStrenght = 1;
+	[SerializeField] private Polarization defaultPolarization = Polarization.neutral;
+	[SerializeField] private float defaultCharge = 1;
 	public float currentCharge { get; private set; }
+	public Polarization currentPolarization { get; private set; }
 
 	[SerializeField] private bool isMoveable;
+	
+	[HideInInspector] public List<MagneticObject> magnetsInRange;
+	[HideInInspector] public List<MagneticObject> inRangeOfMagnets;
 
-	public List<MagneticObject> magnetsInRange;
-	public List<MagneticObject> inRangeOfMagnets;
 	private Vector2 magneticForce;
 
-	public MagneticObject(float charge, bool isMoveable)
-	{
-		this.currentCharge = charge;
-		this.isMoveable = isMoveable;
-	}
     private void Awake()
     {
         Rigidbody = GetComponent<Rigidbody2D>();
@@ -35,7 +35,7 @@ public class MagneticObject : MonoBehaviour
 	}
 	private void OnEnable()
 	{
-		CalculateMagneticCharge(magnetCharge);
+		CalculateMagneticCharge(defaultPolarization);
 		magnetismController.RegisterMagneticObject(this, isMoveable);
 	}
 
@@ -50,7 +50,7 @@ public class MagneticObject : MonoBehaviour
 		Rigidbody.AddForce(forceToApply);
 
 		magneticForce = forceToApply;
-		Debug.Log(this.name + " is moved by: " + forceToApply);
+		//Debug.Log(this.name + " is moved by: " + forceToApply);
 	}
 
 
@@ -68,9 +68,6 @@ public class MagneticObject : MonoBehaviour
 		{
 			magnetsInRange.Remove(other.GetComponent<MagneticObject>());
 			other.GetComponent<MagneticObject>().inRangeOfMagnets.Remove(this);
-			//other.transform.root.GetComponent<MagneticObject>().ApplyMagneticForce(Vector2.zero);
-
-			// need to find a way to stop the player from continueing sliding after leaving the magnetig trigger
 		}
 	}
 	public void ToggleMoveable(bool isMoveable)
@@ -81,29 +78,40 @@ public class MagneticObject : MonoBehaviour
 		else
 			magnetismController.UnRegisterMagneticObject(this, isMoveable);
 	}
-	public void CalculateMagneticCharge(MagnetCharge newCharge)
+	public virtual void CalculateMagneticCharge(Polarization newCharge)
     {
-		float sign;
         switch (newCharge)
         {
-			case MagnetCharge.negative:
-				sign = -1;
-				currentCharge = chargeStrenght * sign;
+			case Polarization.negative:
+				currentCharge = Mathf.Abs(defaultCharge) * -1;
+				currentPolarization = Polarization.negative;
 				break;
-			case MagnetCharge.positive:
-				sign = 1;
-				currentCharge = chargeStrenght * sign;
+			case Polarization.positive:
+				currentCharge = Mathf.Abs(defaultCharge) * 1;
+				currentPolarization = Polarization.positive;
 				break;
-			case MagnetCharge.neutral:
-				sign = 0;
-				currentCharge = chargeStrenght * sign;
+			case Polarization.neutral:
+				currentCharge = 0;
+				currentPolarization = Polarization.neutral;
 				break;
 		}
-		Debug.Log($"New charge is {newCharge} with a strenght of {currentCharge}");
 	}
     private void OnDrawGizmosSelected()
     {
 		Gizmos.color = Color.cyan;
 		Gizmos.DrawRay(transform.position, magneticForce);
+
+		if (Application.isPlaying)
+		{
+			string _stateText = $"{currentCharge}";
+
+			GUIStyle customStyle = new GUIStyle();
+			customStyle.richText = true;
+			Vector3 textPosition = transform.position + (Vector3.up * 2f);
+			string richText = "<color=red><size=14>[" + _stateText + "]</size></color>";
+
+			Handles.Label(textPosition, richText, customStyle);
+		}
+
 	}
 }

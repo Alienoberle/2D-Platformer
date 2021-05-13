@@ -62,6 +62,9 @@ public class PlayerController : MonoBehaviour
     private float timeToWallUnstick;
     private int wallDirectionX;
 
+    [Header("Magnetism")]
+    [SerializeField] GameObject magnetVisualization;
+
 
     private void Awake()
     {
@@ -83,7 +86,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void Update()
+    private void FixedUpdate()
     {
         // Calculate velocities 
         CalculateVelocity();
@@ -92,6 +95,10 @@ public class PlayerController : MonoBehaviour
 
         // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
         playerCollision.Move(velocity * Time.deltaTime, directionalInput);
+
+        // Handle jumping
+        IsPlayerGrounded();
+        GhostJump();
 
         // Flip the players faceing direction if needed
         if (directionalInput.x > 0 && playerInfo.facingDirection < 0 )
@@ -103,12 +110,9 @@ public class PlayerController : MonoBehaviour
             Flip();
         }
 
-        // Handle jumping
-        IsPlayerGrounded();
-        GhostJump();
-
         // Trigger Run animation
         animator.SetFloat("Speed", Mathf.Abs(velocity.x));
+
 
         // Reset gravity to 0 to avoid gravity amassing when simply standing around. We want to do this after we have moved the player with our input because platforms also move the player
         if (playerCollision.collisionInfo.above || playerCollision.collisionInfo.below)
@@ -367,9 +371,24 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsDashing", false);
     }
 
-    public void OnChangeCharge(MagnetCharge newCharge)
+    public void OnChangeCharge(Polarization newCharge)
     {
         magnetComponent.CalculateMagneticCharge(newCharge);
+        switch (newCharge)
+        {
+            case Polarization.negative:
+                magnetVisualization.SetActive(true);
+                magnetVisualization.GetComponent<SpriteRenderer>().color = Color.red;
+                break;
+            case Polarization.positive:
+                magnetVisualization.SetActive(true);
+                magnetVisualization.GetComponent<SpriteRenderer>().color = Color.blue;
+                break;
+            case Polarization.neutral:
+                magnetVisualization.SetActive(false);
+                break;
+
+        }
     }
 
     public struct PlayerInfo

@@ -64,7 +64,7 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""id"": ""78df36cc-6196-4b24-a729-bbba2be34084"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": ""Press(behavior=2)""
+                    ""interactions"": ""Press(pressPoint=0.2,behavior=2)""
                 },
                 {
                     ""name"": ""ChargeNeg"",
@@ -72,7 +72,7 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""id"": ""d2eec447-9810-44b7-a3b3-87cf0ae7f2e7"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": """"
+                    ""interactions"": ""Press(pressPoint=0.2,behavior=2)""
                 }
             ],
             ""bindings"": [
@@ -300,7 +300,7 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""name"": """",
                     ""id"": ""cc5f1cff-3b86-47cd-8104-f62cc6f077f0"",
                     ""path"": ""<XInputController>/leftTrigger"",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Xbox Controller"",
                     ""action"": ""ChargeNeg"",
@@ -311,7 +311,7 @@ public class @PlayerControls : IInputActionCollection, IDisposable
                     ""name"": """",
                     ""id"": ""9c8c5c55-e48a-4020-b612-8cfd3249aae3"",
                     ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
                     ""action"": ""ChargeNeg"",

@@ -76,16 +76,16 @@ public class PlayerInputHandler : MonoBehaviour
     private void ChargePositive(InputAction.CallbackContext context)
     {
         if (context.performed)
-            playerController.OnChangeCharge(MagnetCharge.positive);
+            playerController.OnChangeCharge(Polarization.positive);
         else
-            playerController.OnChangeCharge(MagnetCharge.neutral);
+            playerController.OnChangeCharge(Polarization.neutral);
     }
     private void ChargeNegative(InputAction.CallbackContext context)
     {
         if (context.performed)
-            playerController.OnChangeCharge(MagnetCharge.negative);
+            playerController.OnChangeCharge(Polarization.negative);
         else
-            playerController.OnChangeCharge(MagnetCharge.neutral);
+            playerController.OnChangeCharge(Polarization.neutral);
     }
 
     public void EnablePlayerControls()

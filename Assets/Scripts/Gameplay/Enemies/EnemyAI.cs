@@ -1,6 +1,8 @@
 ﻿using System;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 [RequireComponent(typeof(EnemyPathfinding))]
 public class EnemyAI : MonoBehaviour

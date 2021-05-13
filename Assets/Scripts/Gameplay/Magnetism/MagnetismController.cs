@@ -71,10 +71,7 @@ public class MagnetismController : MonoBehaviour
 			Vector2 direction = objectPosition - closestPoint;
 			float distance = Vector2.Distance(objectPosition, closestPoint);
 
-			if (distance == 0f)
-				continue;
-
-            float forceMagnitude = Mathf.Clamp(magnetismFactor * (objectToMove.currentCharge * otherObject.currentCharge) / Mathf.Pow(distance, 2), -300, 300);
+			float forceMagnitude = Mathf.Clamp(magnetismFactor * (objectToMove.currentCharge * otherObject.currentCharge) / Mathf.Pow(distance, 1), -500, 500);
 			force += direction.normalized * forceMagnitude;
 
 			if (Physics2D.IsTouching(objectToMove.Collider, otherObject.Collider))
