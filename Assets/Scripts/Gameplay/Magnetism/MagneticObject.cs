@@ -9,21 +9,27 @@ using UnityEditor;
 [RequireComponent(typeof(Rigidbody2D))]
 public class MagneticObject : MonoBehaviour
 {
+	private PlayerController playerController;
 	private MagnetismController magnetismController;
     public Rigidbody2D Rigidbody { get; private set; }
 	public Collider2D Collider { get; private set; }
 
+
 	[SerializeField] private Polarization defaultPolarization = Polarization.neutral;
 	[SerializeField] private float defaultCharge = 1;
+	public float chargeValue { get; private set; }
 	public float currentCharge { get; private set; }
 	public Polarization currentPolarization { get; private set; }
 
-	[SerializeField] private bool isMoveable;
-	
+	public bool isMoveable;
+	[SerializeField] private bool isPlayer;
+
 	[HideInInspector] public List<MagneticObject> magnetsInRange;
 	[HideInInspector] public List<MagneticObject> inRangeOfMagnets;
 
+	private Vector2 newPosition;
 	private Vector2 magneticForce;
+
 
     private void Awake()
     {
@@ -35,24 +41,40 @@ public class MagneticObject : MonoBehaviour
 	}
 	private void OnEnable()
 	{
-		CalculateMagneticCharge(defaultPolarization);
-		magnetismController.RegisterMagneticObject(this, isMoveable);
+		if (isPlayer)
+			playerController = GetComponentInParent<PlayerController>();
+
+		ChangeCharge(defaultCharge);
+		ChangePolarisation(defaultPolarization);
+		magnetismController.RegisterMagneticObject(this, isMoveable, isPlayer);
 	}
 
 	private void OnDisable()
 	{
-		magnetismController.UnRegisterMagneticObject(this, isMoveable);
+		magnetismController.UnRegisterMagneticObject(this, isMoveable, isPlayer);
 		magnetsInRange.Clear();
 	}
 
-	public void ApplyMagneticForce(Vector2 forceToApply)
+    //public void ApplyMagneticForce(Vector2 forceToApply)
+    //{
+    //    Rigidbody.AddForce(forceToApply);
+    //    magneticForce = forceToApply; // for gizmos
+    //}
+    public void ApplyMagneticForce(Vector2 forceToApply)
     {
-		Rigidbody.AddForce(forceToApply);
-
-		magneticForce = forceToApply;
-		//Debug.Log(this.name + " is moved by: " + forceToApply);
+		magneticForce = forceToApply; // for gizmos
+		if (isPlayer)
+        {
+			playerController.AddMagneticForce(forceToApply);
+		}
+		else 
+		{
+            newPosition = transform.position;
+            newPosition.x += magneticForce.x;
+            newPosition.y += magneticForce.y;
+            Rigidbody.MovePosition(newPosition);
+        }
 	}
-
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -70,24 +92,35 @@ public class MagneticObject : MonoBehaviour
 			other.GetComponent<MagneticObject>().inRangeOfMagnets.Remove(this);
 		}
 	}
+	[ContextMenu("ToggleMoveable")]
 	public void ToggleMoveable(bool isMoveable)
 	{
 		this.isMoveable = isMoveable;
 		if (isMoveable)
-			magnetismController.RegisterMagneticObject(this, isMoveable);
-		else
-			magnetismController.UnRegisterMagneticObject(this, isMoveable);
+        {
+			magnetismController.RegisterMagneticObject(this, isMoveable, false);
+			Rigidbody.bodyType = RigidbodyType2D.Dynamic;
+			Rigidbody.useAutoMass = true;
+			Rigidbody.gravityScale = 15;
+		}
+        else
+        {
+			magnetismController.UnRegisterMagneticObject(this, isMoveable, false);
+			Rigidbody.bodyType = RigidbodyType2D.Kinematic;
+			Rigidbody.useFullKinematicContacts = true;
+		}
+
 	}
-	public virtual void CalculateMagneticCharge(Polarization newCharge)
+	public void ChangePolarisation(Polarization newPolarization)
     {
-        switch (newCharge)
+        switch (newPolarization)
         {
 			case Polarization.negative:
-				currentCharge = Mathf.Abs(defaultCharge) * -1;
+				currentCharge = Mathf.Abs(chargeValue) * -1;
 				currentPolarization = Polarization.negative;
 				break;
 			case Polarization.positive:
-				currentCharge = Mathf.Abs(defaultCharge) * 1;
+				currentCharge = Mathf.Abs(chargeValue) * 1;
 				currentPolarization = Polarization.positive;
 				break;
 			case Polarization.neutral:
@@ -96,21 +129,31 @@ public class MagneticObject : MonoBehaviour
 				break;
 		}
 	}
+
+	public void ChangeCharge(float newCharge)
+    {
+		chargeValue = newCharge;
+    }
+
     private void OnDrawGizmosSelected()
     {
-		Gizmos.color = Color.cyan;
-		Gizmos.DrawRay(transform.position, magneticForce);
-
 		if (Application.isPlaying)
 		{
-			string _stateText = $"{currentCharge}";
-
 			GUIStyle customStyle = new GUIStyle();
 			customStyle.richText = true;
-			Vector3 textPosition = transform.position + (Vector3.up * 2f);
+
+			Vector3 textPosition = transform.position + (Vector3.down * 3f);
+			string _stateText = $"{currentCharge}";
 			string richText = "<color=red><size=14>[" + _stateText + "]</size></color>";
 
 			Handles.Label(textPosition, richText, customStyle);
+
+			textPosition = transform.position + (Vector3.down * 4f);
+			_stateText = $"{magneticForce}";
+			richText = "<color=cyan><size=14>[" + _stateText + "]</size></color>";
+			Handles.Label(textPosition, richText, customStyle);
+			Gizmos.color = Color.cyan;
+			Gizmos.DrawRay(transform.position, magneticForce);
 		}
 
 	}

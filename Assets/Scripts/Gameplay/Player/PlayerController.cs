@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-
+using System.Collections;
 
 /*
  * Basic set up of the script
@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public PlayerInfo playerInfo;
     [HideInInspector] public Vector2 directionalInput;
     private Vector3 velocity;
+    private Vector2 magneticForce;
 
     [SerializeField] private Animator animator;
 
@@ -94,7 +95,7 @@ public class PlayerController : MonoBehaviour
         Dashing();
 
         // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
-        playerCollision.Move(velocity * Time.deltaTime, directionalInput);
+        playerCollision.Move(velocity * Time.fixedDeltaTime, directionalInput);
 
         // Handle jumping
         IsPlayerGrounded();
@@ -103,23 +104,23 @@ public class PlayerController : MonoBehaviour
         // Flip the players faceing direction if needed
         if (directionalInput.x > 0 && playerInfo.facingDirection < 0 )
         {
-            Flip();
+            FlipPlayer();
         }
         if (directionalInput.x < 0 && playerInfo.facingDirection > 0)
         {
-            Flip();
+            FlipPlayer();
         }
 
         // Trigger Run animation
         animator.SetFloat("Speed", Mathf.Abs(velocity.x));
 
-
+        // Handle gravity
         // Reset gravity to 0 to avoid gravity amassing when simply standing around. We want to do this after we have moved the player with our input because platforms also move the player
         if (playerCollision.collisionInfo.above || playerCollision.collisionInfo.below)
         {
             if (playerCollision.collisionInfo.slidingDownMaxSlope)
             {
-                velocity.y += playerCollision.collisionInfo.slopeNormal.y * -gravity * Time.deltaTime; // oppose velocity y by gravity over time 
+                velocity.y += playerCollision.collisionInfo.slopeNormal.y * -gravity * Time.fixedDeltaTime; // oppose velocity y by gravity over time 
             }
             else
             {
@@ -127,12 +128,6 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
-    public void SetDirectionalInput(Vector2 input)
-    {
-        directionalInput = input;
-    }
-
     private void CalculateVelocity()
     {
         // Calculate the target X velocity based on input and movement speed. 
@@ -142,9 +137,15 @@ public class PlayerController : MonoBehaviour
         velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (playerCollision.collisionInfo.below) ? accelerationTimeGrounded : accelerationTimeAirborn);
 
         // Manipulate gravity slightly when falling to get more weight feel or give player more time to fix mistakes
-        velocity.y += gravity * Time.deltaTime;
+        velocity.y += Mathf.Clamp(gravity * Time.deltaTime, -8, 0);
     }
+    public void AddMagneticForce(Vector2 force)
+    {
+        velocity.x += force.x;
+        velocity.y += force.y;
 
+        //To-Do disable gravity ?
+    }
     private void WallSliding()
     {
         // Figure out wall direction
@@ -181,7 +182,6 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
     private void IsPlayerGrounded()
     {
         if (playerCollision.collisionInfo.below)
@@ -195,41 +195,6 @@ public class PlayerController : MonoBehaviour
             playerInfo.isGrounded = false;
         }
     }
-
-    void Flip()
-    {
-        playerInfo.facingDirection = (int)Mathf.Sign(directionalInput.x);
-
-        // Multiply the player's x local scale by -1.
-        Vector3 newScale = transform.localScale;
-        newScale.x *= -1;
-        transform.localScale = newScale;
-    }
-
-    private void CanPlayerJump()
-    {
-        playerInfo.canJump = false;
-        if (jumpCounter > 0)
-        {
-            if (playerInfo.isGrounded)
-            {
-                playerInfo.canJump = true;
-            }
-            else if (jumpAmount > 1)
-            {
-                playerInfo.canJump = true;
-            }
-            else if (playerInfo.isWallsliding)
-            {
-                playerInfo.canJump = true;
-            }
-            else if (ghostJumpActive)
-            {
-                playerInfo.canJump = true;
-            }
-        }
-    }
-
     private void GhostJump()
     {
         if (ghostJumpTimer > 0 && ghostJumpActive)
@@ -247,7 +212,6 @@ public class PlayerController : MonoBehaviour
             ghostJumpActive = false;
         }
     }
-
     public void OnJumpInput()
     {
         CanPlayerJump();
@@ -294,7 +258,6 @@ public class PlayerController : MonoBehaviour
         }
 
     }
-
     public void OnJumpInputRelease()
     {
         if (velocity.y > minJumpVelocity)
@@ -302,7 +265,29 @@ public class PlayerController : MonoBehaviour
             velocity.y = minJumpVelocity;
         }
     }
-
+    private void CanPlayerJump()
+    {
+        playerInfo.canJump = false;
+        if (jumpCounter > 0)
+        {
+            if (playerInfo.isGrounded)
+            {
+                playerInfo.canJump = true;
+            }
+            else if (jumpAmount > 1)
+            {
+                playerInfo.canJump = true;
+            }
+            else if (playerInfo.isWallsliding)
+            {
+                playerInfo.canJump = true;
+            }
+            else if (ghostJumpActive)
+            {
+                playerInfo.canJump = true;
+            }
+        }
+    }
     public void ResetJump()
     {
         playerInfo.isJumping = false;
@@ -312,7 +297,6 @@ public class PlayerController : MonoBehaviour
         ghostJumpActive = false;
         ghostJumpTimer = ghostJumpTime;
     }
-
     public void OnDashInput()
     {
         CanPlayerDash();
@@ -332,7 +316,6 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("IsDashing", true);
         }
     }
-    
     private void CanPlayerDash()
     {
         playerInfo.canDash = false;
@@ -341,7 +324,6 @@ public class PlayerController : MonoBehaviour
             playerInfo.canDash = true;
         }
     }
-
     private void Dashing()
     {
         if (playerInfo.isDashing)
@@ -363,18 +345,16 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
     public void ResetDash()
     {
         playerInfo.isDashing = false;
         dashCounter = dashAmount;
         animator.SetBool("IsDashing", false);
     }
-
-    public void OnChangeCharge(Polarization newCharge)
+    public void OnChangeCharge(Polarization newPolarization)
     {
-        magnetComponent.CalculateMagneticCharge(newCharge);
-        switch (newCharge)
+        magnetComponent.ChangePolarisation(newPolarization);
+        switch (newPolarization)
         {
             case Polarization.negative:
                 magnetVisualization.SetActive(true);
@@ -387,10 +367,21 @@ public class PlayerController : MonoBehaviour
             case Polarization.neutral:
                 magnetVisualization.SetActive(false);
                 break;
-
         }
     }
+    public void SetDirectionalInput(Vector2 input)
+    {
+        directionalInput = input;
+    }
+    void FlipPlayer()
+    {
+        playerInfo.facingDirection = (int)Mathf.Sign(directionalInput.x);
 
+        // Multiply the player's x local scale by -1.
+        Vector3 newScale = transform.localScale;
+        newScale.x *= -1;
+        transform.localScale = newScale;
+    }
     public struct PlayerInfo
     {
         public bool isGrounded { get; set; }

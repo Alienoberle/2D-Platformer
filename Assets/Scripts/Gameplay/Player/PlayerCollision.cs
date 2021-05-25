@@ -11,19 +11,22 @@ public class PlayerCollision : RaycastController
 
     private Vector2 initialVelocity;
     private Rigidbody2D rigidBody;
+    private Vector2 lastPosition;
     private Vector2 newPosition;
 
     [HideInInspector] public float maxSlopeAngle;
     [HideInInspector] public bool playerPressedDown;
 
+    public override void Awake()
+    {
+        base.Awake();
+        rigidBody = GetComponent<Rigidbody2D>();
+    }
     public override void Start()
     {
         base.Start();
-        rigidBody = GetComponent<Rigidbody2D>();
-
-        // just to give a starting direction
-        collisionInfo.faceingDirection = 1;
-
+        lastPosition = transform.position;
+        collisionInfo.faceingDirection = 1;  // just to give a starting direction
     }
 
     // Move overload Method that just calls the move method but with zero input in case of moving platforms
@@ -59,17 +62,17 @@ public class PlayerCollision : RaycastController
             VerticalCollisions(ref moveAmount);
         }
 
-        //transform.Translate(moveAmount); // works nicely but completely ignores physics
-        //transform.position = newPosition; // same as above
-
-        newPosition = new Vector2(transform.position.x, transform.position.y) + moveAmount;
-        rigidBody.MovePosition(newPosition);
-
-
         if (standingOnPlatform)
         {
             collisionInfo.below = true;
         }
+
+        // actual movement after collision has been calculated
+        newPosition = lastPosition;
+        newPosition.x += moveAmount.x;
+        newPosition.y += moveAmount.y;
+        rigidBody.MovePosition(newPosition);
+        lastPosition = newPosition;
     }
 
     void HorizontalCollisions(ref Vector2 moveAmount)
@@ -139,7 +142,7 @@ public class PlayerCollision : RaycastController
         }
     }
 
-    // speed should while climbing should be the same as whe movin normally. So velocityX will be the targetdistance we want to move up the slope. 
+    // speed should while climbing should be the same as whe moving normally. So velocityX will be the targetdistance we want to move up the slope. 
     // based on that targetdistance and the slopeAngle we want to figure out what our velocities x & y have to be.
     private void ClimbSlope(ref Vector2 moveAmount, float slopeAngle, Vector2 slopeNormal)
     {

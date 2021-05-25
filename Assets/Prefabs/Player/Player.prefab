@@ -49,11 +49,11 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1865028636488596605}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 1
-  m_UseAutoMass: 0
-  m_Mass: 1.5
+  m_UseAutoMass: 1
+  m_Mass: 1.4
   m_LinearDrag: 1
   m_AngularDrag: 0.05
   m_GravityScale: 0
@@ -198,7 +198,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   directionalInput: {x: 0, y: 0}
   animator: {fileID: 1354142621}
-  movementSpeed: 10
+  movementSpeed: 7
   maximumSlopeAngle: 60
   maxJumpHeight: 4
   minJumpHeight: 1
@@ -209,8 +209,8 @@ MonoBehaviour:
   dashDuration: 0.2
   dashAmount: 1
   wallJumpClimb: {x: 4, y: 40}
-  wallJumpOff: {x: 8, y: 15}
-  wallLeap: {x: 20, y: 30}
+  wallJumpOff: {x: 8, y: 16}
+  wallLeap: {x: 20, y: 32}
   wallSlideSpeedMax: 3
   wallStickTime: 0.4
   magnetVisualization: {fileID: 6603813113037923547}
@@ -252,6 +252,7 @@ MonoBehaviour:
   defaultPolarization: 1
   defaultCharge: 5
   isMoveable: 1
+  isPlayer: 1
   magnetsInRange: []
   inRangeOfMagnets: []
 --- !u!1 &5864583179501453644
@@ -263,7 +264,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7367926152276391939}
-  - component: {fileID: 2697413663726040751}
+  - component: {fileID: 714610368380295665}
   m_Layer: 11
   m_Name: MagnetFields
   m_TagString: MagnetField
@@ -285,8 +286,8 @@ Transform:
   m_Father: {fileID: 1000165113333201217}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &2697413663726040751
-BoxCollider2D:
+--- !u!58 &714610368380295665
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -299,18 +300,8 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 5, y: 5}
-  m_EdgeRadius: 0
+  m_Radius: 10
 --- !u!1 &6603813113037923547
 GameObject:
   m_ObjectHideFlags: 0

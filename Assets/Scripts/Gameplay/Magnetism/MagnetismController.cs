@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,10 +20,14 @@ public class MagnetismController : MonoBehaviour
 		}
 	}
 
-	public static List<MagneticObject> allMagneticObjects = new List<MagneticObject>();
-	public static List<MagneticObject> movableMagneticObjects = new List<MagneticObject>();
+	[SerializeField] public static List<MagneticObject> allMagneticObjects = new List<MagneticObject>();
+	[SerializeField] public static List<MagneticObject> movableMagneticObjects = new List<MagneticObject>();
+	[SerializeField] public static List<MagneticObject> players = new List<MagneticObject>();
 
-	const float magnetismFactor = 100;
+	private float fixedDeltaTime;
+	[SerializeField] private float forceMultiplier = 4f;
+	[SerializeField] private float distanceFactor = 1.3f;
+
 
 	private void Awake()
 	{
@@ -33,51 +38,72 @@ public class MagnetismController : MonoBehaviour
 
 		if (movableMagneticObjects == null)
 			movableMagneticObjects = new List<MagneticObject>();
+
+		if (players == null)
+			players = new List<MagneticObject>();
 	}
+
 	private void FixedUpdate()
 	{
-        foreach (MagneticObject magneticObject in movableMagneticObjects)
-        {
-            CalculateMagneticForce(magneticObject);
-        }
-    }
-	public void RegisterMagneticObject(MagneticObject magneticObject, bool isMoveable)
+		fixedDeltaTime = Time.deltaTime;
+		foreach (MagneticObject magneticObject in movableMagneticObjects)
+		{
+			HandleMagneticObjects(magneticObject);
+		}
+		foreach (MagneticObject magneticObject in players)
+		{
+			HandleMagneticObjects(magneticObject);
+		}
+	}
+
+	public void RegisterMagneticObject(MagneticObject magneticObject, bool isMoveable, bool isPlayer)
     {
 		allMagneticObjects.Add(magneticObject);
+        if (isPlayer)
+        {
+			players.Add(magneticObject);
+			return;
+		}
 		if (isMoveable)
 			movableMagneticObjects.Add(magneticObject);
 	}
-	public void UnRegisterMagneticObject(MagneticObject magneticObject, bool isMoveable)
+	public void UnRegisterMagneticObject(MagneticObject magneticObject, bool isMoveable, bool isPlayer)
 	{
-
 		allMagneticObjects.Remove(magneticObject);
+		if (isPlayer)
+		{
+			players.Remove(magneticObject);
+			return;
+		}
 		if (isMoveable)
 			movableMagneticObjects.Remove(magneticObject);
 	}
-	private void CalculateMagneticForce(MagneticObject objectToMove)
+	private void HandleMagneticObjects(MagneticObject objectToMove)
 	{
 		Vector2 force = Vector2.zero;
-		Vector2 objectPosition = objectToMove.transform.position;
-
+		Vector2 totalForce = Vector2.zero;
 		if (objectToMove.inRangeOfMagnets.Count < 1)
         {
-			objectToMove.ApplyMagneticForce(Vector2.zero);
+			objectToMove.ApplyMagneticForce(force);
 			return;
 		}
 
+		Vector2 objectPosition = objectToMove.transform.position;
 		foreach (MagneticObject otherObject in objectToMove.inRangeOfMagnets)
 		{
 			Vector2 closestPoint = otherObject.Collider.ClosestPoint(objectPosition);
 			Vector2 direction = objectPosition - closestPoint;
 			float distance = Vector2.Distance(objectPosition, closestPoint);
 
-			float forceMagnitude = Mathf.Clamp(magnetismFactor * (objectToMove.currentCharge * otherObject.currentCharge) / Mathf.Pow(distance, 1), -500, 500);
-			force += direction.normalized * forceMagnitude;
+			float forceMagnitude = forceMultiplier * ((objectToMove.currentCharge * otherObject.currentCharge) / (1 + Mathf.Pow(distance, distanceFactor)));
+			force.x = direction.normalized.x * forceMagnitude * fixedDeltaTime;
+			force.y = direction.normalized.y * forceMagnitude * fixedDeltaTime;
+			totalForce += force;
 
-			if (Physics2D.IsTouching(objectToMove.Collider, otherObject.Collider))
-				otherObject.ApplyMagneticForce(-force);
+			if (Physics2D.IsTouching(objectToMove.Collider, otherObject.Collider) && otherObject.isMoveable)
+                otherObject.ApplyMagneticForce(-force);
 		}
 
-		objectToMove.ApplyMagneticForce(force);
+		objectToMove.ApplyMagneticForce(totalForce);
 	}
 }
