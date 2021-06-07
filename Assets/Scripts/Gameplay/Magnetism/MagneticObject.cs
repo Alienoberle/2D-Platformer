@@ -11,9 +11,8 @@ public class MagneticObject : MonoBehaviour
 {
 	private PlayerController playerController;
 	private MagnetismController magnetismController;
-    public Rigidbody2D Rigidbody { get; private set; }
-	public Collider2D Collider { get; private set; }
-
+    public Rigidbody2D oRigidbody { get; private set; }
+	public Collider2D oCollider { get; private set; }
 
 	[SerializeField] private Polarization defaultPolarization = Polarization.neutral;
 	[SerializeField] private float defaultCharge = 1;
@@ -24,20 +23,17 @@ public class MagneticObject : MonoBehaviour
 	public bool isMoveable;
 	[SerializeField] private bool isPlayer;
 
-	[HideInInspector] public List<MagneticObject> magnetsInRange;
-	[HideInInspector] public List<MagneticObject> inRangeOfMagnets;
+	[HideInInspector] public HashSet<MagneticObject> magnetsInRange = new HashSet<MagneticObject>();
+	[HideInInspector] public HashSet<MagneticObject> inRangeOfMagnets = new HashSet<MagneticObject>();
 
 	private Vector2 newPosition;
 	private Vector2 magneticForce;
 
-
-    private void Awake()
+	private void Awake()
     {
-        Rigidbody = GetComponent<Rigidbody2D>();
-		Collider = GetComponent<Collider2D>();
+        oRigidbody = GetComponent<Rigidbody2D>();
+		oCollider = GetComponent<Collider2D>();
 		magnetismController = MagnetismController.instance;
-		magnetsInRange = new List<MagneticObject>();
-		inRangeOfMagnets = new List<MagneticObject>();
 	}
 	private void OnEnable()
 	{
@@ -54,28 +50,25 @@ public class MagneticObject : MonoBehaviour
 		magnetismController.UnRegisterMagneticObject(this, isMoveable, isPlayer);
 		magnetsInRange.Clear();
 	}
-
-    //public void ApplyMagneticForce(Vector2 forceToApply)
-    //{
-    //    Rigidbody.AddForce(forceToApply);
-    //    magneticForce = forceToApply; // for gizmos
-    //}
     public void ApplyMagneticForce(Vector2 forceToApply)
     {
-		magneticForce = forceToApply; // for gizmos
+		magneticForce = forceToApply;
 		if (isPlayer)
         {
-			playerController.AddMagneticForce(forceToApply);
+			playerController.magneticForce.x = magneticForce.x;
+			playerController.magneticForce.y = magneticForce.y;
 		}
 		else 
 		{
-            newPosition = transform.position;
-            newPosition.x += magneticForce.x;
-            newPosition.y += magneticForce.y;
-            Rigidbody.MovePosition(newPosition);
+			if(magneticForce.x != 0 || magneticForce.y != 0)
+            {
+				newPosition = transform.position;
+				newPosition.x += magneticForce.x * Time.fixedDeltaTime;
+				newPosition.y += magneticForce.y * Time.fixedDeltaTime;
+				oRigidbody.MovePosition(newPosition);
+			}
         }
 	}
-
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Magnet") || other.CompareTag("Player"))
@@ -99,15 +92,15 @@ public class MagneticObject : MonoBehaviour
 		if (isMoveable)
         {
 			magnetismController.RegisterMagneticObject(this, isMoveable, false);
-			Rigidbody.bodyType = RigidbodyType2D.Dynamic;
-			Rigidbody.useAutoMass = true;
-			Rigidbody.gravityScale = 15;
+			oRigidbody.bodyType = RigidbodyType2D.Dynamic;
+			oRigidbody.useAutoMass = true;
+			oRigidbody.gravityScale = 15;
 		}
         else
         {
 			magnetismController.UnRegisterMagneticObject(this, isMoveable, false);
-			Rigidbody.bodyType = RigidbodyType2D.Kinematic;
-			Rigidbody.useFullKinematicContacts = true;
+			oRigidbody.bodyType = RigidbodyType2D.Kinematic;
+			oRigidbody.useFullKinematicContacts = true;
 		}
 
 	}
@@ -129,12 +122,10 @@ public class MagneticObject : MonoBehaviour
 				break;
 		}
 	}
-
 	public void ChangeCharge(float newCharge)
     {
 		chargeValue = newCharge;
     }
-
     private void OnDrawGizmosSelected()
     {
 		if (Application.isPlaying)

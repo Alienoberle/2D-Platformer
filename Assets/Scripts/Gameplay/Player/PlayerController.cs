@@ -10,12 +10,13 @@ using System.Collections;
 public class PlayerController : MonoBehaviour
 {
     PlayerCollision playerCollision;
-    MagneticObject magnetComponent;
+    MagneticObject magneticComponent;
 
     [HideInInspector] public PlayerInfo playerInfo;
     [HideInInspector] public Vector2 directionalInput;
-    private Vector3 velocity;
-    private Vector2 magneticForce;
+    public Vector2 magneticForce;
+    public Vector2 velocity;
+    private float deltaTime;
 
     [SerializeField] private Animator animator;
 
@@ -27,6 +28,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maximumSlopeAngle = 60.0f;
 
     private float gravity;
+    private float maxGravity = -20.0f;
+    private bool isGravity = true;
+    
 
     [Header("Jumping")]
     [SerializeField] private float maxJumpHeight = 4f;
@@ -71,8 +75,7 @@ public class PlayerController : MonoBehaviour
     {
         playerCollision = GetComponent<PlayerCollision>();
         playerCollision.maxSlopeAngle = maximumSlopeAngle;
-
-        magnetComponent = GetComponent<MagneticObject>();
+        magneticComponent = GetComponent<MagneticObject>();
     }
 
     private void Start()
@@ -82,20 +85,23 @@ public class PlayerController : MonoBehaviour
         minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight); // check video for info https://www.youtube.com/watch?v=rVfR14UNNDo
 
         dashVelocity = dashDistance / dashDuration;
-
+    
         playerInfo.Reset();
     }
 
     // Update is called once per frame
     private void FixedUpdate()
     {
-        // Calculate velocities 
-        CalculateVelocity();
-        WallSliding();
-        Dashing();
+        // Calculate velocities
+        deltaTime = Time.fixedDeltaTime;
+        CalculateInputVelocity();   // absolute
+        WallSliding();              // absolute
+        Dashing();                  // absolute
+        CalculateMagneticForce();   // additional
+        CalculateGravity();         // additional
 
         // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
-        playerCollision.Move(velocity * Time.fixedDeltaTime, directionalInput);
+        playerCollision.Move(velocity * deltaTime, directionalInput);
 
         // Handle jumping
         IsPlayerGrounded();
@@ -114,13 +120,12 @@ public class PlayerController : MonoBehaviour
         // Trigger Run animation
         animator.SetFloat("Speed", Mathf.Abs(velocity.x));
 
-        // Handle gravity
         // Reset gravity to 0 to avoid gravity amassing when simply standing around. We want to do this after we have moved the player with our input because platforms also move the player
         if (playerCollision.collisionInfo.above || playerCollision.collisionInfo.below)
         {
             if (playerCollision.collisionInfo.slidingDownMaxSlope)
             {
-                velocity.y += playerCollision.collisionInfo.slopeNormal.y * -gravity * Time.fixedDeltaTime; // oppose velocity y by gravity over time 
+                velocity.y += playerCollision.collisionInfo.slopeNormal.y * -gravity * deltaTime; // oppose velocity y by gravity over time 
             }
             else
             {
@@ -128,24 +133,45 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-    private void CalculateVelocity()
+    private void CalculateGravity()
+    {
+        if (isGravity)
+        {
+            if (velocity.y + gravity * deltaTime < maxGravity)
+                velocity.y = maxGravity;
+            else
+                velocity.y += gravity * deltaTime;
+        }
+        else
+        {
+            if (velocity.y + gravity * deltaTime / 2 < maxGravity)
+                velocity.y = maxGravity;
+            else
+                velocity.y += gravity * deltaTime / 2;
+        }
+    }
+    private void CalculateInputVelocity()
     {
         // Calculate the target X velocity based on input and movement speed. 
         float targetVelocityX = directionalInput.x * movementSpeed;
 
         // Reduce horizontal velocity when airborne
         velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (playerCollision.collisionInfo.below) ? accelerationTimeGrounded : accelerationTimeAirborn);
-
-        // Manipulate gravity slightly when falling to get more weight feel or give player more time to fix mistakes
-        velocity.y += Mathf.Clamp(gravity * Time.deltaTime, -8, 0);
     }
-    public void AddMagneticForce(Vector2 force)
+    private void CalculateMagneticForce()
     {
-        velocity.x += force.x;
-        velocity.y += force.y;
-
-        //To-Do disable gravity ?
+        if (magneticForce.x != 0 || magneticForce.y != 0)
+        {
+            velocity.x += magneticForce.x;
+            velocity.y += magneticForce.y;
+            isGravity = false;
+        }
+        else
+        {
+            isGravity = true;
+        }
     }
+    
     private void WallSliding()
     {
         // Figure out wall direction
@@ -157,6 +183,7 @@ public class PlayerController : MonoBehaviour
         {
             // Set wallSlideSpeedMax
             playerInfo.isWallsliding = true;
+            isGravity = false;
             if (velocity.y < -wallSlideSpeedMax)
             {
                 velocity.y = -wallSlideSpeedMax;
@@ -169,7 +196,7 @@ public class PlayerController : MonoBehaviour
 
                 if (directionalInput.x != wallDirectionX && directionalInput.x != 0)
                 {
-                    timeToWallUnstick -= Time.deltaTime;
+                    timeToWallUnstick -= deltaTime;
                 }
                 else
                 {
@@ -179,6 +206,7 @@ public class PlayerController : MonoBehaviour
             else
             {
                 timeToWallUnstick = wallStickTime;
+                isGravity = true;
             }
         }
     }
@@ -199,7 +227,7 @@ public class PlayerController : MonoBehaviour
     {
         if (ghostJumpTimer > 0 && ghostJumpActive)
         {
-            ghostJumpTimer -= Time.deltaTime;
+            ghostJumpTimer -= deltaTime;
         }
 
         if (playerCollision.collisionInfo.lastFrameBelow == true && playerCollision.collisionInfo.below == false)
@@ -331,6 +359,7 @@ public class PlayerController : MonoBehaviour
             velocity.y = 0;
             velocity.x = dashVelocity * dashingDirectionX;
             dashTimer -= Time.deltaTime;
+            isGravity = false;
 
             if ((dashTimer * dashProgress) < 0)
             {
@@ -342,6 +371,7 @@ public class PlayerController : MonoBehaviour
             {
                 dashTimer = dashDuration;
                 playerInfo.isDashing = false;
+                isGravity = true;
             }
         }
     }
@@ -353,7 +383,7 @@ public class PlayerController : MonoBehaviour
     }
     public void OnChangeCharge(Polarization newPolarization)
     {
-        magnetComponent.ChangePolarisation(newPolarization);
+        magneticComponent.ChangePolarisation(newPolarization);
         switch (newPolarization)
         {
             case Polarization.negative:

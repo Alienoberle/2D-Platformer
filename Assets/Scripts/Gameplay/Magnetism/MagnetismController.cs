@@ -20,32 +20,22 @@ public class MagnetismController : MonoBehaviour
 		}
 	}
 
-	[SerializeField] public static List<MagneticObject> allMagneticObjects = new List<MagneticObject>();
-	[SerializeField] public static List<MagneticObject> movableMagneticObjects = new List<MagneticObject>();
-	[SerializeField] public static List<MagneticObject> players = new List<MagneticObject>();
+	[SerializeField] public static HashSet<MagneticObject> allMagneticObjects = new HashSet<MagneticObject>();
+	[SerializeField] public static HashSet<MagneticObject> movableMagneticObjects = new HashSet<MagneticObject>();
+	[SerializeField] public static HashSet<MagneticObject> players = new HashSet<MagneticObject>();
 
 	private float fixedDeltaTime;
-	[SerializeField] private float forceMultiplier = 4f;
-	[SerializeField] private float distanceFactor = 1.3f;
+	[SerializeField] private float forceMultiplier = 2f;
+	[SerializeField] private float distanceFactor = 1.2f;
 
 
 	private void Awake()
 	{
 		_instance = this;
-
-		if (allMagneticObjects == null)
-			allMagneticObjects = new List<MagneticObject>();
-
-		if (movableMagneticObjects == null)
-			movableMagneticObjects = new List<MagneticObject>();
-
-		if (players == null)
-			players = new List<MagneticObject>();
 	}
 
 	private void FixedUpdate()
 	{
-		fixedDeltaTime = Time.deltaTime;
 		foreach (MagneticObject magneticObject in movableMagneticObjects)
 		{
 			HandleMagneticObjects(magneticObject);
@@ -84,24 +74,24 @@ public class MagnetismController : MonoBehaviour
 		Vector2 totalForce = Vector2.zero;
 		if (objectToMove.inRangeOfMagnets.Count < 1)
         {
-			objectToMove.ApplyMagneticForce(force);
+			objectToMove.ApplyMagneticForce(totalForce);
 			return;
 		}
 
 		Vector2 objectPosition = objectToMove.transform.position;
 		foreach (MagneticObject otherObject in objectToMove.inRangeOfMagnets)
 		{
-			Vector2 closestPoint = otherObject.Collider.ClosestPoint(objectPosition);
+			Vector2 closestPoint = otherObject.oCollider.ClosestPoint(objectPosition);
 			Vector2 direction = objectPosition - closestPoint;
 			float distance = Vector2.Distance(objectPosition, closestPoint);
 
 			float forceMagnitude = forceMultiplier * ((objectToMove.currentCharge * otherObject.currentCharge) / (1 + Mathf.Pow(distance, distanceFactor)));
-			force.x = direction.normalized.x * forceMagnitude * fixedDeltaTime;
-			force.y = direction.normalized.y * forceMagnitude * fixedDeltaTime;
+			force.x = direction.normalized.x * forceMagnitude;
+			force.y = direction.normalized.y * forceMagnitude;
 			totalForce += force;
 
-			if (Physics2D.IsTouching(objectToMove.Collider, otherObject.Collider) && otherObject.isMoveable)
-                otherObject.ApplyMagneticForce(-force);
+			//if (Physics2D.IsTouching(objectToMove.oCollider, otherObject.oCollider) && otherObject.isMoveable)
+			//	otherObject.ApplyMagneticForce(-force);
 		}
 
 		objectToMove.ApplyMagneticForce(totalForce);
