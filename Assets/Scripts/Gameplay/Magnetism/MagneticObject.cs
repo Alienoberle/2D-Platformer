@@ -11,8 +11,8 @@ public class MagneticObject : MonoBehaviour
 {
 	private PlayerController playerController;
 	private MagnetismController magnetismController;
-    public Rigidbody2D oRigidbody { get; private set; }
-	public Collider2D oCollider { get; private set; }
+    public Rigidbody2D objectRigidbody { get; private set; }
+	public Collider2D objectCollider { get; private set; }
 
 	[SerializeField] private Polarization defaultPolarization = Polarization.neutral;
 	[SerializeField] private float defaultCharge = 1;
@@ -22,6 +22,7 @@ public class MagneticObject : MonoBehaviour
 
 	public bool isMoveable;
 	[SerializeField] private bool isPlayer;
+	[SerializeField] private float maxMagneticForce = 20.0f;
 
 	[HideInInspector] public HashSet<MagneticObject> magnetsInRange = new HashSet<MagneticObject>();
 	[HideInInspector] public HashSet<MagneticObject> inRangeOfMagnets = new HashSet<MagneticObject>();
@@ -31,8 +32,8 @@ public class MagneticObject : MonoBehaviour
 
 	private void Awake()
     {
-        oRigidbody = GetComponent<Rigidbody2D>();
-		oCollider = GetComponent<Collider2D>();
+        objectRigidbody = GetComponent<Rigidbody2D>();
+		objectCollider = GetComponent<Collider2D>();
 		magnetismController = MagnetismController.instance;
 	}
 	private void OnEnable()
@@ -53,6 +54,8 @@ public class MagneticObject : MonoBehaviour
     public void ApplyMagneticForce(Vector2 forceToApply)
     {
 		magneticForce = forceToApply;
+		magneticForce.x = Mathf.Clamp(magneticForce.x, -maxMagneticForce, maxMagneticForce);
+		magneticForce.y = Mathf.Clamp(magneticForce.y, -maxMagneticForce, maxMagneticForce);
 		if (isPlayer)
         {
 			playerController.magneticForce.x = magneticForce.x;
@@ -65,7 +68,7 @@ public class MagneticObject : MonoBehaviour
 				newPosition = transform.position;
 				newPosition.x += magneticForce.x * Time.fixedDeltaTime;
 				newPosition.y += magneticForce.y * Time.fixedDeltaTime;
-				oRigidbody.MovePosition(newPosition);
+				objectRigidbody.MovePosition(newPosition);
 			}
         }
 	}
@@ -92,15 +95,15 @@ public class MagneticObject : MonoBehaviour
 		if (isMoveable)
         {
 			magnetismController.RegisterMagneticObject(this, isMoveable, false);
-			oRigidbody.bodyType = RigidbodyType2D.Dynamic;
-			oRigidbody.useAutoMass = true;
-			oRigidbody.gravityScale = 15;
+			objectRigidbody.bodyType = RigidbodyType2D.Dynamic;
+			objectRigidbody.useAutoMass = true;
+			objectRigidbody.gravityScale = 15;
 		}
         else
         {
 			magnetismController.UnRegisterMagneticObject(this, isMoveable, false);
-			oRigidbody.bodyType = RigidbodyType2D.Kinematic;
-			oRigidbody.useFullKinematicContacts = true;
+			objectRigidbody.bodyType = RigidbodyType2D.Kinematic;
+			objectRigidbody.useFullKinematicContacts = true;
 		}
 
 	}

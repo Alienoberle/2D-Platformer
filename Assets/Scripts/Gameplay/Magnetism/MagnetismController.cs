@@ -72,7 +72,7 @@ public class MagnetismController : MonoBehaviour
 	{
 		Vector2 force = Vector2.zero;
 		Vector2 totalForce = Vector2.zero;
-		if (objectToMove.inRangeOfMagnets.Count < 1)
+		if (objectToMove.inRangeOfMagnets.Count < 1 || objectToMove.currentCharge == 0)
         {
 			objectToMove.ApplyMagneticForce(totalForce);
 			return;
@@ -81,7 +81,7 @@ public class MagnetismController : MonoBehaviour
 		Vector2 objectPosition = objectToMove.transform.position;
 		foreach (MagneticObject otherObject in objectToMove.inRangeOfMagnets)
 		{
-			Vector2 closestPoint = otherObject.oCollider.ClosestPoint(objectPosition);
+			Vector2 closestPoint = otherObject.objectCollider.ClosestPoint(objectPosition);
 			Vector2 direction = objectPosition - closestPoint;
 			float distance = Vector2.Distance(objectPosition, closestPoint);
 
@@ -89,11 +89,7 @@ public class MagnetismController : MonoBehaviour
 			force.x = direction.normalized.x * forceMagnitude;
 			force.y = direction.normalized.y * forceMagnitude;
 			totalForce += force;
-
-			//if (Physics2D.IsTouching(objectToMove.oCollider, otherObject.oCollider) && otherObject.isMoveable)
-			//	otherObject.ApplyMagneticForce(-force);
 		}
-
 		objectToMove.ApplyMagneticForce(totalForce);
 	}
 }

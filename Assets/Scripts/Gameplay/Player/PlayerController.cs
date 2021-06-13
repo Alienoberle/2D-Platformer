@@ -30,7 +30,6 @@ public class PlayerController : MonoBehaviour
     private float gravity;
     private float maxGravity = -20.0f;
     private bool isGravity = true;
-    
 
     [Header("Jumping")]
     [SerializeField] private float maxJumpHeight = 4f;
@@ -94,11 +93,12 @@ public class PlayerController : MonoBehaviour
     {
         // Calculate velocities
         deltaTime = Time.fixedDeltaTime;
-        CalculateInputVelocity();   // absolute
-        WallSliding();              // absolute
-        Dashing();                  // absolute
-        CalculateMagneticForce();   // additional
-        CalculateGravity();         // additional
+        CalculateGravity();
+        CalculateMagneticForce();
+        CalculateInputVelocity();   
+        WallSliding();              
+        Dashing();
+
 
         // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
         playerCollision.Move(velocity * deltaTime, directionalInput);
@@ -144,10 +144,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (velocity.y + gravity * deltaTime / 2 < maxGravity)
-                velocity.y = maxGravity;
-            else
-                velocity.y += gravity * deltaTime / 2;
+            velocity.y = 0;
         }
     }
     private void CalculateInputVelocity()
@@ -162,28 +159,20 @@ public class PlayerController : MonoBehaviour
     {
         if (magneticForce.x != 0 || magneticForce.y != 0)
         {
-            velocity.x += magneticForce.x;
-            velocity.y += magneticForce.y;
-            isGravity = false;
+            velocity.x = magneticForce.x;
+            velocity.y = magneticForce.y;
         }
-        else
-        {
-            isGravity = true;
-        }
-    }
-    
+    } 
     private void WallSliding()
     {
         // Figure out wall direction
         wallDirectionX = (playerCollision.collisionInfo.left) ? -1 : 1;
-
 
         playerInfo.isWallsliding = false;
         if ((playerCollision.collisionInfo.left || playerCollision.collisionInfo.right) && !playerCollision.collisionInfo.below && velocity.y < 0)
         {
             // Set wallSlideSpeedMax
             playerInfo.isWallsliding = true;
-            isGravity = false;
             if (velocity.y < -wallSlideSpeedMax)
             {
                 velocity.y = -wallSlideSpeedMax;
@@ -206,7 +195,6 @@ public class PlayerController : MonoBehaviour
             else
             {
                 timeToWallUnstick = wallStickTime;
-                isGravity = true;
             }
         }
     }
