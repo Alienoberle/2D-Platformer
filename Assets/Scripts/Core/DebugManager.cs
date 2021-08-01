@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class DebugManager : MonoBehaviour
 {
-    private PlayerControls playerControls;
+    private Controls controls;
     private bool debugMenuOpen;
 
     // Singleton set up
@@ -22,24 +22,24 @@ public class DebugManager : MonoBehaviour
     private void Awake()
     {
         _instance = this;
-        playerControls = new PlayerControls();
+        //playerControls = new PlayerControls();
         debugMenuOpen = false;
     }
 
     private void OnEnable()
     {
-        playerControls.Debug.Enable();
-        playerControls.Debug.DebugMenu.performed += context => ToggleDebugMenu();
-        playerControls.Debug.GodMode.performed += context => GodMode();
-        playerControls.Debug.Suicide.performed += context => Suicide();
+        //playerControls.Debug.Enable();
+        //playerControls.Debug.DebugMenu.performed += context => ToggleDebugMenu();
+        //playerControls.Debug.GodMode.performed += context => GodMode();
+        //playerControls.Debug.Suicide.performed += context => Suicide();
     }
 
     private void OnDisable()
     {
-        playerControls.Debug.Disable();
-        playerControls.Debug.DebugMenu.performed -= context => ToggleDebugMenu();
-        playerControls.Debug.GodMode.performed -= context => GodMode();
-        playerControls.Debug.Suicide.performed -= context => Suicide();
+        //playerControls.Debug.Disable();
+        //playerControls.Debug.DebugMenu.performed -= context => ToggleDebugMenu();
+        //playerControls.Debug.GodMode.performed -= context => GodMode();
+        //playerControls.Debug.Suicide.performed -= context => Suicide();
     }
 
     private void ToggleDebugMenu()
@@ -47,14 +47,14 @@ public class DebugManager : MonoBehaviour
         if(debugMenuOpen == false)
         {
             SceneManager.LoadSceneAsync("DebugMenu", LoadSceneMode.Additive);
-            FindObjectOfType<PlayerInputHandler>().DisablePlayerControls();
+            //FindObjectOfType<PlayerInputHandler>().DisablePlayerControls();
             Time.timeScale = 0.0f;
             debugMenuOpen = true;
         }
         else
         {
             SceneManager.UnloadSceneAsync("DebugMenu");
-            FindObjectOfType<PlayerInputHandler>().EnablePlayerControls();
+            //FindObjectOfType<PlayerInputHandler>().EnablePlayerControls();
             Time.timeScale = 1.0f;
             debugMenuOpen = false;
         }

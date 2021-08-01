@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerCollision))]
 public class PlayerInputHandler : MonoBehaviour
 {
-    private PlayerControls playerControls;
+    //private Controls controls;
     private PlayerController playerController;
     private PlayerCollision playerCollision;
 
@@ -15,39 +15,16 @@ public class PlayerInputHandler : MonoBehaviour
 
     private void Awake()
     {
-        playerControls = new PlayerControls();
         playerController = GetComponent<PlayerController>();
         playerCollision = GetComponent<PlayerCollision>();
     }
 
-    private void OnEnable()
+    public void Movement(InputAction.CallbackContext context)
     {
-        playerControls.Player.Enable();
-        playerControls.Player.Movement.performed += Movement;
-        playerControls.Player.Jump.performed += Jump;
-        playerControls.Player.JumpRelease.performed += JumpRelease;
-        playerControls.Player.Dash.performed += Dash;
-        playerControls.Player.ChargePos.performed += ChargePositive;
-        playerControls.Player.ChargePos.canceled += ChargePositive;
-        playerControls.Player.ChargeNeg.performed += ChargeNegative;
-        playerControls.Player.ChargeNeg.canceled += ChargeNegative;
-    }
-
-    private void OnDisable()
-    {
-        playerControls.Player.Disable();
-        playerControls.Player.Movement.performed -= Movement;
-        playerControls.Player.Jump.performed -= Jump;
-        playerControls.Player.JumpRelease.performed -= JumpRelease;
-        playerControls.Player.Dash.performed -= Dash;
-        playerControls.Player.ChargePos.performed -= ChargePositive;
-        playerControls.Player.ChargePos.canceled -= ChargePositive;
-        playerControls.Player.ChargeNeg.performed -= ChargeNegative;
-        playerControls.Player.ChargeNeg.canceled -= ChargeNegative;
-    }
-
-    private void Movement(InputAction.CallbackContext context)
-    {
+        if (!gameObject.activeInHierarchy) // or if (!gameObject.scene.IsValid()) see: https://stackoverflow.com/questions/62707625/unity-input-system-button-triggers-multiple-times
+        {
+            return;
+        }
         directionalInput = context.ReadValue<Vector2>();
         playerController.SetDirectionalInput(directionalInput);
 
@@ -55,48 +32,59 @@ public class PlayerInputHandler : MonoBehaviour
         {
             playerCollision.playerPressedDown = true;
         }
-        else playerCollision.playerPressedDown = false;
+        else 
+            playerCollision.playerPressedDown = false;
     }
 
-    private void Jump(InputAction.CallbackContext context)
+    public void Jump(InputAction.CallbackContext context)
     {
-        playerController.OnJumpInput();
+        if (!gameObject.activeInHierarchy) // or if (!gameObject.scene.IsValid())
+        {
+            return;
+        }
+        if (context.performed)
+        {
+            playerController.OnJumpInput();
+        }
+        if (context.canceled)
+        {
+            playerController.OnJumpInputRelease();
+        }
     }
 
-    private void JumpRelease(InputAction.CallbackContext context)
+    public void Dash(InputAction.CallbackContext context)
     {
-        playerController.OnJumpInputRelease();
+        if (!gameObject.activeInHierarchy) // or if (!gameObject.scene.IsValid())
+        {
+            return;
+        }
+
+        if (context.performed)
+        {
+            playerController.OnDashInput();
+        }
     }
 
-    private void Dash(InputAction.CallbackContext context)
+    public void ChargePositive(InputAction.CallbackContext context)
     {
-        playerController.OnDashInput();
-    }
-
-    private void ChargePositive(InputAction.CallbackContext context)
-    {
+        if (!gameObject.activeInHierarchy) // or if (!gameObject.scene.IsValid())
+        {
+            return;
+        }
         if (context.performed)
             playerController.OnChangeCharge(Polarization.positive);
-        else
+        else if(context.canceled)
             playerController.OnChangeCharge(Polarization.neutral);
     }
-    private void ChargeNegative(InputAction.CallbackContext context)
+    public void ChargeNegative(InputAction.CallbackContext context)
     {
+        if (!gameObject.activeInHierarchy) // or if (!gameObject.scene.IsValid())
+        {
+            return;
+        }
         if (context.performed)
             playerController.OnChangeCharge(Polarization.negative);
-        else
+        else if (context.canceled)
             playerController.OnChangeCharge(Polarization.neutral);
     }
-
-    public void EnablePlayerControls()
-    {
-        playerControls.Player.Enable();
-    }
-    public void DisablePlayerControls()
-    {
-        playerControls.Player.Disable();
-    }
-
-    
-
 }

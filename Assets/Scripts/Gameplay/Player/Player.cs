@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEditorInternal;
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerInputHandler))]
 [RequireComponent(typeof(PlayerController))]
 [RequireComponent(typeof(PlayerCollision))]
 public class Player : MonoBehaviour
