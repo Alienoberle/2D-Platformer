@@ -8,14 +8,15 @@ public class PlayerCollision : RaycastController
     public CollisionInfo collisionInfo;
 
     [HideInInspector] public Vector2 playerInput;
+    [HideInInspector] public bool playerPressedDown;
 
     private Vector2 initialVelocity;
     private Rigidbody2D rigidBody;
     private Vector2 lastPosition;
-    private Vector2 newPosition;
+    private Vector2 currentPosition;
 
     [HideInInspector] public float maxSlopeAngle;
-    [HideInInspector] public bool playerPressedDown;
+    
 
     public override void Awake()
     {
@@ -25,7 +26,6 @@ public class PlayerCollision : RaycastController
     public override void Start()
     {
         base.Start();
-        lastPosition = transform.position;
         collisionInfo.faceingDirection = 1;  // just to give a starting direction
     }
 
@@ -68,11 +68,10 @@ public class PlayerCollision : RaycastController
         }
 
         // actual movement after collision has been calculated
-        newPosition = lastPosition;
-        newPosition.x += moveAmount.x;
-        newPosition.y += moveAmount.y;
-        rigidBody.MovePosition(newPosition);
-        lastPosition = newPosition;
+        currentPosition = transform.position;
+        currentPosition.x += moveAmount.x;
+        currentPosition.y += moveAmount.y;
+        rigidBody.MovePosition(currentPosition);
     }
 
     void HorizontalCollisions(ref Vector2 moveAmount)
