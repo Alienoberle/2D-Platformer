@@ -3,30 +3,47 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Cinemachine;
 
 public class CameraManager : MonoBehaviour
 {
-    [SerializeField] private Camera mainCamera;
-    [SerializeField] private Vector3 startPosition;
+    [SerializeField] private CinemachineVirtualCamera virtualCamera;
+    [SerializeField] private GameObject startPosition;
+    [SerializeField] private GameObject cameraTarget;
+    [SerializeField] private float minOrtographicSize = 10.0f; // max. zoom
+    [SerializeField] private float maxOrtographicSize = 15.0f; // min. zoom
+    [SerializeField] private float zoomLimit = 30.0f;
     public List<Transform> cameraTargets;
     private Bounds debugBounds;
 
     private void OnEnable()
     {
-        if (startPosition == null)
-            startPosition = Vector3.zero;
+        Move(startPosition.transform.position);
     }
     private void LateUpdate()
     {
-        transform.position = GetCenterPoint();
+        if (cameraTargets.Count < 1)
+            return;
+        (Vector3 center, float sizeX) cameraBounds = CalculateCameraBounds();
+        Move(cameraBounds.Item1);
+        Zoom(cameraBounds.Item2);
     }
 
-    private Vector3 GetCenterPoint()
+    private void Move(Vector3 center)
     {
-        if (cameraTargets.Count < 1)
-            return startPosition;
-        else if (cameraTargets.Count == 1)
-            return cameraTargets[0].position;
+        cameraTarget.transform.position = center;
+    }
+    private void Zoom(float sizeX)
+    {
+        float newOrtographicSize = Mathf.Lerp(minOrtographicSize, maxOrtographicSize, Mathf.Clamp01(sizeX / zoomLimit));
+        virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(virtualCamera.m_Lens.OrthographicSize, newOrtographicSize, Time.deltaTime);
+       ;
+    }
+
+    private (Vector3 center, float sizeX) CalculateCameraBounds()
+    {
+        if (cameraTargets.Count == 1)
+            return (cameraTargets[0].position, 0);
         else 
         {
             var bounds = new Bounds(cameraTargets[0].position, Vector2.zero);
@@ -35,7 +52,7 @@ public class CameraManager : MonoBehaviour
                 bounds.Encapsulate(cameraTargets[i].position);
             }
             debugBounds = bounds;
-            return bounds.center;
+            return (bounds.center, bounds.size.x);
         }
     }
     public void AddCameraTarget(PlayerInput input) => cameraTargets.Add(input.gameObject.transform);
