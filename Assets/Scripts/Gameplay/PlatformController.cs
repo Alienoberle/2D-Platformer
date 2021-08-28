@@ -44,7 +44,7 @@ public class PlatformController : RaycastController
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         UpdateRaycastOrigins();
 
