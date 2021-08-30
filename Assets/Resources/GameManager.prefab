@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2196791512646916652}
   - component: {fileID: 4434162127877457214}
+  - component: {fileID: 2050091727}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -43,4 +44,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6527e440817e1c743956ac88b89a3e06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerHealth: {fileID: 11400000, guid: 565c46341197d164fb4bacca47ce4303, type: 2}
+--- !u!114 &2050091727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5563500838069808317}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68055fcaa29472d4d998bc3865343a80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  voidGameEvent: {fileID: 11400000, guid: 8915dae2568805b4ab349f0325551cf4, type: 2}
+  OnEventRaised:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4434162127877457214}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: ExitGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
