@@ -17,12 +17,13 @@ public class PlatformController : RaycastController
 
     List<PassengerMovement> passengerMovement;
     Dictionary<Transform, PlayerCollision> passengerDictionary = new Dictionary<Transform, PlayerCollision>();
+    [SerializeField] private Rigidbody2D rigidBody;
 
     public float speed;
     [Range(1, 3)]
-    public float easeAmount = 1;
-    public float waitTime;
-    public bool isCyclic;
+    [SerializeField] private float easeAmount = 1;
+    [SerializeField] private float waitTime;
+    [SerializeField] private bool isCyclic;
 
     private int fromWaypointIndex;
     private float percentBetweenWaypoints;
@@ -30,11 +31,13 @@ public class PlatformController : RaycastController
 
     public Vector3[] localWaypoints;
     private Vector3[] globalWaypoints;
+    private Vector3 newPosition;
 
     // Start is called before the first frame update
     public override void Start()
     {
         base.Start();
+
 
         globalWaypoints = new Vector3[localWaypoints.Length];
         for (int i = 0; i < localWaypoints.Length; i++)
@@ -53,7 +56,9 @@ public class PlatformController : RaycastController
         CalculatePassengerMovement(velocity);
 
         MovePassengers(true);
-        transform.Translate(velocity);
+        newPosition = transform.position + velocity;
+        transform.position = transform.position + velocity;
+        //rigidBody.MovePosition(newPosition);
         MovePassengers(false);
     }
 

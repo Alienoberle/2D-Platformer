@@ -13,7 +13,7 @@ public class PlayerCollision : RaycastController
     private Vector2 initialVelocity;
     private Rigidbody2D rigidBody;
     private Vector2 lastPosition;
-    private Vector2 currentPosition;
+    private Vector2 newPosition;
 
     [HideInInspector] public float maxSlopeAngle;
     
@@ -68,10 +68,11 @@ public class PlayerCollision : RaycastController
         }
 
         // actual movement after collision has been calculated
-        currentPosition = transform.position;
-        currentPosition.x += moveAmount.x;
-        currentPosition.y += moveAmount.y;
-        rigidBody.MovePosition(currentPosition);
+        newPosition = transform.position;
+        newPosition.x += moveAmount.x;
+        newPosition.y += moveAmount.y;
+        //rigidBody.MovePosition(newPosition);
+        transform.position = newPosition;
     }
 
     void HorizontalCollisions(ref Vector2 moveAmount)
