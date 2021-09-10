@@ -28,7 +28,7 @@ public class PlayerInputHandler : MonoBehaviour
         directionalInput = context.ReadValue<Vector2>();
         playerController.SetDirectionalInput(directionalInput);
 
-        if (directionalInput.y < -0.9)
+        if (directionalInput.y < -0.95)
         {
             playerCollision.playerPressedDown = true;
         }
