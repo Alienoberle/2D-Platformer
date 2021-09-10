@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     MagneticObject magneticComponent;
 
     [HideInInspector] public PlayerInfo playerInfo;
-    [HideInInspector] public Vector2 directionalInput;
+    public Vector2 directionalInput;
     public Vector2 magneticForce;
     public Vector2 velocity;
     private float deltaTime;
@@ -234,7 +234,7 @@ public class PlayerController : MonoBehaviour
         // If the player is currently wall sliding
         if (playerInfo.isWallsliding)
         {
-            if (wallDirectionX == directionalInput.x)
+            if (wallDirectionX == Mathf.Sign(directionalInput.x))
             {
                 velocity.x = -wallDirectionX * wallJumpClimb.x;
                 velocity.y = wallJumpClimb.y;
@@ -259,11 +259,10 @@ public class PlayerController : MonoBehaviour
                 {
                     velocity.y = maxJumpVelocity * playerCollision.collisionInfo.slopeNormal.y;
                     velocity.x = maxJumpVelocity * playerCollision.collisionInfo.slopeNormal.x;
-
                 }
             }
 
-            else if (directionalInput.y != -1)
+            else if (directionalInput.y !> -0.95f) // input values are from 0.999... to -0.999...
             {
                 velocity.y = maxJumpVelocity;
             }
