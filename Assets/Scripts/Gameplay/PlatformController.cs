@@ -17,7 +17,6 @@ public class PlatformController : RaycastController
 
     List<PassengerMovement> passengerMovement;
     Dictionary<Transform, PlayerCollision> passengerDictionary = new Dictionary<Transform, PlayerCollision>();
-    [SerializeField] private Rigidbody2D rigidBody;
 
     public float speed;
     [Range(1, 3)]
@@ -31,7 +30,6 @@ public class PlatformController : RaycastController
 
     public Vector3[] localWaypoints;
     private Vector3[] globalWaypoints;
-    private Vector3 newPosition;
 
     // Start is called before the first frame update
     public override void Start()
@@ -47,7 +45,7 @@ public class PlatformController : RaycastController
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         UpdateRaycastOrigins();
 
@@ -56,9 +54,7 @@ public class PlatformController : RaycastController
         CalculatePassengerMovement(velocity);
 
         MovePassengers(true);
-        newPosition = transform.position + velocity;
         transform.position = transform.position + velocity;
-        //rigidBody.MovePosition(newPosition);
         MovePassengers(false);
     }
 
