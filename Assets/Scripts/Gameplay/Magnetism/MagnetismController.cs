@@ -19,6 +19,10 @@ public class MagnetismController : MonoBehaviour
 			return _instance;
 		}
 	}
+	public ContactFilter2D filter;
+	private RaycastHit2D[] hits = new RaycastHit2D[10];
+	private Vector2 closestPoint;
+	private Vector2 otherClosestPoint;
 
 	[SerializeField] public static HashSet<MagneticObject> allMagneticObjects = new HashSet<MagneticObject>();
 	[SerializeField] public static HashSet<MagneticObject> movableMagneticObjects = new HashSet<MagneticObject>();
@@ -34,13 +38,13 @@ public class MagnetismController : MonoBehaviour
 		_instance = this;
 	}
 
-	private void FixedUpdate()
+	private void Update()
 	{
-		foreach (MagneticObject magneticObject in movableMagneticObjects)
+		foreach (MagneticObject magneticObject in players)
 		{
 			HandleMagneticObjects(magneticObject);
 		}
-		foreach (MagneticObject magneticObject in players)
+		foreach (MagneticObject magneticObject in movableMagneticObjects)
 		{
 			HandleMagneticObjects(magneticObject);
 		}
@@ -78,17 +82,52 @@ public class MagnetismController : MonoBehaviour
 			return;
 		}
 
-		Vector2 objectPosition = objectToMove.transform.position;
 		foreach (MagneticObject otherObject in objectToMove.inRangeOfMagnets)
 		{
-			Vector2 closestPoint = otherObject.objectCollider.ClosestPoint(objectPosition);
-			Vector2 direction = objectPosition - closestPoint;
-			float distance = Vector2.Distance(objectPosition, closestPoint);
+            //Vector2 closestPoint = objectToMove.objectCollider.ClosestPoint(otherObject.transform.position);
+            //Vector2 otherClosestPoint = otherObject.objectCollider.ClosestPoint(objectToMove.transform.position);
+
+            Vector2 direction = objectToMove.transform.position - otherObject.transform.position;
+            int objectsHit = otherObject.objectCollider.Raycast(direction, filter, hits);
+            for (int i = 0; i < objectsHit; i++)
+            {
+                if (hits[i].transform.gameObject == objectToMove.gameObject)
+                {
+                    closestPoint = hits[i].point;
+
+                    Debug.Log(hits[i].point);
+                    Debug.DrawRay(hits[i].normal, new Vector2(0.5f, 0));
+                    Debug.DrawRay(hits[i].point, new Vector2(-0.5f, 0));
+                    Debug.DrawRay(hits[i].point, new Vector2(0, 0.5f));
+                    Debug.DrawRay(hits[i].point, new Vector2(0, -0.5f));
+                }
+            }
+            Array.Clear(hits, 0, hits.Length);
+            direction *= -1;
+            int objectsHit2 = objectToMove.objectCollider.Raycast(direction, filter, hits);
+            for (int i = 0; i < objectsHit2; i++)
+            {
+                if (hits[i].transform.gameObject == otherObject.gameObject)
+                {
+                    otherClosestPoint = hits[i].point;
+
+                    Debug.Log(hits[i].point);
+                    Debug.DrawRay(hits[i].normal, new Vector2(0.5f, 0));
+                    Debug.DrawRay(hits[i].point, new Vector2(-0.5f, 0));
+                    Debug.DrawRay(hits[i].point, new Vector2(0, 0.5f));
+                    Debug.DrawRay(hits[i].point, new Vector2(0, -0.5f));
+                }
+            }
+
+            Vector2 directionClosest = closestPoint - otherClosestPoint;
+			float distance = Vector2.Distance(closestPoint, otherClosestPoint);
+			Debug.DrawLine(closestPoint, otherClosestPoint);
 
 			float forceMagnitude = forceMultiplier * ((objectToMove.currentCharge * otherObject.currentCharge) / (1 + Mathf.Pow(distance, distanceFactor)));
-			force.x = direction.normalized.x * forceMagnitude;
-			force.y = direction.normalized.y * forceMagnitude;
+			force.x = directionClosest.normalized.x * forceMagnitude;
+			force.y = directionClosest.normalized.y * forceMagnitude;
 			totalForce += force;
+
 		}
 		objectToMove.ApplyMagneticForce(totalForce);
 	}

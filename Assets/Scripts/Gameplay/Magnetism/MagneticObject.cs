@@ -10,6 +10,8 @@ using UnityEditor;
 public class MagneticObject : MonoBehaviour
 {
 	private PlayerController playerController;
+	private PlayerCollision playerCollision;
+
 	private MagnetismController magnetismController;
     public Rigidbody2D objectRigidbody { get; private set; }
 	public Collider2D objectCollider { get; private set; }
@@ -34,6 +36,7 @@ public class MagneticObject : MonoBehaviour
     {
         objectRigidbody = GetComponent<Rigidbody2D>();
 		objectCollider = GetComponent<Collider2D>();
+		playerCollision = GetComponent<PlayerCollision>();
 		magnetismController = MagnetismController.instance;
 	}
 	private void OnEnable()
@@ -60,15 +63,16 @@ public class MagneticObject : MonoBehaviour
         {
 			playerController.magneticForce.x = magneticForce.x;
 			playerController.magneticForce.y = magneticForce.y;
+			//playerCollision.Move(magneticForce * Time.deltaTime, false);
 		}
 		else 
 		{
 			if(magneticForce.x != 0 || magneticForce.y != 0)
             {
 				newPosition = transform.position;
-				newPosition.x += magneticForce.x * Time.fixedDeltaTime;
-				newPosition.y += magneticForce.y * Time.fixedDeltaTime;
-				objectRigidbody.MovePosition(newPosition);
+				newPosition.x += magneticForce.x * Time.deltaTime;
+				newPosition.y += magneticForce.y * Time.deltaTime;
+				transform.position = newPosition;
 			}
         }
 	}
