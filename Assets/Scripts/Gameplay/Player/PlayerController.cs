@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour
 
     private float gravity;
     private float maxGravity = -20.0f;
-    private bool isGravity = true;
+    public bool isGravity = true;
 
     [Header("Jumping")]
     [SerializeField] private float maxJumpHeight = 4f;
@@ -89,10 +89,10 @@ public class PlayerController : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void FixedUpdate()
+    private void Update()
     {
         // Calculate velocities
-        deltaTime = Time.fixedDeltaTime;
+        deltaTime = Time.deltaTime;
         CalculateGravity();
         CalculateMagneticForce();
         CalculateInputVelocity();   
@@ -346,14 +346,14 @@ public class PlayerController : MonoBehaviour
         { 
             velocity.y = 0;
             velocity.x = dashVelocity * dashingDirectionX;
-            dashTimer -= Time.deltaTime;
+            dashTimer -= deltaTime;
             isGravity = false;
 
             if ((dashTimer * dashProgress) < 0)
             {
                 float targetVelocityX = directionalInput.x * movementSpeed;
                 velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, dashTimer * (1-dashProgress));
-                dashTimer -= Time.deltaTime;
+                dashTimer -= deltaTime;
             }
             if(dashTimer < 0)
             {
