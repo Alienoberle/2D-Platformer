@@ -11,8 +11,6 @@ public class PlayerCollision : RaycastController
     [HideInInspector] public bool playerPressedDown;
 
     private Vector2 initialVelocity;
-    private Rigidbody2D rigidBody;
-    private Vector2 lastPosition;
     private Vector2 newPosition;
 
     [HideInInspector] public float maxSlopeAngle;
@@ -21,7 +19,6 @@ public class PlayerCollision : RaycastController
     public override void Awake()
     {
         base.Awake();
-        rigidBody = GetComponent<Rigidbody2D>();
     }
     public override void Start()
     {
@@ -71,7 +68,6 @@ public class PlayerCollision : RaycastController
         newPosition = transform.position;
         newPosition.x += moveAmount.x;
         newPosition.y += moveAmount.y;
-        //rigidBody.MovePosition(newPosition);
         transform.position = newPosition;
     }
 
