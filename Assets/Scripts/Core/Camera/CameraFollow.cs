@@ -40,20 +40,20 @@ public class CameraFollow : MonoBehaviour
         playerInput = player.GetComponent<PlayerInputHandler>();
 
         // Make we have a focus area size at least the size of the player bounds
-        if (focusAreaSize.x < target.collider.bounds.size.x || focusAreaSize.x < target.collider.bounds.size.y)
+        if (focusAreaSize.x < target.col2D.bounds.size.x || focusAreaSize.x < target.col2D.bounds.size.y)
         {
-            focusAreaSize.x = target.collider.bounds.size.x;
-            focusAreaSize.y = target.collider.bounds.size.y;
+            focusAreaSize.x = target.col2D.bounds.size.x;
+            focusAreaSize.y = target.col2D.bounds.size.y;
             Debug.LogWarning("Camera Focus Area is not set up correctly! " + "Set Focus Area Size x to: " + focusAreaSize.x + " Set Focus Area Size y to: " + focusAreaSize.y);
         }
 
-        focusArea = new FocusArea(target.collider.bounds, focusAreaSize);
+        focusArea = new FocusArea(target.col2D.bounds, focusAreaSize);
     }
 
     // We want to move the camera after all the player movement for this frame has already happend
     void LateUpdate()
     {
-        focusArea.Update(target.collider.bounds);
+        focusArea.Update(target.col2D.bounds);
 
         Vector2 focusPosition = focusArea.center + Vector2.up * verticalOffset;
 

@@ -10,7 +10,6 @@ using UnityEditor;
 public class MagneticObject : MonoBehaviour
 {
 	private PlayerController playerController;
-	private PlayerCollision playerCollision;
 
 	private MagnetismController magnetismController;
     public Rigidbody2D objectRigidbody { get; private set; }
@@ -24,19 +23,16 @@ public class MagneticObject : MonoBehaviour
 
 	public bool isMoveable;
 	[SerializeField] private bool isPlayer;
-	[SerializeField] private float maxMagneticForce = 20.0f;
 
 	[HideInInspector] public HashSet<MagneticObject> magnetsInRange = new HashSet<MagneticObject>();
 	[HideInInspector] public HashSet<MagneticObject> inRangeOfMagnets = new HashSet<MagneticObject>();
 
-	private Vector2 newPosition;
 	private Vector2 magneticForce;
 
 	private void Awake()
     {
         objectRigidbody = GetComponent<Rigidbody2D>();
 		objectCollider = GetComponent<Collider2D>();
-		playerCollision = GetComponent<PlayerCollision>();
 		magnetismController = MagnetismController.instance;
 	}
 	private void OnEnable()
@@ -57,24 +53,15 @@ public class MagneticObject : MonoBehaviour
     public void ApplyMagneticForce(Vector2 forceToApply)
     {
 		magneticForce = forceToApply;
-		magneticForce.x = Mathf.Clamp(magneticForce.x, -maxMagneticForce, maxMagneticForce);
-		magneticForce.y = Mathf.Clamp(magneticForce.y, -maxMagneticForce, maxMagneticForce);
 		if (isPlayer)
         {
-			playerController.magneticForce.x = magneticForce.x;
-			playerController.magneticForce.y = magneticForce.y;
-			//playerCollision.Move(magneticForce * Time.deltaTime, false);
+			playerController.playerInfo.isAffectedByMagnetism = true;
+			playerController.rb2D.AddForce(forceToApply);
 		}
 		else 
 		{
-			if(magneticForce.x != 0 || magneticForce.y != 0)
-            {
-				newPosition = transform.position;
-				newPosition.x += magneticForce.x * Time.deltaTime;
-				newPosition.y += magneticForce.y * Time.deltaTime;
-				transform.position = newPosition;
-			}
-        }
+			objectRigidbody.AddForce(forceToApply);
+		}
 	}
     private void OnTriggerEnter2D(Collider2D other)
     {

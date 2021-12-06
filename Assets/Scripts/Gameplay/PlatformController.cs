@@ -16,8 +16,10 @@ public class PlatformController : RaycastController
     public LayerMask passengerMask;
 
     List<PassengerMovement> passengerMovement;
-    Dictionary<Transform, PlayerCollision> passengerDictionary = new Dictionary<Transform, PlayerCollision>();
+    Dictionary<Transform, PlayerController> passengerDictionary = new Dictionary<Transform, PlayerController>();
 
+    [SerializeField] private Rigidbody2D rB2D;
+    private float forceMultiplier = 50.0f;
     public float speed;
     [Range(1, 3)]
     [SerializeField] private float easeAmount = 1;
@@ -45,16 +47,14 @@ public class PlatformController : RaycastController
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         UpdateRaycastOrigins();
-
-        Vector3 velocity = CalculatePlatformMovement();
+        Vector2 velocity = CalculatePlatformMovement();
 
         CalculatePassengerMovement(velocity);
-
         MovePassengers(true);
-        transform.position = transform.position + velocity;
+        rB2D.velocity = velocity * forceMultiplier;
         MovePassengers(false);
     }
 
@@ -68,19 +68,19 @@ public class PlatformController : RaycastController
         return Mathf.Pow(x, easeAmount) / (Mathf.Pow(x, easeAmount) + Mathf.Pow(1 - x, easeAmount));
     }
 
-    Vector3 CalculatePlatformMovement()
+    Vector2 CalculatePlatformMovement()
     {
         // do not move platform if waittime is still "active"
         if (Time.time < nextMoveTime)
         {
-            return Vector3.zero;
+            return Vector2.zero;
         }
 
         fromWaypointIndex %= globalWaypoints.Length; // make waypoints start from Index 0 again 
         int toWaypointIndex = (fromWaypointIndex + 1) % globalWaypoints.Length;
 
-        float distanceBetweenWaypoints = Vector3.Distance(globalWaypoints[fromWaypointIndex], globalWaypoints[toWaypointIndex]);
-        percentBetweenWaypoints += Time.deltaTime * speed / distanceBetweenWaypoints;
+        float distanceBetweenWaypoints = Vector2.Distance(globalWaypoints[fromWaypointIndex], globalWaypoints[toWaypointIndex]);
+        percentBetweenWaypoints += Time.fixedDeltaTime * speed / distanceBetweenWaypoints;
 
         // ease the movement
         percentBetweenWaypoints = Mathf.Clamp01(percentBetweenWaypoints); // clamp it to make sure we get no weird results from the ease fucnction
@@ -116,11 +116,11 @@ public class PlatformController : RaycastController
         {
             if (!passengerDictionary.ContainsKey(passenger.passengerTransform))
             {
-                passengerDictionary.Add(passenger.passengerTransform, passenger.passengerTransform.GetComponent<PlayerCollision>());
+                passengerDictionary.Add(passenger.passengerTransform, passenger.passengerTransform.GetComponent<PlayerController>());
             }
             if (passenger.movingBeforePlatform == beforeMovingPlatform)
             {
-                passengerDictionary[passenger.passengerTransform].Move(passenger.passengerVelocity, passenger.standingOnPlatform);
+                passengerDictionary[passenger.passengerTransform].platformVelocity = passenger.passengerVelocity * forceMultiplier;
             }
         }
     }
@@ -144,7 +144,7 @@ public class PlatformController : RaycastController
                 rayOrigin += Vector2.right * (verticalRaySpacing * i);
                 RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, rayLenght, passengerMask);
 
-                //Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLenght, Color.blue);
+                Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLenght, Color.blue);
 
                 if (hit)
                 {
@@ -155,7 +155,7 @@ public class PlatformController : RaycastController
                         float pushY = velocity.y - ((hit.distance - skinWidth) * directionY); // subtract the possible gap and skinwidth between platform and passenger
 
                         // Add new passenger movement info struct to the passengerMovement list
-                        passengerMovement.Add(new PassengerMovement(hit.transform, new Vector3(pushX, pushY), directionY == 1, true));
+                        passengerMovement.Add(new PassengerMovement(hit.transform, new Vector2(pushX, pushY), directionY == 1, true));
                     }
                 }
             }
@@ -185,7 +185,7 @@ public class PlatformController : RaycastController
                         float pushY = -skinWidth; // 0 would be correct, but add small downwardforce allows the passenger check below itself, to fix jumping issue
 
                         // Add new passenger movement info struct to the passengerMovement list
-                        passengerMovement.Add(new PassengerMovement(hit.transform, new Vector3(pushX, pushY), false, true));
+                        passengerMovement.Add(new PassengerMovement(hit.transform, new Vector2(pushX, pushY), false, true));
                     }
                 }
             }
@@ -213,7 +213,7 @@ public class PlatformController : RaycastController
                         float pushY = velocity.y;
 
                         // Add new passenger movement info struct to the passengerMovement list
-                        passengerMovement.Add(new PassengerMovement(hit.transform, new Vector3(pushX, pushY), true, false));
+                        passengerMovement.Add(new PassengerMovement(hit.transform, new Vector2(pushX, pushY), true, false));
                     }
                 }
             }
@@ -223,11 +223,11 @@ public class PlatformController : RaycastController
     struct PassengerMovement
     {
         public Transform passengerTransform;
-        public Vector3 passengerVelocity;
+        public Vector2 passengerVelocity;
         public bool standingOnPlatform;
         public bool movingBeforePlatform;
 
-        public PassengerMovement(Transform _transform, Vector3 _passengervelocity, bool _standingOnPlatform, bool _movingBeforePlatform)
+        public PassengerMovement(Transform _transform, Vector2 _passengervelocity, bool _standingOnPlatform, bool _movingBeforePlatform)
         {
             passengerTransform = _transform;
             passengerVelocity = _passengervelocity;
@@ -242,8 +242,8 @@ public class PlatformController : RaycastController
         {
             Gizmos.color = Color.yellow;
             float size = 0.1f;
-            collider = GetComponent<BoxCollider2D>();
-            Bounds bounds = collider.bounds;
+            col2D = GetComponent<BoxCollider2D>();
+            Bounds bounds = col2D.bounds;
 
             for (int i = 0; i < localWaypoints.Length; i++)
             {

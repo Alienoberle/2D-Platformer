@@ -7,6 +7,7 @@ TagManager:
   - MoveThrough
   - Magnet
   - MagnetField
+  - Platform
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - 
   - Player
   - Ground
-  - 
+  - Platform
   - Magnet
   - 
   - 

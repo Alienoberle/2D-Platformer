@@ -4,7 +4,6 @@ using UnityEngine.InputSystem;
 
 
 [RequireComponent(typeof(PlayerController))]
-[RequireComponent(typeof(PlayerCollision))]
 public class PlayerInputHandler : MonoBehaviour
 {
     //private Controls controls;
@@ -16,7 +15,7 @@ public class PlayerInputHandler : MonoBehaviour
     private void Awake()
     {
         playerController = GetComponent<PlayerController>();
-        playerCollision = GetComponent<PlayerCollision>();
+        //playerCollision = GetComponent<PlayerCollision>();
     }
 
     public void Movement(InputAction.CallbackContext context)
@@ -27,13 +26,6 @@ public class PlayerInputHandler : MonoBehaviour
         }
         directionalInput = context.ReadValue<Vector2>();
         playerController.SetDirectionalInput(directionalInput);
-
-        if (directionalInput.y < -0.95)
-        {
-            playerCollision.playerPressedDown = true;
-        }
-        else 
-            playerCollision.playerPressedDown = false;
     }
 
     public void Jump(InputAction.CallbackContext context)

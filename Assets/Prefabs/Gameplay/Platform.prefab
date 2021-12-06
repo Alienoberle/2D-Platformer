@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 5381456655781671147}
   - component: {fileID: 5381456655781671146}
   - component: {fileID: 5381456655781671149}
-  - component: {fileID: 3061250108814338677}
   - component: {fileID: 5381456655781671148}
+  - component: {fileID: 1905910227400100821}
   - component: {fileID: 5381456655781671144}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Platform
   m_TagString: MoveThrough
   m_Icon: {fileID: 0}
@@ -84,27 +84,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!50 &3061250108814338677
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5381456655781671151}
-  m_BodyType: 1
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 1
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 4
 --- !u!61 &5381456655781671148
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -131,6 +110,27 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!50 &1905910227400100821
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5381456655781671151}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 0.0001
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!114 &5381456655781671144
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -146,7 +146,7 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 512
-  collider: {fileID: 5381456655781671148}
+  col2D: {fileID: 5381456655781671148}
   horizontalRayCount: 3
   verticalRayCount: 4
   horizontalRaySpacing: 0
@@ -154,7 +154,7 @@ MonoBehaviour:
   passengerMask:
     serializedVersion: 2
     m_Bits: 256
-  rigidBody: {fileID: 3061250108814338677}
+  rB2D: {fileID: 1905910227400100821}
   speed: 2
   easeAmount: 1.5
   waitTime: 0

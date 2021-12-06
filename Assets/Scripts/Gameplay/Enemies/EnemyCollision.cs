@@ -3,7 +3,7 @@
 public class EnemyCollision : RaycastController
 {
     public CollisionInfo collisionInfo;
-
+    [SerializeField] private LayerMask collisionMask;
     private Vector2 initialVelocity;
     [HideInInspector] public float maxSlopeAngle;
     private bool fallThrough = false;

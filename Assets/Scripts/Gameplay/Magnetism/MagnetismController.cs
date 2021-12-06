@@ -28,9 +28,9 @@ public class MagnetismController : MonoBehaviour
 	[SerializeField] public static HashSet<MagneticObject> movableMagneticObjects = new HashSet<MagneticObject>();
 	[SerializeField] public static HashSet<MagneticObject> players = new HashSet<MagneticObject>();
 
-	private float fixedDeltaTime;
 	[SerializeField] private float forceMultiplier = 2f;
 	[SerializeField] private float distanceFactor = 1.2f;
+	[SerializeField] private float maxForce = 100f;
 
 
 	private void Awake()
@@ -38,7 +38,7 @@ public class MagnetismController : MonoBehaviour
 		_instance = this;
 	}
 
-	private void Update()
+	private void FixedUpdate()
 	{
 		foreach (MagneticObject magneticObject in players)
 		{
@@ -84,6 +84,7 @@ public class MagnetismController : MonoBehaviour
 
 		foreach (MagneticObject otherObject in objectToMove.inRangeOfMagnets)
 		{
+			// Using Unitys version but, prefers corners which makes it awkward.
             //Vector2 closestPoint = objectToMove.objectCollider.ClosestPoint(otherObject.transform.position);
             //Vector2 otherClosestPoint = otherObject.objectCollider.ClosestPoint(objectToMove.transform.position);
 
@@ -95,7 +96,6 @@ public class MagnetismController : MonoBehaviour
                 {
                     closestPoint = hits[i].point;
 
-                    Debug.Log(hits[i].point);
                     Debug.DrawRay(hits[i].normal, new Vector2(0.5f, 0));
                     Debug.DrawRay(hits[i].point, new Vector2(-0.5f, 0));
                     Debug.DrawRay(hits[i].point, new Vector2(0, 0.5f));
@@ -111,7 +111,6 @@ public class MagnetismController : MonoBehaviour
                 {
                     otherClosestPoint = hits[i].point;
 
-                    Debug.Log(hits[i].point);
                     Debug.DrawRay(hits[i].normal, new Vector2(0.5f, 0));
                     Debug.DrawRay(hits[i].point, new Vector2(-0.5f, 0));
                     Debug.DrawRay(hits[i].point, new Vector2(0, 0.5f));
@@ -123,12 +122,11 @@ public class MagnetismController : MonoBehaviour
 			float distance = Vector2.Distance(closestPoint, otherClosestPoint);
 			Debug.DrawLine(closestPoint, otherClosestPoint);
 
-			float forceMagnitude = forceMultiplier * ((objectToMove.currentCharge * otherObject.currentCharge) / (1 + Mathf.Pow(distance, distanceFactor)));
-			force.x = directionClosest.normalized.x * forceMagnitude;
-			force.y = directionClosest.normalized.y * forceMagnitude;
-			totalForce += force;
-
+			float forceMagnitude = forceMultiplier * ((objectToMove.currentCharge * otherObject.currentCharge) / Mathf.Pow(distance, distanceFactor));
+			forceMagnitude = Mathf.Clamp(forceMagnitude, -maxForce, maxForce);
+			totalForce += forceMagnitude * directionClosest.normalized;
 		}
+
 		objectToMove.ApplyMagneticForce(totalForce);
 	}
 }

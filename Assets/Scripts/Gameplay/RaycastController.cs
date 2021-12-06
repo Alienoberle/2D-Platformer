@@ -6,17 +6,13 @@
  * https://youtu.be/z20wHJSXk98?t=901 
  */
 
-[RequireComponent(typeof(BoxCollider2D))]
 public class RaycastController : MonoBehaviour
 {
-    public LayerMask collisionMask;
-
-    [HideInInspector]
-    public new Collider2D collider;
+    [HideInInspector] public Collider2D col2D;
 
     public RaycastOrigins raycastOrigins;
-    public const float skinWidth = 0.015f;
-    const float distanceBetweenRays = 0.2f;
+    public const float skinWidth = 0.025f;
+    const float distanceBetweenRays = 0.33f;
     [HideInInspector]
     public int horizontalRayCount;
     [HideInInspector]
@@ -30,7 +26,7 @@ public class RaycastController : MonoBehaviour
 
     public virtual void Awake()
     {
-        collider = GetComponent<BoxCollider2D>();
+        col2D = GetComponent<Collider2D>();
     }
     public virtual void Start()
     {
@@ -39,7 +35,7 @@ public class RaycastController : MonoBehaviour
 
     public void UpdateRaycastOrigins()
     {
-        Bounds bounds = collider.bounds;
+        Bounds bounds = col2D.bounds;
         bounds.Expand(skinWidth * -2);
 
         raycastOrigins.bottomLeft = new Vector2(bounds.min.x, bounds.min.y);
@@ -50,7 +46,7 @@ public class RaycastController : MonoBehaviour
 
     public void CalculateRaySpacing()
     {
-        Bounds bounds = collider.bounds;
+        Bounds bounds = col2D.bounds;
         bounds.Expand(skinWidth * -2);
 
         float boundsWidth = bounds.size.x;
