@@ -23,7 +23,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("GroundCheck")]
     private float gravity;
-    [SerializeField] private float maxGravity = -20.0f;
+    [SerializeField] private float maxGravity = -9.0f;
     public bool isGravity = true;
     
     [Header("Movement")]
@@ -77,6 +77,9 @@ public class PlayerController : MonoBehaviour
     [Header("Events")]
     [Space]
     public UnityEvent OnLandEvent;
+    public UnityEvent OnJumpEvent;
+    public UnityEvent OnDashEvent;
+    public UnityEvent OnMagnetismEvent;
     [System.Serializable] public class BoolEvent : UnityEvent<bool> { }
 
 
@@ -108,7 +111,7 @@ public class PlayerController : MonoBehaviour
         UpdatePlayerInfo();
         Gravity();
         CalculateInputVelocity();
-        //WallSliding();              
+        WallSliding();              
         Dashing();
         GhostJump();
 
@@ -144,7 +147,7 @@ public class PlayerController : MonoBehaviour
     {
         rb2D.velocity = aVelocity * 50.0f;
         rb2D.velocity += (playerInfo.isStandingOnPlatform)? platformVelocity: Vector2.zero;
-        rb2D.velocity += (playerInfo.isAffectedByMagnetism) ? magneticVelocity : Vector2.zero;
+        rb2D.velocity += (playerInfo.isAffectedByMagnetism)? magneticVelocity : Vector2.zero;
     }
     private void Gravity()
     {
@@ -258,6 +261,7 @@ public class PlayerController : MonoBehaviour
             jumpCounter -= 1;
             playerInfo.isJumping = true;
             animator.SetBool("IsJumping", true);
+            OnJumpEvent.Invoke();
         }
 
     }
@@ -305,6 +309,7 @@ public class PlayerController : MonoBehaviour
             dashCounter -= 1;
             playerInfo.isDashing = true;
             animator.SetBool("IsDashing", true);
+            OnDashEvent.Invoke();
         }
     }
     private bool CanPlayerDash()
@@ -355,18 +360,15 @@ public class PlayerController : MonoBehaviour
                 magnetVisualization.SetActive(true);
                 magnetVisualization.GetComponent<SpriteRenderer>().color = Color.red;
                 playerInfo.hasAirControl = false;
-                isGravity = false;
                 break;
             case Polarization.positive:
                 magnetVisualization.SetActive(true);
                 magnetVisualization.GetComponent<SpriteRenderer>().color = Color.blue;
                 playerInfo.hasAirControl = false;
-                isGravity = false;
                 break;
             case Polarization.neutral:
                 magnetVisualization.SetActive(false);
                 playerInfo.hasAirControl = true;
-                isGravity = true;
                 break;
         }
     }

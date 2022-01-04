@@ -347,19 +347,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 358e8cc31164fae4b81df5fda8a709a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerCollision: {fileID: 1052751534}
   rb2D: {fileID: 6482142273348202175}
-  animator: {fileID: 1354142621}
   directionalInput: {x: 0, y: 0}
   magneticVelocity: {x: 0, y: 0}
   platformVelocity: {x: 0, y: 0}
   velocity: {x: 0, y: 0}
   maxGravity: -16
   isGravity: 1
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 512
-  groundCheckPos: {fileID: 1098045578966458244}
   movementSpeed: 7
   maxJumpHeight: 4
   minJumpHeight: 1
@@ -378,6 +372,15 @@ MonoBehaviour:
   wallStickTime: 0.4
   magnetVisualization: {fileID: 6603813113037923547}
   OnLandEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  OnJumpEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDashEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  OnMagnetismEvent:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &1052751534

@@ -56,7 +56,8 @@ public class MagneticObject : MonoBehaviour
 		if (isPlayer)
         {
 			playerController.playerInfo.isAffectedByMagnetism = true;
-			playerController.rb2D.AddForce(forceToApply);
+			//playerController.rb2D.AddForce(forceToApply);
+			playerController.magneticVelocity = forceToApply;
 		}
 		else 
 		{

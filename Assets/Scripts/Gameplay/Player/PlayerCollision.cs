@@ -44,17 +44,35 @@ public class PlayerCollision : RaycastController
             RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLenght, collisionMask);
             Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLenght, Color.red);
 
-            //Deactivated for now as it is not needed 
-            //if (hit)
-            //{
-            //    var hitLayer = hit.transform.gameObject.layer;
-            //    switch (hitLayer) //can chek for more layers if nescessary
-            //    {
-            //        case 12: 
-            //            Debug.Log("Wall");
-            //            break;
-            //    }
-            //}
+            // directly continue with the next ray if the player is within a collision
+            if (hit.distance == 0)
+            {
+                continue;
+            }
+
+            if (hit)
+            {
+                
+                // calculate the angel between the normal vector or the slope hit and the up vector which is the same as the angle of the slope
+                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+
+                var hitLayer = hit.transform.gameObject.layer;
+                    switch (hitLayer) //can check for more layers if nescessary
+                    {
+                        case 9:
+                            Debug.Log("Wall");
+                            break;
+                        case 10:
+                            Debug.Log("Platform");
+                            break;
+                        case 11:
+                            Debug.Log("Magnet");
+                            break;
+                }
+
+                collisionInfo.left = directionX == -1; // if we hit smth. and we are going left we set collision info 'left'
+                collisionInfo.right = directionX == 1; // if we hit smth. and are going right we set collisin info 'right'
+            }
         }
     }
 
@@ -64,7 +82,7 @@ public class PlayerCollision : RaycastController
         float rayLenght = Mathf.Abs(moveAmount.y) + skinWidth; // get the absolute lenght which is always positive and add the inset
         if (Mathf.Abs(moveAmount.y) < skinWidth)
         {
-            rayLenght = skinWidth * 2; // have minimal raylenght to detect the wall if standing still
+            rayLenght = skinWidth * 2; // have minimal raylenght to detect the floor if standing still
         }
         for (int i = 0; i < verticalRayCount; i++)
         {
@@ -75,15 +93,19 @@ public class PlayerCollision : RaycastController
             
             if (hit)
             {
+                collisionInfo.below = true;
                 collisionInfo.isGrounded = true;
                 var hitLayer = hit.transform.gameObject.layer;
-                switch (hitLayer) //can chek for more layers if nescessary
+                switch (hitLayer) //can check for more layers if nescessary
                 {
                     case 10:
                         Debug.Log("Platform");
                         collisionInfo.isStandingOnPlatform = true;
                         break;
                 }
+
+                collisionInfo.below = directionY == -1; // if we hit smth. and we are going downwards we set collision info 'below'
+                collisionInfo.above = directionY == 1; // if we hit smth. and are going upwards we set collisin info 'above'
             }
         }
     }

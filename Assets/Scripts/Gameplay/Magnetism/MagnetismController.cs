@@ -28,12 +28,11 @@ public class MagnetismController : MonoBehaviour
 	[SerializeField] public static HashSet<MagneticObject> movableMagneticObjects = new HashSet<MagneticObject>();
 	[SerializeField] public static HashSet<MagneticObject> players = new HashSet<MagneticObject>();
 
-	[SerializeField] private float forceMultiplier = 2f;
 	[SerializeField] private float distanceFactor = 1.2f;
-	[SerializeField] private float maxForce = 100f;
+	[SerializeField] private float maxForce = 18f;
+    private Color yellow;
 
-
-	private void Awake()
+    private void Awake()
 	{
 		_instance = this;
 	}
@@ -74,20 +73,15 @@ public class MagnetismController : MonoBehaviour
 	}
 	private void HandleMagneticObjects(MagneticObject objectToMove)
 	{
-		Vector2 force = Vector2.zero;
-		Vector2 totalForce = Vector2.zero;
+		Vector2 magneticVelocity = Vector2.zero;
 		if (objectToMove.inRangeOfMagnets.Count < 1 || objectToMove.currentCharge == 0)
         {
-			objectToMove.ApplyMagneticForce(totalForce);
+			objectToMove.ApplyMagneticForce(magneticVelocity);
 			return;
 		}
 
 		foreach (MagneticObject otherObject in objectToMove.inRangeOfMagnets)
 		{
-			// Using Unitys version but, prefers corners which makes it awkward.
-            //Vector2 closestPoint = objectToMove.objectCollider.ClosestPoint(otherObject.transform.position);
-            //Vector2 otherClosestPoint = otherObject.objectCollider.ClosestPoint(objectToMove.transform.position);
-
             Vector2 direction = objectToMove.transform.position - otherObject.transform.position;
             int objectsHit = otherObject.objectCollider.Raycast(direction, filter, hits);
             for (int i = 0; i < objectsHit; i++)
@@ -96,10 +90,10 @@ public class MagnetismController : MonoBehaviour
                 {
                     closestPoint = hits[i].point;
 
-                    Debug.DrawRay(hits[i].normal, new Vector2(0.5f, 0));
-                    Debug.DrawRay(hits[i].point, new Vector2(-0.5f, 0));
-                    Debug.DrawRay(hits[i].point, new Vector2(0, 0.5f));
-                    Debug.DrawRay(hits[i].point, new Vector2(0, -0.5f));
+                    Debug.DrawRay(hits[i].point, new Vector2(0.5f, 0), Color.green);
+                    Debug.DrawRay(hits[i].point, new Vector2(-0.5f, 0), Color.green);
+                    Debug.DrawRay(hits[i].point, new Vector2(0, 0.5f), Color.green);
+                    Debug.DrawRay(hits[i].point, new Vector2(0, -0.5f), Color.green);
                 }
             }
             Array.Clear(hits, 0, hits.Length);
@@ -111,22 +105,22 @@ public class MagnetismController : MonoBehaviour
                 {
                     otherClosestPoint = hits[i].point;
 
-                    Debug.DrawRay(hits[i].normal, new Vector2(0.5f, 0));
+                    Debug.DrawRay(hits[i].point, new Vector2(0.5f, 0));
                     Debug.DrawRay(hits[i].point, new Vector2(-0.5f, 0));
                     Debug.DrawRay(hits[i].point, new Vector2(0, 0.5f));
                     Debug.DrawRay(hits[i].point, new Vector2(0, -0.5f));
                 }
             }
 
-            Vector2 directionClosest = closestPoint - otherClosestPoint;
 			float distance = Vector2.Distance(closestPoint, otherClosestPoint);
+			//Vector2 directionClosest = closestPoint - otherClosestPoint;  // lots of jittering
+			Vector2 directionClosest = closestPoint - (Vector2)otherObject.transform.position;
 			Debug.DrawLine(closestPoint, otherClosestPoint);
 
-			float forceMagnitude = forceMultiplier * ((objectToMove.currentCharge * otherObject.currentCharge) / Mathf.Pow(distance, distanceFactor));
-			forceMagnitude = Mathf.Clamp(forceMagnitude, -maxForce, maxForce);
-			totalForce += forceMagnitude * directionClosest.normalized;
-		}
-
-		objectToMove.ApplyMagneticForce(totalForce);
+            float forceMagnitude = (objectToMove.currentCharge * otherObject.currentCharge) / Mathf.Pow(distance, distanceFactor);
+            forceMagnitude = Mathf.Clamp(forceMagnitude, -maxForce, maxForce);
+            magneticVelocity = forceMagnitude * directionClosest.normalized;
+        }
+		objectToMove.ApplyMagneticForce(magneticVelocity);
 	}
 }
