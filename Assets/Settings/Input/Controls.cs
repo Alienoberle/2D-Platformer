@@ -27,6 +27,14 @@ public class @Controls : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
+                    ""name"": ""Aim"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""1a0e02de-d886-457f-95e7-4d319b3473ed"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
                     ""name"": ""ChargeNeg"",
                     ""type"": ""Button"",
                     ""id"": ""37b9bd95-bb87-4dfd-a1ed-79c3d01e3aeb"",
@@ -315,6 +323,28 @@ public class @Controls : IInputActionCollection, IDisposable
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse;Keyboard&Mouse"",
                     ""action"": ""ChargeNeg"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""09730163-860f-466a-b271-153e196e03e9"",
+                    ""path"": ""<Gamepad>/rightStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Aim"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7773b8e4-0c18-47cf-9e11-655b3e773143"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Aim"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -761,6 +791,7 @@ public class @Controls : IInputActionCollection, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
+        m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
         m_Player_ChargeNeg = m_Player.FindAction("ChargeNeg", throwIfNotFound: true);
         m_Player_ChargePos = m_Player.FindAction("ChargePos", throwIfNotFound: true);
         m_Player_PauseMenu = m_Player.FindAction("PauseMenu", throwIfNotFound: true);
@@ -829,6 +860,7 @@ public class @Controls : IInputActionCollection, IDisposable
     private readonly InputActionMap m_Player;
     private IPlayerActions m_PlayerActionsCallbackInterface;
     private readonly InputAction m_Player_Move;
+    private readonly InputAction m_Player_Aim;
     private readonly InputAction m_Player_ChargeNeg;
     private readonly InputAction m_Player_ChargePos;
     private readonly InputAction m_Player_PauseMenu;
@@ -840,6 +872,7 @@ public class @Controls : IInputActionCollection, IDisposable
         private @Controls m_Wrapper;
         public PlayerActions(@Controls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Player_Move;
+        public InputAction @Aim => m_Wrapper.m_Player_Aim;
         public InputAction @ChargeNeg => m_Wrapper.m_Player_ChargeNeg;
         public InputAction @ChargePos => m_Wrapper.m_Player_ChargePos;
         public InputAction @PauseMenu => m_Wrapper.m_Player_PauseMenu;
@@ -858,6 +891,9 @@ public class @Controls : IInputActionCollection, IDisposable
                 @Move.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMove;
                 @Move.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMove;
                 @Move.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMove;
+                @Aim.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
+                @Aim.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
+                @Aim.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnAim;
                 @ChargeNeg.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnChargeNeg;
                 @ChargeNeg.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnChargeNeg;
                 @ChargeNeg.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnChargeNeg;
@@ -883,6 +919,9 @@ public class @Controls : IInputActionCollection, IDisposable
                 @Move.started += instance.OnMove;
                 @Move.performed += instance.OnMove;
                 @Move.canceled += instance.OnMove;
+                @Aim.started += instance.OnAim;
+                @Aim.performed += instance.OnAim;
+                @Aim.canceled += instance.OnAim;
                 @ChargeNeg.started += instance.OnChargeNeg;
                 @ChargeNeg.performed += instance.OnChargeNeg;
                 @ChargeNeg.canceled += instance.OnChargeNeg;
@@ -1031,6 +1070,7 @@ public class @Controls : IInputActionCollection, IDisposable
     public interface IPlayerActions
     {
         void OnMove(InputAction.CallbackContext context);
+        void OnAim(InputAction.CallbackContext context);
         void OnChargeNeg(InputAction.CallbackContext context);
         void OnChargePos(InputAction.CallbackContext context);
         void OnPauseMenu(InputAction.CallbackContext context);

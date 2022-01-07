@@ -24,9 +24,9 @@ public class MagnetismController : MonoBehaviour
 	private Vector2 closestPoint;
 	private Vector2 otherClosestPoint;
 
-	[SerializeField] public static HashSet<MagneticObject> allMagneticObjects = new HashSet<MagneticObject>();
-	[SerializeField] public static HashSet<MagneticObject> movableMagneticObjects = new HashSet<MagneticObject>();
-	[SerializeField] public static HashSet<MagneticObject> players = new HashSet<MagneticObject>();
+	[SerializeField] public static HashSet<Magnet> allMagneticObjects = new HashSet<Magnet>();
+	[SerializeField] public static HashSet<Magnet> movableMagneticObjects = new HashSet<Magnet>();
+	[SerializeField] public static HashSet<Magnet> players = new HashSet<Magnet>();
 
 	[SerializeField] private float distanceFactor = 1.2f;
 	[SerializeField] private float maxForce = 18f;
@@ -39,17 +39,17 @@ public class MagnetismController : MonoBehaviour
 
 	private void FixedUpdate()
 	{
-		foreach (MagneticObject magneticObject in players)
+		foreach (Magnet magneticObject in players)
 		{
 			HandleMagneticObjects(magneticObject);
 		}
-		foreach (MagneticObject magneticObject in movableMagneticObjects)
+		foreach (Magnet magneticObject in movableMagneticObjects)
 		{
 			HandleMagneticObjects(magneticObject);
 		}
 	}
 
-	public void RegisterMagneticObject(MagneticObject magneticObject, bool isMoveable, bool isPlayer)
+	public void RegisterMagneticObject(Magnet magneticObject, bool isMoveable, bool isPlayer)
     {
 		allMagneticObjects.Add(magneticObject);
         if (isPlayer)
@@ -60,7 +60,7 @@ public class MagnetismController : MonoBehaviour
 		if (isMoveable)
 			movableMagneticObjects.Add(magneticObject);
 	}
-	public void UnRegisterMagneticObject(MagneticObject magneticObject, bool isMoveable, bool isPlayer)
+	public void UnRegisterMagneticObject(Magnet magneticObject, bool isMoveable, bool isPlayer)
 	{
 		allMagneticObjects.Remove(magneticObject);
 		if (isPlayer)
@@ -71,7 +71,7 @@ public class MagnetismController : MonoBehaviour
 		if (isMoveable)
 			movableMagneticObjects.Remove(magneticObject);
 	}
-	private void HandleMagneticObjects(MagneticObject objectToMove)
+	private void HandleMagneticObjects(Magnet objectToMove)
 	{
 		Vector2 magneticVelocity = Vector2.zero;
 		if (objectToMove.inRangeOfMagnets.Count < 1 || objectToMove.currentCharge == 0)
@@ -80,7 +80,7 @@ public class MagnetismController : MonoBehaviour
 			return;
 		}
 
-		foreach (MagneticObject otherObject in objectToMove.inRangeOfMagnets)
+		foreach (Magnet otherObject in objectToMove.inRangeOfMagnets)
 		{
             Vector2 direction = objectToMove.transform.position - otherObject.transform.position;
             int objectsHit = otherObject.objectCollider.Raycast(direction, filter, hits);

@@ -14,12 +14,13 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public Rigidbody2D rb2D;
     private Animator animator;
 
-    public Vector2 directionalInput;
-    public Vector2 magneticVelocity;
-    public Vector2 platformVelocity;
-    public Vector2 velocity;
+    private Vector2 directionalInput;
+    [HideInInspector] public Vector2 magneticVelocity;
+    [HideInInspector] public Vector2 platformVelocity;
+    [SerializeField] private Vector2 velocity;
     private float deltaTime;
     [HideInInspector] public PlayerInfo playerInfo;
+    [SerializeField] private Vector2 aimInput;
 
     [Header("GroundCheck")]
     private float gravity;
@@ -32,8 +33,6 @@ public class PlayerController : MonoBehaviour
     private float accelerationTimeAirborn = 0.2f;
     private float accelerationTimeGrounded = 0.1f;
     //[SerializeField] private float maximumSlopeAngle = 60.0f;
-
-
 
     [Header("Jumping")]
     [SerializeField] private float maxJumpHeight = 4f;
@@ -70,10 +69,6 @@ public class PlayerController : MonoBehaviour
     private float timeToWallUnstick;
     private int wallDirectionX;
 
-    [Header("Magnetism")]
-    [SerializeField] GameObject magnetVisualization;
-    MagneticObject magneticComponent;
-
     [Header("Events")]
     [Space]
     public UnityEvent OnLandEvent;
@@ -85,7 +80,6 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        magneticComponent = GetComponent<MagneticObject>();
         rb2D = GetComponent<Rigidbody2D>();
         playerCollision = GetComponent<PlayerCollision>();
         animator = GetComponent<Animator>();
@@ -103,8 +97,6 @@ public class PlayerController : MonoBehaviour
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
         minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight);
     }
-
-    // Update is called once per frame
     private void FixedUpdate()
     {
         deltaTime = Time.fixedDeltaTime;
@@ -147,7 +139,7 @@ public class PlayerController : MonoBehaviour
     {
         rb2D.velocity = aVelocity * 50.0f;
         rb2D.velocity += (playerInfo.isStandingOnPlatform)? platformVelocity: Vector2.zero;
-        rb2D.velocity += (playerInfo.isAffectedByMagnetism)? magneticVelocity : Vector2.zero;
+        rb2D.velocity += (playerInfo.isMagnetismActive)? magneticVelocity : Vector2.zero;
     }
     private void Gravity()
     {
@@ -351,27 +343,6 @@ public class PlayerController : MonoBehaviour
         dashCounter = dashAmount;
         animator.SetBool("IsDashing", false);
     }
-    public void OnChangeCharge(Polarization newPolarization)
-    {
-        magneticComponent.ChangePolarisation(newPolarization);
-        switch (newPolarization)
-        {
-            case Polarization.negative:
-                magnetVisualization.SetActive(true);
-                magnetVisualization.GetComponent<SpriteRenderer>().color = Color.red;
-                playerInfo.hasAirControl = false;
-                break;
-            case Polarization.positive:
-                magnetVisualization.SetActive(true);
-                magnetVisualization.GetComponent<SpriteRenderer>().color = Color.blue;
-                playerInfo.hasAirControl = false;
-                break;
-            case Polarization.neutral:
-                magnetVisualization.SetActive(false);
-                playerInfo.hasAirControl = true;
-                break;
-        }
-    }
     public void SetDirectionalInput(Vector2 input)
     {
         directionalInput = input;
@@ -385,13 +356,32 @@ public class PlayerController : MonoBehaviour
         newScale.x *= -1;
         transform.localScale = newScale;
     }
+    public void OnChangeCharge(Polarization newPolarization)
+    {
+        switch (newPolarization)
+        {
+            case Polarization.negative:
+                playerInfo.isMagnetismActive = true;
+                playerInfo.hasAirControl = false;
+
+                break;
+            case Polarization.positive:
+                playerInfo.isMagnetismActive = true;
+                playerInfo.hasAirControl = false;
+                break;
+            case Polarization.neutral:
+                playerInfo.isMagnetismActive = false;
+                playerInfo.hasAirControl = true;
+                break;
+        }
+    }
     public struct PlayerInfo
     {
         public bool isGrounded { get; set; }
         public bool wasGrounded { get; set; }
         public bool hasAirControl { get; set; }
         public bool isStandingOnPlatform { get; set; }
-        public bool isAffectedByMagnetism { get; set; }
+        public bool isMagnetismActive { get; set; }
         public bool isWallsliding { get; set; }
         public bool isJumping { get; set; }
         public bool isDashing { get; set; }
@@ -403,7 +393,7 @@ public class PlayerController : MonoBehaviour
             isGrounded = true;
             wasGrounded = true;
             hasAirControl = true;
-            isAffectedByMagnetism = false;
+            isMagnetismActive = false;
             isStandingOnPlatform = false;
             isWallsliding = false;
             isJumping = false;

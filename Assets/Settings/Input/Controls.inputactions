@@ -14,6 +14,14 @@
                     "interactions": ""
                 },
                 {
+                    "name": "Aim",
+                    "type": "PassThrough",
+                    "id": "1a0e02de-d886-457f-95e7-4d319b3473ed",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
                     "name": "ChargeNeg",
                     "type": "Button",
                     "id": "37b9bd95-bb87-4dfd-a1ed-79c3d01e3aeb",
@@ -302,6 +310,28 @@
                     "processors": "",
                     "groups": "Keyboard and Mouse;Keyboard&Mouse",
                     "action": "ChargeNeg",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "09730163-860f-466a-b271-153e196e03e9",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Aim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7773b8e4-0c18-47cf-9e11-655b3e773143",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Aim",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

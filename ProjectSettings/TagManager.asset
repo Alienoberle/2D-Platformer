@@ -6,8 +6,8 @@ TagManager:
   tags:
   - MoveThrough
   - Magnet
-  - MagnetField
   - Platform
+  - MagnetField
   layers:
   - Default
   - TransparentFX
