@@ -13,11 +13,8 @@ public class Magnet : MonoBehaviour
 	private MagnetismController magnetismController;
     public Rigidbody2D objectRigidbody { get; private set; }
 	public Collider2D objectCollider { get; private set; }
-	[SerializeField] private GameObject magnetFieldGameObject;
-
 	public Polarization currentPolarization { get; private set; }
 	[SerializeField] private Polarization defaultPolarization = Polarization.neutral;
-
 	public float chargeValue { get; private set; }
 	public float currentCharge { get; private set; }
 	[SerializeField] private float defaultCharge = 1;
@@ -28,7 +25,7 @@ public class Magnet : MonoBehaviour
 	public HashSet<Magnet> magnetsInRange = new HashSet<Magnet>();
 	public HashSet<Magnet> inRangeOfMagnets = new HashSet<Magnet>();
 
-	private Vector2 magneticForce;
+	private Vector2 magneticForce; // store the force for debug purposes
 
 	private void Awake()
     {
@@ -64,22 +61,7 @@ public class Magnet : MonoBehaviour
 			objectRigidbody.AddForce(forceToApply);
 		}
 	}
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Magnet"))
-        {
-			magnetsInRange.Add(other.GetComponent<Magnet>());
-			other.GetComponentInParent<Magnet>().inRangeOfMagnets.Add(this);
-		}
-	}
-	private void OnTriggerExit2D(Collider2D other)
-	{
-		if (other.CompareTag("Magnet"))
-		{
-			magnetsInRange.Remove(other.GetComponent<Magnet>());
-			other.GetComponentInParent<Magnet>().inRangeOfMagnets.Remove(this);
-		}
-	}
+
 	[ContextMenu("ToggleMoveable")]
 	public void ToggleMoveable(bool isMoveable)
 	{
@@ -106,17 +88,14 @@ public class Magnet : MonoBehaviour
 			case Polarization.negative:
 				currentCharge = Mathf.Abs(chargeValue) * -1;
 				currentPolarization = Polarization.negative;
-				magnetFieldGameObject.SetActive(true);
 				break;
 			case Polarization.positive:
 				currentCharge = Mathf.Abs(chargeValue) * 1;
 				currentPolarization = Polarization.positive;
-				magnetFieldGameObject.SetActive(true);
 				break;
 			case Polarization.neutral:
 				currentCharge = 0;
 				currentPolarization = Polarization.neutral;
-				magnetFieldGameObject.SetActive(false);
 				break;
 		}
 	}

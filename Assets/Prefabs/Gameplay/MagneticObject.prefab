@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 6954950638973555270}
   - component: {fileID: 6704279864054097690}
   - component: {fileID: 8449280780741288946}
-  - component: {fileID: 3163360769041538470}
   - component: {fileID: 3491815254645581843}
-  - component: {fileID: -8082998199551736256}
+  - component: {fileID: 3163360769041538470}
+  - component: {fileID: 8674801158029698997}
   m_Layer: 11
   m_Name: MagneticObject
   m_TagString: Untagged
@@ -85,6 +85,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!50 &3491815254645581843
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5221695799327854992}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 1
+  m_Mass: 25
+  m_LinearDrag: 1
+  m_AngularDrag: 0
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
 --- !u!61 &3163360769041538470
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -111,28 +132,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!50 &3491815254645581843
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5221695799327854992}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 1
-  m_Mass: 5
-  m_LinearDrag: 1
-  m_AngularDrag: 0
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 4
---- !u!114 &-8082998199551736256
+--- !u!114 &8674801158029698997
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -141,10 +141,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5221695799327854992}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4cea5371dd2ac247b47ac93a8240d7b, type: 3}
+  m_Script: {fileID: 11500000, guid: 05442eeda6cf2b941a65c2415ddbc6cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  magnetFieldGameObject: {fileID: 8074737331929313446}
   defaultPolarization: 1
   defaultCharge: 10
   isMoveable: 1

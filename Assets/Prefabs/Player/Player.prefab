@@ -18,7 +18,6 @@ GameObject:
   - component: {fileID: 5297407452094612872}
   - component: {fileID: 4107503892621118844}
   - component: {fileID: 1052751534}
-  - component: {fileID: 2032885476838150856}
   - component: {fileID: 1738276751}
   m_Layer: 8
   m_Name: Player
@@ -385,8 +384,6 @@ MonoBehaviour:
   wallLeap: {x: 20, y: 32}
   wallSlideSpeedMax: 3
   wallStickTime: 0.4
-  magneticObject: {fileID: 2032885476838150856}
-  magnetFieldGameObject: {fileID: 3027743752345324216}
   OnLandEvent:
     m_PersistentCalls:
       m_Calls: []
@@ -421,23 +418,6 @@ MonoBehaviour:
     m_Bits: 3584
   playerController: {fileID: 4107503892621118844}
   maxSlopeAngle: 0
---- !u!114 &2032885476838150856
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1865028636488596605}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4cea5371dd2ac247b47ac93a8240d7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  magnetFieldGameObject: {fileID: 3027743752345324216}
-  defaultPolarization: 1
-  defaultCharge: 10
-  isMoveable: 1
-  isPlayer: 1
 --- !u!114 &1738276751
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -450,6 +430,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6f7abd02bce0ce46be5e8dd330da5a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  magnetFieldGameObject: {fileID: 0}
+  defaultPolarization: 1
+  defaultCharge: 10
+  isMoveable: 1
+  isPlayer: 1
   collisionMask:
     serializedVersion: 2
     m_Bits: 2048

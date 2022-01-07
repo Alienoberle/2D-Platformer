@@ -1048,6 +1048,16 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 2635d15ada776af41bab72db087d3008, type: 2}
+    - target: {fileID: 8674801158029698997, guid: 7df3076c41ea5a641a6047959905458f,
+        type: 3}
+      propertyPath: isMoveable
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8674801158029698997, guid: 7df3076c41ea5a641a6047959905458f,
+        type: 3}
+      propertyPath: defaultPolarization
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7df3076c41ea5a641a6047959905458f, type: 3}
 --- !u!1 &702925885
@@ -2300,6 +2310,11 @@ PrefabInstance:
       propertyPath: m_TagString
       value: MagnetField
       objectReference: {fileID: 0}
+    - target: {fileID: 8674801158029698997, guid: 7df3076c41ea5a641a6047959905458f,
+        type: 3}
+      propertyPath: defaultPolarization
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7df3076c41ea5a641a6047959905458f, type: 3}
 --- !u!1 &1513287280
@@ -2560,6 +2575,16 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 2635d15ada776af41bab72db087d3008, type: 2}
+    - target: {fileID: 8674801158029698997, guid: 7df3076c41ea5a641a6047959905458f,
+        type: 3}
+      propertyPath: isMoveable
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8674801158029698997, guid: 7df3076c41ea5a641a6047959905458f,
+        type: 3}
+      propertyPath: defaultPolarization
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7df3076c41ea5a641a6047959905458f, type: 3}
 --- !u!1 &1695115648
@@ -3075,6 +3100,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1738276751, guid: 5fec15b1d903b6e44ba3a34901a8c378, type: 3}
+      propertyPath: rayLenght
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 1000165113333201217, guid: 5fec15b1d903b6e44ba3a34901a8c378,
         type: 3}
       propertyPath: m_RootOrder
