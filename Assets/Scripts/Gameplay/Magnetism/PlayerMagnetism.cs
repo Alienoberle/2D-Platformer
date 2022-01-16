@@ -5,12 +5,21 @@ using UnityEngine;
 
 public class PlayerMagnetism : Magnet
 {
+    private PlayerController playerController;
+    private SpriteRenderer spriteRenderer;
+    private Material material;
     public Vector2 aimInput { get; private set; }
     private Vector2 raycastOrigin;
     private float rayLenght = 10f;
     [SerializeField] private LayerMask collisionMask;
     [SerializeField] private GameObject visualisation;
 
+    private void Start()
+    {
+        playerController = GetComponent<PlayerController>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        material = spriteRenderer.material;
+    }
     private void Update()
     {
         if (currentPolarization != Polarization.neutral)
@@ -28,43 +37,23 @@ public class PlayerMagnetism : Magnet
         var hits = Physics2D.RaycastAll(raycastOrigin, aimDirection, rayLenght, collisionMask);
         Debug.DrawRay(raycastOrigin, aimDirection * rayLenght);
 
-        if (hits.Length <= 0)
-        {
-            magnetsInRange.Clear();
-        }
-
         if (hits.Length > 0)
         {
-            foreach(RaycastHit2D hitMagnet in hits)
+            inRangeOfMagnets.Clear();
+            foreach (RaycastHit2D hitMagnet in hits)
             {
                 if (hitMagnet.transform.CompareTag("Magnet"))
                 {
-                    if (!magnetsInRange.Contains(hitMagnet.transform.GetComponent<Magnet>()))
+                    if (!inRangeOfMagnets.Contains(hitMagnet.transform.GetComponent<Magnet>()))
                     {
-                        magnetsInRange.Add(hitMagnet.transform.GetComponent<Magnet>());
-                        hitMagnet.transform.GetComponentInParent<Magnet>().inRangeOfMagnets.Add(this);
+                        inRangeOfMagnets.Add(hitMagnet.transform.GetComponent<Magnet>());
                     }
                 }
             }
         }
 
-        foreach(Magnet magnet in magnetsInRange)
-        {
-            Debug.Log(magnet.name);
-        }
-
-        foreach (Magnet magnet in inRangeOfMagnets)
-        {
-            Debug.Log(magnet.name);
-        }
-
-        Debug.Log("Magnets in Range: " + magnetsInRange.Count);
-        Debug.Log("In Range of Magnets: " + inRangeOfMagnets.Count);
-
-        // To Do: fix issue with flipped player character due to walking
-        //to rotate smth. in the direction of the cursor
         float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
-        visualisation.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        visualisation.transform.rotation = Quaternion.Euler(0f, 0f, playerController.playerInfo.facingDirection > 0 ? angle : angle + 180); ;
     }
 
     public void SetAimInput(Vector2 input)
@@ -80,13 +69,18 @@ public class PlayerMagnetism : Magnet
             case Polarization.negative:
                 visualisation.SetActive(true);
                 visualisation.GetComponentInChildren<SpriteRenderer>().color = Color.red;
+                material.EnableKeyword("OUTBASE_ON");
+                material.SetColor("_OutlineColor", Color.red);
                 break;
             case Polarization.positive:
                 visualisation.SetActive(true);
                 visualisation.GetComponentInChildren<SpriteRenderer>().color = Color.blue;
+                material.EnableKeyword("OUTBASE_ON");
+                material.SetColor("_OutlineColor", Color.blue);
                 break;
             case Polarization.neutral:
                 visualisation.SetActive(false);
+                material.DisableKeyword("OUTBASE_ON");
                 break;
         }
     }

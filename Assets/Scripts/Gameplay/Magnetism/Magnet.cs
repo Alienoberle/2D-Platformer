@@ -22,7 +22,6 @@ public class Magnet : MonoBehaviour
 	public bool isMoveable;
 	[SerializeField] private bool isPlayer;
 
-	public HashSet<Magnet> magnetsInRange = new HashSet<Magnet>();
 	public HashSet<Magnet> inRangeOfMagnets = new HashSet<Magnet>();
 
 	private Vector2 magneticForce; // store the force for debug purposes
@@ -46,7 +45,6 @@ public class Magnet : MonoBehaviour
 	private void OnDisable()
 	{
 		magnetismController.UnRegisterMagneticObject(this, isMoveable, isPlayer);
-		magnetsInRange.Clear();
 	}
     public void ApplyMagneticForce(Vector2 forceToApply)
     {
@@ -123,6 +121,5 @@ public class Magnet : MonoBehaviour
 			Gizmos.color = Color.cyan;
 			Gizmos.DrawRay(transform.position, magneticForce);
 		}
-
 	}
 }

@@ -430,14 +430,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6f7abd02bce0ce46be5e8dd330da5a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  magnetFieldGameObject: {fileID: 0}
   defaultPolarization: 1
   defaultCharge: 10
   isMoveable: 1
   isPlayer: 1
   collisionMask:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 3328
   visualisation: {fileID: 3027743752345324216}
 --- !u!1 &3027743752345324216
 GameObject:

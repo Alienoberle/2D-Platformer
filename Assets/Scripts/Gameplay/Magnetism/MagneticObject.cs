@@ -9,7 +9,6 @@ public class MagneticObject : Magnet
 	{
 		if (other.CompareTag("Magnet"))
 		{
-			magnetsInRange.Add(other.GetComponent<Magnet>());
 			other.GetComponentInParent<Magnet>().inRangeOfMagnets.Add(this);
 		}
 	}
@@ -17,7 +16,6 @@ public class MagneticObject : Magnet
 	{
 		if (other.CompareTag("Magnet"))
 		{
-			magnetsInRange.Remove(other.GetComponent<Magnet>());
 			other.GetComponentInParent<Magnet>().inRangeOfMagnets.Remove(this);
 		}
 	}

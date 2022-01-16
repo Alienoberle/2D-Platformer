@@ -28,8 +28,8 @@ public class MagnetismController : MonoBehaviour
 	[SerializeField] public static HashSet<Magnet> movableMagneticObjects = new HashSet<Magnet>();
 	[SerializeField] public static HashSet<Magnet> players = new HashSet<Magnet>();
 
-	[SerializeField] private float distanceFactor = 1.2f;
-	[SerializeField] private float maxForce = 18f;
+	[SerializeField] private float distanceFactor = 1.5f;
+	[SerializeField] private float maxForce = 36f;
     private Color yellow;
 
     private void Awake()
@@ -39,37 +39,37 @@ public class MagnetismController : MonoBehaviour
 
 	private void FixedUpdate()
 	{
-		foreach (Magnet magneticObject in players)
+		foreach (Magnet magnet in players)
 		{
-			HandleMagneticObjects(magneticObject);
+			HandleMagneticObjects(magnet);
 		}
-		foreach (Magnet magneticObject in movableMagneticObjects)
+		foreach (Magnet magnet in movableMagneticObjects)
 		{
-			HandleMagneticObjects(magneticObject);
+			HandleMagneticObjects(magnet);
 		}
 	}
 
-	public void RegisterMagneticObject(Magnet magneticObject, bool isMoveable, bool isPlayer)
+	public void RegisterMagneticObject(Magnet magnet, bool isMoveable, bool isPlayer)
     {
-		allMagneticObjects.Add(magneticObject);
+		allMagneticObjects.Add(magnet);
         if (isPlayer)
         {
-			players.Add(magneticObject);
+			players.Add(magnet);
 			return;
 		}
 		if (isMoveable)
-			movableMagneticObjects.Add(magneticObject);
+			movableMagneticObjects.Add(magnet);
 	}
-	public void UnRegisterMagneticObject(Magnet magneticObject, bool isMoveable, bool isPlayer)
+	public void UnRegisterMagneticObject(Magnet magnet, bool isMoveable, bool isPlayer)
 	{
-		allMagneticObjects.Remove(magneticObject);
+		allMagneticObjects.Remove(magnet);
 		if (isPlayer)
 		{
-			players.Remove(magneticObject);
+			players.Remove(magnet);
 			return;
 		}
 		if (isMoveable)
-			movableMagneticObjects.Remove(magneticObject);
+			movableMagneticObjects.Remove(magnet);
 	}
 	private void HandleMagneticObjects(Magnet objectToMove)
 	{
@@ -113,7 +113,6 @@ public class MagnetismController : MonoBehaviour
             }
 
 			float distance = Vector2.Distance(closestPoint, otherClosestPoint);
-			//Vector2 directionClosest = closestPoint - otherClosestPoint;  // lots of jittering
 			Vector2 directionClosest = closestPoint - (Vector2)otherObject.transform.position;
 			Debug.DrawLine(closestPoint, otherClosestPoint);
 
