@@ -99,7 +99,6 @@ public class PlayerCollision : RaycastController
                 switch (hitLayer) //can check for more layers if nescessary
                 {
                     case 10:
-                        Debug.Log("Platform");
                         collisionInfo.isStandingOnPlatform = true;
                         break;
                 }

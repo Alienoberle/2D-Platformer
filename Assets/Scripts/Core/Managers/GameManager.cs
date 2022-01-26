@@ -3,37 +3,62 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : StaticInstance<GameManager>
 {
-    // Singleton set up
-    private static GameManager _instance;
-    public static GameManager instance
+    public static event Action<GameState> OnBeforeStateChanged;
+    public static event Action<GameState> OnAfterStateChanged;
+
+    public GameState State { get; private set; }
+
+    // Kick the game off with the first state
+    void Start() => ChangeState(GameState.Starting);
+
+    public void ChangeState(GameState newState)
     {
-        get
+        OnBeforeStateChanged?.Invoke(newState);
+
+        State = newState;
+        switch (newState)
         {
-            if (_instance == null) _instance = FindObjectOfType<GameManager>();
-            if (_instance == null)
-            {
-                GameObject spawned = (GameObject)Instantiate(Resources.Load("GameManager"));
-                //the spawned object's Awake() will run at this point, setting _instance to itself
-            }
-            return _instance;
+            case GameState.Starting:
+                HandleStarting();
+                break;
+            case GameState.MainMenu:
+                break;
+            case GameState.PauseMenu:
+                break;
+            case GameState.ExitGame:
+                HandleExitGame();
+                break;
+            case GameState.DebugMenu:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
         }
+
+        OnAfterStateChanged?.Invoke(newState);
+
+        Debug.Log($"New state: {newState}");
     }
 
-    public bool gameIsRunning { get; set; }
-    public bool gameIsPaused { get; set; }
-
-    private void Awake()
+    private void HandleStarting()
     {
-        _instance = this;
+        // Do some start setup, could be environment, cinematics etc
     }
 
-
-
-    public void ExitGame()
+    public void HandleExitGame()
     {
         Application.Quit();
         Debug.Log("Quite Game");
     }
+}
+
+[Serializable]
+public enum GameState
+{
+    Starting = 0,
+    MainMenu = 1,
+    PauseMenu = 2,
+    ExitGame = 3,
+    DebugMenu = 4,
 }

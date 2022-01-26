@@ -3,25 +3,13 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-public class DebugManager : MonoBehaviour
+public class DebugManager : StaticInstance<DebugManager>
 {
     private Controls controls;
     private bool debugMenuOpen;
 
-    // Singleton set up
-    private static DebugManager _instance;
-    public static DebugManager instance
+    private void Start()
     {
-        get
-        {
-            if (_instance == null) _instance = FindObjectOfType<DebugManager>();
-            return _instance;
-        }
-    }
-
-    private void Awake()
-    {
-        _instance = this;
         //playerControls = new PlayerControls();
         debugMenuOpen = false;
     }

@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
-using System.Collections;
-using System;
 
 /*
  * Basic set up of the script
@@ -247,7 +245,6 @@ public class PlayerController : MonoBehaviour
             if (directionalInput.y !> -0.95f) // input values are from 0.999... to -0.999...
             {
                 velocity.y = maxJumpVelocity;
-                Debug.Log(maxJumpVelocity);
             }
 
             jumpCounter -= 1;

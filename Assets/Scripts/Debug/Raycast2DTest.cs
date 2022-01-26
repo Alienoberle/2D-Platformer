@@ -5,7 +5,7 @@ using UnityEngine;
 public class Raycast2DTest : MonoBehaviour
 
 {
-    public Collider2D collider2D;
+    public Collider2D colider2D;
     public int numHits;
     public float distance = 10.0f;
     public ContactFilter2D filter;
@@ -14,7 +14,7 @@ public class Raycast2DTest : MonoBehaviour
 
     void Update()
     {
-        numHits = collider2D.Raycast(Vector2.right, filter, hits, distance);
+        numHits = colider2D.Raycast(Vector2.right, filter, hits, distance);
         Debug.DrawRay(transform.position, new Vector2(distance, 0));
 
         if (numHits > 0)

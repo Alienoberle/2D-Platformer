@@ -3,22 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MagnetismController : MonoBehaviour
+public class MagnetismController : StaticInstance<MagnetismController>
 {
-	//Singleton set up
-	private static MagnetismController _instance;
-	public static MagnetismController instance
-	{
-		get
-		{
-			if (_instance == null) _instance = FindObjectOfType<MagnetismController>();
-			if (_instance == null)
-			{
-				GameObject spawned = (GameObject)Instantiate(Resources.Load("MagnetismController"));
-			}
-			return _instance;
-		}
-	}
 	public ContactFilter2D filter;
 	private RaycastHit2D[] hits = new RaycastHit2D[10];
 	private Vector2 closestPoint;
@@ -31,11 +17,6 @@ public class MagnetismController : MonoBehaviour
 	[SerializeField] private float distanceFactor = 1.5f;
 	[SerializeField] private float maxForce = 36f;
     private Color yellow;
-
-    private void Awake()
-	{
-		_instance = this;
-	}
 
 	private void FixedUpdate()
 	{

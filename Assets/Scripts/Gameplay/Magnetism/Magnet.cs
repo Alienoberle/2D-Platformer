@@ -9,7 +9,7 @@ using UnityEditor;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Magnet : MonoBehaviour
 {
-	private PlayerController playerController;
+	protected PlayerController playerController;
 	private MagnetismController magnetismController;
     public Rigidbody2D objectRigidbody { get; private set; }
 	public Collider2D objectCollider { get; private set; }
@@ -28,15 +28,16 @@ public class Magnet : MonoBehaviour
 
 	private void Awake()
     {
-        objectRigidbody = GetComponent<Rigidbody2D>();
+		
+		objectRigidbody = GetComponent<Rigidbody2D>();
 		objectCollider = GetComponent<Collider2D>();
-		magnetismController = MagnetismController.instance;
+		magnetismController = MagnetismController.Instance;
 	}
 	private void OnEnable()
 	{
-		if (isPlayer)
+        if (isPlayer) { 
 			playerController = GetComponentInParent<PlayerController>();
-
+		}
 		ChangeCharge(defaultCharge);
 		ChangePolarisation(defaultPolarization);
 		magnetismController.RegisterMagneticObject(this, isMoveable, isPlayer);
