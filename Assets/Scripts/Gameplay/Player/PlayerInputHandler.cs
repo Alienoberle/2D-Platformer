@@ -2,21 +2,32 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
+[RequireComponent(typeof(PlayerInput))]
 [RequireComponent(typeof(PlayerController))]
 [RequireComponent(typeof(PlayerMagnetism))]
 public class PlayerInputHandler : MonoBehaviour
 {
-    //private Controls controls;
+    // private Controls controls;
+    private PlayerInput playerInput;
     private PlayerController playerController;
     private PlayerMagnetism playerMagnetism;
+    
     public Vector2 directionalInput { get; private set; }
     public Vector2 aimInput { get; private set; }
+    public string controlScheme { get; private set; }
 
     private void Awake()
     {
         playerController = GetComponent<PlayerController>();
         playerMagnetism = GetComponent<PlayerMagnetism>();
+        playerInput = GetComponent<PlayerInput>();
+        playerMagnetism.controlScheme = GetControlScheme();
+    }
+
+    private string GetControlScheme()
+    {
+        var controlScheme = playerInput.currentControlScheme;
+        return controlScheme;
     }
 
     public void Movement(InputAction.CallbackContext context)
@@ -46,6 +57,7 @@ public class PlayerInputHandler : MonoBehaviour
         if (context.performed)
         {
             playerController.OnJumpInput();
+            playerController.lastPressedJump = Time.time;
         }
         if (context.canceled)
         {

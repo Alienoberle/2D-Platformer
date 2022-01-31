@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Events;
 
 /*
@@ -36,16 +37,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxJumpHeight = 4f;
     [SerializeField] private float minJumpHeight = 1f;
     [SerializeField] private float timeToJumpApex = 0.25f;
-
-    [SerializeField] private float maxJumpVelocity;
-    [SerializeField] private float minJumpVelocity;
-
-    public int jumpAmount = 1;
+    private float maxJumpVelocity;
+    private float minJumpVelocity;
+    [SerializeField] private int maxJumps = 1;
     private int jumpCounter;
+    public float lastPressedJump;
+    [SerializeField] private float jumpBuffer = 0.1f;
+    private bool hasBufferedJump => lastPressedJump + jumpBuffer > Time.time;
 
-    [SerializeField] private float ghostJumpTime = 0.1f;
-    private float ghostJumpTimer;
-    private bool ghostJumpActive;
+    [SerializeField] private float coyoteTime = 0.1f;
+    private float lastGroundedTime;
+    private bool canUseCoyoteTime => coyoteTimeActive && lastGroundedTime + coyoteTime > Time.time;
+    private bool coyoteTimeActive = true;
 
     [Header("Dashing")]
     [SerializeField] private float dashDistance = 5f;
@@ -100,10 +103,10 @@ public class PlayerController : MonoBehaviour
         deltaTime = Time.fixedDeltaTime;
         UpdatePlayerInfo();
         Gravity();
+        BufferedInput();
         CalculateInputVelocity();
         WallSliding();              
         Dashing();
-        GhostJump();
 
         // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
         Move(velocity * deltaTime);
@@ -121,6 +124,14 @@ public class PlayerController : MonoBehaviour
         // Trigger Run animation
         animator.SetFloat("Speed", Mathf.Abs(velocity.x));
     }
+
+    private void BufferedInput()
+    {
+        if (hasBufferedJump){
+            OnJumpInput();
+        }
+    }
+
     private void CalculateInputVelocity()
     {
         // Calculate the target X velocity based on input and movement speed. 
@@ -159,30 +170,18 @@ public class PlayerController : MonoBehaviour
         playerInfo.isGrounded = playerCollision.collisionInfo.isGrounded;
         playerInfo.isStandingOnPlatform = playerCollision.collisionInfo.isStandingOnPlatform;
 
-        if(playerInfo.isGrounded && !playerInfo.wasGrounded)
+        if(playerInfo.isGrounded)
         {
-            OnLandEvent.Invoke();
-            ResetJump();
-            ResetDash();
+            lastGroundedTime = Time.time;
+            if (!playerInfo.wasGrounded)
+            {
+                OnLandEvent.Invoke();
+                ResetJump();
+                ResetDash();
+            }
         }
     }
-    private void GhostJump()
-    {
-        if (ghostJumpTimer > 0 && ghostJumpActive)
-        {
-            ghostJumpTimer -= deltaTime;
-        }
 
-        if (playerInfo.wasGrounded && !playerInfo.isGrounded)
-        {
-            ghostJumpActive = true;
-        }
-
-        if (ghostJumpTimer < 0)
-        {
-            ghostJumpActive = false;
-        }
-    }
     private void WallSliding()
     {
         // Figure out wall direction
@@ -219,7 +218,7 @@ public class PlayerController : MonoBehaviour
         }
     }
     public void OnJumpInput()
-    {     
+    {
         // If the player is currently wall sliding
         if (playerInfo.isWallsliding)
         {
@@ -263,9 +262,9 @@ public class PlayerController : MonoBehaviour
     }
     private bool CanPlayerJump()
     {
-        if (jumpCounter <= jumpAmount && jumpCounter > 0)
+          if (jumpCounter <= maxJumps && jumpCounter > 0)
         {
-            if (playerInfo.isGrounded || playerInfo.isWallsliding || ghostJumpActive)
+            if (playerInfo.isGrounded || playerInfo.isWallsliding || canUseCoyoteTime)
             {
                 return true;
             }
@@ -276,11 +275,9 @@ public class PlayerController : MonoBehaviour
     public void ResetJump()
     {
         playerInfo.isJumping = false;
-        jumpCounter = jumpAmount;
+        jumpCounter = maxJumps;
+        coyoteTimeActive = true;
         animator.SetBool("IsJumping", false);
-
-        ghostJumpActive = false;
-        ghostJumpTimer = ghostJumpTime;
     }
     public void OnDashInput()
     {      

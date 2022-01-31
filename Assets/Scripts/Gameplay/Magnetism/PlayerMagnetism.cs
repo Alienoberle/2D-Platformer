@@ -6,35 +6,50 @@ using System.Linq;
 
 public class PlayerMagnetism : Magnet
 {
-    private SpriteRenderer spriteRenderer;
-    private Material material;
     public Vector2 aimInput { get; private set; }
+    private Vector2 lastValidAimInput;
     private Vector2 aimDirection;
+    public string controlScheme;
     private Vector2 raycastOrigin;
-    private float rayLenght = 10f;
+    private float rayLenght = 10.0f;
     [SerializeField] private LayerMask collisionMask;
-
     private HashSet<Magnet> hitLastFrame = new HashSet<Magnet>();
+
     [SerializeField] private GameObject visualisation;
+    private Material material;
 
     private void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
         material = spriteRenderer.material;
+        lastValidAimInput = new Vector2(1, 0);
     }
     private void Update()
     {
-        if (currentPolarization != Polarization.neutral)
-        {
-            Aim();
-            HitDetection();
-            RotateVisualisation();
-        }
+        Aim(); 
+        HitDetection();
+        HandleVisualisation();
+        HandleAimHighlighting();
     }
+
     private void Aim()
     {
-        Vector2 screenPoint = Camera.main.WorldToScreenPoint(transform.position);
-        aimDirection = (aimInput - screenPoint).normalized;
+        // Check aim input in case of 
+        if (aimInput == Vector2.zero)
+        {
+            aimInput = lastValidAimInput;
+        }
+        switch (controlScheme)
+        {
+            case "Keyboard&Mouse":
+                Vector2 screenPoint = Camera.main.WorldToScreenPoint(transform.position);
+                aimDirection = (aimInput - screenPoint).normalized;
+                break;
+            case "Gamepad":
+                aimDirection = aimInput.normalized;
+                break;
+        }
+
+        lastValidAimInput = aimInput;
     }
 
     private void HitDetection()
@@ -50,12 +65,21 @@ public class PlayerMagnetism : Magnet
             {
                 if (hitMagnet.transform.CompareTag("Magnet"))
                 {
-                    if (!inRangeOfMagnets.Contains(hitMagnet.transform.GetComponent<Magnet>()))
+                    var magnet = hitMagnet.transform.GetComponent<Magnet>();
+                    if (!inRangeOfMagnets.Contains(magnet))
                     {
-                        inRangeOfMagnets.Add(hitMagnet.transform.GetComponent<Magnet>());
+                        inRangeOfMagnets.Add(magnet);
                     }
                 }
             }
+        }
+    }
+
+    private void HandleAimHighlighting()
+    {
+        foreach(Magnet magnet in inRangeOfMagnets)
+        {
+            magnet.Highlight();
         }
 
         hitLastFrame.ExceptWith(inRangeOfMagnets);
@@ -63,14 +87,16 @@ public class PlayerMagnetism : Magnet
         {
             if (!inRangeOfMagnets.Contains(magnet))
             {
-                print("This magnet " + magnet + " is no longer aimed at!");
+                magnet.UnHighlight();
             }
         }
         hitLastFrame.Clear();
         hitLastFrame.UnionWith(inRangeOfMagnets);
     }
-    private void RotateVisualisation()
+
+    private void HandleVisualisation()
     {
+        visualisation.transform.position = (Vector2)transform.position + aimDirection * rayLenght;
         float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
         visualisation.transform.rotation = Quaternion.Euler(0f, 0f, playerController.playerInfo.facingDirection > 0 ? angle : angle + 180);
     }
@@ -86,20 +112,18 @@ public class PlayerMagnetism : Magnet
         switch (newPolarization)
         {
             case Polarization.negative:
-                visualisation.SetActive(true);
                 visualisation.GetComponentInChildren<SpriteRenderer>().color = Color.red;
                 material.EnableKeyword("OUTBASE_ON");
                 material.SetColor("_OutlineColor", Color.red);
                 break;
             case Polarization.positive:
-                visualisation.SetActive(true);
                 visualisation.GetComponentInChildren<SpriteRenderer>().color = Color.blue;
                 material.EnableKeyword("OUTBASE_ON");
                 material.SetColor("_OutlineColor", Color.blue);
                 break;
             case Polarization.neutral:
-                visualisation.SetActive(false);
                 material.DisableKeyword("OUTBASE_ON");
+                inRangeOfMagnets.Clear();
                 break;
         }
     }

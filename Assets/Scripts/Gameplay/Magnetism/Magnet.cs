@@ -10,32 +10,35 @@ using UnityEditor;
 public class Magnet : MonoBehaviour
 {
 	protected PlayerController playerController;
-	private MagnetismController magnetismController;
-    public Rigidbody2D objectRigidbody { get; private set; }
+	protected SpriteRenderer spriteRenderer;
 	public Collider2D objectCollider { get; private set; }
+	public Rigidbody2D objectRigidbody { get; private set; }
+	protected MagnetismController magnetismController;
 	public Polarization currentPolarization { get; private set; }
 	[SerializeField] private Polarization defaultPolarization = Polarization.neutral;
 	public float chargeValue { get; private set; }
 	public float currentCharge { get; private set; }
 	[SerializeField] private float defaultCharge = 1;
-
 	public bool isMoveable;
 	[SerializeField] private bool isPlayer;
-
 	public HashSet<Magnet> inRangeOfMagnets = new HashSet<Magnet>();
+	private bool isHighlighted = false;
 
+	//Debug fields
 	private Vector2 magneticForce; // store the force for debug purposes
 
 	private void Awake()
     {
-		
 		objectRigidbody = GetComponent<Rigidbody2D>();
 		objectCollider = GetComponent<Collider2D>();
+		spriteRenderer = GetComponent<SpriteRenderer>();
 		magnetismController = MagnetismController.Instance;
 	}
-	private void OnEnable()
+
+    private void OnEnable()
 	{
-        if (isPlayer) { 
+
+		if (isPlayer) { 
 			playerController = GetComponentInParent<PlayerController>();
 		}
 		ChangeCharge(defaultCharge);
@@ -43,7 +46,7 @@ public class Magnet : MonoBehaviour
 		magnetismController.RegisterMagneticObject(this, isMoveable, isPlayer);
 	}
 
-	private void OnDisable()
+private void OnDisable()
 	{
 		magnetismController.UnRegisterMagneticObject(this, isMoveable, isPlayer);
 	}
@@ -59,6 +62,19 @@ public class Magnet : MonoBehaviour
 		{
 			objectRigidbody.AddForce(forceToApply);
 		}
+	}
+
+	public void Highlight()
+	{
+		if (isHighlighted) return;
+		spriteRenderer.material.EnableKeyword("GLOW_ON");
+		spriteRenderer.material.SetFloat("_GLOW", 50f);
+		isHighlighted = true;
+	}
+	public void UnHighlight()
+	{
+		spriteRenderer.material.DisableKeyword("GLOW_ON");
+		isHighlighted = false;
 	}
 
 	[ContextMenu("ToggleMoveable")]

@@ -16,7 +16,6 @@ public class MagnetismController : StaticInstance<MagnetismController>
 
 	[SerializeField] private float distanceFactor = 1.5f;
 	[SerializeField] private float maxForce = 36f;
-    private Color yellow;
 
 	private void FixedUpdate()
 	{
