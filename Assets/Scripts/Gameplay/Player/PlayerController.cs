@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     private PlayerCollision playerCollision;
     [HideInInspector] public Rigidbody2D rb2D;
     private Animator animator;
+    private AudioManager audioManager;
 
     private Vector2 directionalInput;
     [HideInInspector] public Vector2 magneticVelocity;
@@ -19,7 +20,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Vector2 velocity;
     private float deltaTime;
     [HideInInspector] public PlayerInfo playerInfo;
-    [SerializeField] private Vector2 aimInput;
 
     [Header("GroundCheck")]
     private float gravity;
@@ -49,6 +49,8 @@ public class PlayerController : MonoBehaviour
     private float lastGroundedTime;
     private bool canUseCoyoteTime => coyoteTimeActive && lastGroundedTime + coyoteTime > Time.time;
     private bool coyoteTimeActive = true;
+    [SerializeField] private AudioClip jumpSFX;
+    [SerializeField] private ParticleSystem jumpVFX;
 
     [Header("Dashing")]
     [SerializeField] private float dashDistance = 5f;
@@ -59,6 +61,8 @@ public class PlayerController : MonoBehaviour
     public int dashAmount = 1;
     private int dashCounter;
     private int dashingDirectionX;
+    [SerializeField] private AudioClip dashSFX;
+    [SerializeField] private ParticleSystem dashVFX;
 
     [Header("Wall Jump")]
     [SerializeField] private Vector2 wallJumpClimb;
@@ -70,22 +74,12 @@ public class PlayerController : MonoBehaviour
     private float timeToWallUnstick;
     private int wallDirectionX;
 
-    [Header("Events")]
-    [Space]
-    public UnityEvent OnLandEvent;
-    public UnityEvent OnJumpEvent;
-    public UnityEvent OnDashEvent;
-    public UnityEvent OnMagnetismEvent;
-    [System.Serializable] public class BoolEvent : UnityEvent<bool> { }
-
-
     private void Awake()
     {
         rb2D = GetComponent<Rigidbody2D>();
         playerCollision = GetComponent<PlayerCollision>();
         animator = GetComponent<Animator>();
-        if (OnLandEvent == null)
-            OnLandEvent = new UnityEvent();
+        audioManager = AudioManager.Instance;
     }
 
     private void Start()
@@ -103,7 +97,7 @@ public class PlayerController : MonoBehaviour
         deltaTime = Time.fixedDeltaTime;
         UpdatePlayerInfo();
         Gravity();
-        BufferedInput();
+        BufferedJumpInput();
         CalculateInputVelocity();
         WallSliding();              
         Dashing();
@@ -125,13 +119,36 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("Speed", Mathf.Abs(velocity.x));
     }
 
-    private void BufferedInput()
+    private void UpdatePlayerInfo() // could use clean up currentyl double book keeping in PlayerCollision and here
     {
-        if (hasBufferedJump){
-            OnJumpInput();
+        playerInfo.wasGrounded = playerInfo.isGrounded;
+        playerInfo.isGrounded = playerCollision.collisionInfo.isGrounded;
+        playerInfo.isStandingOnPlatform = playerCollision.collisionInfo.isStandingOnPlatform;
+
+        if (playerInfo.isGrounded)
+        {
+            lastGroundedTime = Time.time;
+            if (!playerInfo.wasGrounded)
+            {
+                ResetJump();
+                ResetDash();
+            }
         }
     }
-
+    private void Gravity()
+    {
+        if (isGravity)
+        {
+            if (velocity.y + gravity * deltaTime < maxGravity)
+                velocity.y = maxGravity;
+            else
+                velocity.y += gravity * deltaTime;
+        }
+        else
+        {
+            velocity.y = 0;
+        }
+    }
     private void CalculateInputVelocity()
     {
         // Calculate the target X velocity based on input and movement speed. 
@@ -150,38 +167,17 @@ public class PlayerController : MonoBehaviour
         rb2D.velocity += (playerInfo.isStandingOnPlatform)? platformVelocity: Vector2.zero;
         rb2D.velocity += (playerInfo.isMagnetismActive)? magneticVelocity : Vector2.zero;
     }
-    private void Gravity()
+    void FlipPlayer()
     {
-        if (isGravity)
-        {
-            if (velocity.y + gravity * deltaTime < maxGravity)
-                velocity.y = maxGravity;
-            else
-                velocity.y += gravity * deltaTime;
-        }
-        else
-        {
-            velocity.y = 0;
-        }
-    }  
-    private void UpdatePlayerInfo() // coudl use clean up currentyl double book keeping in PlayerCollision and here
-    {
-        playerInfo.wasGrounded = playerInfo.isGrounded;
-        playerInfo.isGrounded = playerCollision.collisionInfo.isGrounded;
-        playerInfo.isStandingOnPlatform = playerCollision.collisionInfo.isStandingOnPlatform;
+        playerInfo.facingDirection = (int)Mathf.Sign(directionalInput.x);
 
-        if(playerInfo.isGrounded)
-        {
-            lastGroundedTime = Time.time;
-            if (!playerInfo.wasGrounded)
-            {
-                OnLandEvent.Invoke();
-                ResetJump();
-                ResetDash();
-            }
-        }
+        // Multiply the player's x local scale by -1.
+        Vector3 newScale = transform.localScale;
+        newScale.x *= -1;
+        transform.localScale = newScale;
     }
 
+    #region Wallsliding
     private void WallSliding()
     {
         // Figure out wall direction
@@ -217,6 +213,28 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    #endregion
+
+    #region Jump
+    private void BufferedJumpInput()
+    {
+        if (hasBufferedJump && !playerInfo.isWallsliding)
+        {
+            OnJumpInput();
+        }
+    }
+    private bool CanPlayerJump()
+    {
+        if (jumpCounter <= maxJumps && jumpCounter > 0)
+        {
+            if (playerInfo.isGrounded || playerInfo.isWallsliding || canUseCoyoteTime)
+            {
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
     public void OnJumpInput()
     {
         // If the player is currently wall sliding
@@ -237,22 +255,27 @@ public class PlayerController : MonoBehaviour
                 velocity.x = -wallDirectionX * wallLeap.x;
                 velocity.y = wallLeap.y;
             }
+            HandleJumping();
         }
 
         if (CanPlayerJump())
         {
-            if (directionalInput.y !> -0.95f) // input values are from 0.999... to -0.999...
+            if (directionalInput.y! > -0.95f) // input values are from 0.999... to -0.999...
             {
                 velocity.y = maxJumpVelocity;
             }
-
-            jumpCounter -= 1;
-            playerInfo.isJumping = true;
-            animator.SetBool("IsJumping", true);
-            OnJumpEvent.Invoke();
+            HandleJumping();
         }
-
     }
+
+    private void HandleJumping()
+    {
+        jumpCounter -= 1;
+        playerInfo.isJumping = true;
+        animator.SetBool("IsJumping", true);
+        audioManager.PlaySound(jumpSFX, 0.25f);
+    }
+
     public void OnJumpInputRelease()
     {
         if (velocity.y > minJumpVelocity)
@@ -260,25 +283,16 @@ public class PlayerController : MonoBehaviour
             velocity.y = minJumpVelocity;
         }
     }
-    private bool CanPlayerJump()
-    {
-          if (jumpCounter <= maxJumps && jumpCounter > 0)
-        {
-            if (playerInfo.isGrounded || playerInfo.isWallsliding || canUseCoyoteTime)
-            {
-                return true;
-            }
-            return false;
-        }
-        return false;
-    }
     public void ResetJump()
     {
-        playerInfo.isJumping = false;
         jumpCounter = maxJumps;
+        playerInfo.isJumping = false;
         coyoteTimeActive = true;
         animator.SetBool("IsJumping", false);
     }
+    #endregion
+
+    #region Dash
     public void OnDashInput()
     {      
         dashVelocity = dashDistance / dashDuration;
@@ -295,7 +309,7 @@ public class PlayerController : MonoBehaviour
             dashCounter -= 1;
             playerInfo.isDashing = true;
             animator.SetBool("IsDashing", true);
-            OnDashEvent.Invoke();
+            audioManager.PlaySound(dashSFX, 0.5f);
         }
     }
     private bool CanPlayerDash()
@@ -341,34 +355,8 @@ public class PlayerController : MonoBehaviour
     {
         directionalInput = input;
     }
-    void FlipPlayer()
-    {
-        playerInfo.facingDirection = (int)Mathf.Sign(directionalInput.x);
+    #endregion
 
-        // Multiply the player's x local scale by -1.
-        Vector3 newScale = transform.localScale;
-        newScale.x *= -1;
-        transform.localScale = newScale;
-    }
-    public void OnChangeCharge(Polarization newPolarization)
-    {
-        switch (newPolarization)
-        {
-            case Polarization.negative:
-                playerInfo.isMagnetismActive = true;
-                playerInfo.hasAirControl = false;
-
-                break;
-            case Polarization.positive:
-                playerInfo.isMagnetismActive = true;
-                playerInfo.hasAirControl = false;
-                break;
-            case Polarization.neutral:
-                playerInfo.isMagnetismActive = false;
-                playerInfo.hasAirControl = true;
-                break;
-        }
-    }
     public struct PlayerInfo
     {
         public bool isGrounded { get; set; }

@@ -5,20 +5,23 @@ using UnityEngine;
 
 public class MagnetismController : StaticInstance<MagnetismController>
 {
+	[SerializeField] private ForceVisualisation forceVisualisation;
+	[SerializeField] public HashSet<Magnet> allMagneticObjects = new HashSet<Magnet>();
+	[SerializeField] public HashSet<Magnet> movableMagneticObjects = new HashSet<Magnet>();
+	[SerializeField] public HashSet<Magnet> players = new HashSet<Magnet>();
+	[SerializeField] public HashSet<MagneticForce> activeConnections = new HashSet<MagneticForce>();
+
 	public ContactFilter2D filter;
 	private RaycastHit2D[] hits = new RaycastHit2D[10];
 	private Vector2 closestPoint;
 	private Vector2 otherClosestPoint;
-
-	[SerializeField] public static HashSet<Magnet> allMagneticObjects = new HashSet<Magnet>();
-	[SerializeField] public static HashSet<Magnet> movableMagneticObjects = new HashSet<Magnet>();
-	[SerializeField] public static HashSet<Magnet> players = new HashSet<Magnet>();
 
 	[SerializeField] private float distanceFactor = 1.5f;
 	[SerializeField] private float maxForce = 36f;
 
 	private void FixedUpdate()
 	{
+		activeConnections.Clear();
 		foreach (Magnet magnet in players)
 		{
 			HandleMagneticObjects(magnet);
@@ -28,7 +31,6 @@ public class MagnetismController : StaticInstance<MagnetismController>
 			HandleMagneticObjects(magnet);
 		}
 	}
-
 	public void RegisterMagneticObject(Magnet magnet, bool isMoveable, bool isPlayer)
     {
 		allMagneticObjects.Add(magnet);
@@ -54,13 +56,13 @@ public class MagnetismController : StaticInstance<MagnetismController>
 	private void HandleMagneticObjects(Magnet objectToMove)
 	{
 		Vector2 magneticVelocity = Vector2.zero;
-		if (objectToMove.inRangeOfMagnets.Count < 1 || objectToMove.currentCharge == 0)
+		if (objectToMove.affectedByMagnets.Count < 1 || objectToMove.currentCharge == 0)
         {
 			objectToMove.ApplyMagneticForce(magneticVelocity);
 			return;
 		}
 
-		foreach (Magnet otherObject in objectToMove.inRangeOfMagnets)
+		foreach (Magnet otherObject in objectToMove.affectedByMagnets)
 		{
             Vector2 direction = objectToMove.transform.position - otherObject.transform.position;
             int objectsHit = otherObject.objectCollider.Raycast(direction, filter, hits);
@@ -98,8 +100,11 @@ public class MagnetismController : StaticInstance<MagnetismController>
 
             float forceMagnitude = (objectToMove.currentCharge * otherObject.currentCharge) / Mathf.Pow(distance, distanceFactor);
             forceMagnitude = Mathf.Clamp(forceMagnitude, -maxForce, maxForce);
-            magneticVelocity = forceMagnitude * directionClosest.normalized;
-        }
-		objectToMove.ApplyMagneticForce(magneticVelocity);
+            magneticVelocity += forceMagnitude * directionClosest.normalized;
+
+			// does not work since we create a new force everytime
+			activeConnections.Add(new MagneticForce(objectToMove, otherObject, closestPoint, otherClosestPoint, directionClosest, distance, magneticVelocity));
+		}
+		//objectToMove.ApplyMagneticForce(magneticVelocity);
 	}
 }

@@ -85,12 +85,10 @@ public class PlayerInputHandler : MonoBehaviour
         if (context.performed)
         {
             playerMagnetism.OnChangeCharge(Polarization.positive);
-            playerController.OnChangeCharge(Polarization.positive);
         }
         else if (context.canceled)
         {
             playerMagnetism.OnChangeCharge(Polarization.neutral);
-            playerController.OnChangeCharge(Polarization.neutral);
         }
     }
     public void ChargeNegative(InputAction.CallbackContext context)
@@ -102,12 +100,10 @@ public class PlayerInputHandler : MonoBehaviour
         if (context.performed)
         {
             playerMagnetism.OnChangeCharge(Polarization.negative);
-            playerController.OnChangeCharge(Polarization.negative);
         }
         else if (context.canceled)
         {
             playerMagnetism.OnChangeCharge(Polarization.neutral);
-            playerController.OnChangeCharge(Polarization.neutral);
         }
     }
 }

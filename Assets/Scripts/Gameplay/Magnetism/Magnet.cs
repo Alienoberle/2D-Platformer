@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -9,25 +10,28 @@ using UnityEditor;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Magnet : MonoBehaviour
 {
+	protected MagnetismController magnetismController;
 	protected PlayerController playerController;
-	protected SpriteRenderer spriteRenderer;
 	public Collider2D objectCollider { get; private set; }
 	public Rigidbody2D objectRigidbody { get; private set; }
-	protected MagnetismController magnetismController;
+
 	public Polarization currentPolarization { get; private set; }
 	[SerializeField] private Polarization defaultPolarization = Polarization.neutral;
-	public float chargeValue { get; private set; }
+	[SerializeField] private float chargeValue = 10;
 	public float currentCharge { get; private set; }
-	[SerializeField] private float defaultCharge = 1;
-	public bool isMoveable;
+	[SerializeField] private bool isMoveable;
 	[SerializeField] private bool isPlayer;
-	public HashSet<Magnet> inRangeOfMagnets = new HashSet<Magnet>();
+
+	public HashSet<Magnet> affectedByMagnets = new HashSet<Magnet>();
+
+	protected SpriteRenderer spriteRenderer;
 	private bool isHighlighted = false;
 
 	//Debug fields
 	private Vector2 magneticForce; // store the force for debug purposes
 
-	private void Awake()
+    #region SetUp
+    private void Awake()
     {
 		objectRigidbody = GetComponent<Rigidbody2D>();
 		objectCollider = GetComponent<Collider2D>();
@@ -41,7 +45,6 @@ public class Magnet : MonoBehaviour
 		if (isPlayer) { 
 			playerController = GetComponentInParent<PlayerController>();
 		}
-		ChangeCharge(defaultCharge);
 		ChangePolarisation(defaultPolarization);
 		magnetismController.RegisterMagneticObject(this, isMoveable, isPlayer);
 	}
@@ -50,20 +53,23 @@ private void OnDisable()
 	{
 		magnetismController.UnRegisterMagneticObject(this, isMoveable, isPlayer);
 	}
-    public void ApplyMagneticForce(Vector2 forceToApply)
+    #endregion
+
+    public void ApplyMagneticForce(Vector2 velocity)
     {
-		magneticForce = forceToApply;
+		var magneticForce = velocity;
 		if (isPlayer)
         {
 			playerController.playerInfo.isMagnetismActive = true;
-			playerController.magneticVelocity = forceToApply;
+			playerController.magneticVelocity = velocity;
 		}
 		else 
 		{
-			objectRigidbody.AddForce(forceToApply);
+			objectRigidbody.AddForce(velocity);
 		}
 	}
 
+	#region Visuals
 	public void Highlight()
 	{
 		if (isHighlighted) return;
@@ -76,8 +82,9 @@ private void OnDisable()
 		spriteRenderer.material.DisableKeyword("GLOW_ON");
 		isHighlighted = false;
 	}
+    #endregion
 
-	[ContextMenu("ToggleMoveable")]
+    [ContextMenu("ToggleMoveable")]
 	public void ToggleMoveable(bool isMoveable)
 	{
 		this.isMoveable = isMoveable;
@@ -118,6 +125,7 @@ private void OnDisable()
     {
 		chargeValue = newCharge;
     }
+    #region Debug
     private void OnDrawGizmosSelected()
     {
 		if (Application.isPlaying)
@@ -139,4 +147,5 @@ private void OnDisable()
 			Gizmos.DrawRay(transform.position, magneticForce);
 		}
 	}
+    #endregion
 }

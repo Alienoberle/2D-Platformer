@@ -6,8 +6,9 @@ using System.Linq;
 
 public class PlayerMagnetism : Magnet
 {
+    //Aiming 
     public Vector2 aimInput { get; private set; }
-    private Vector2 lastValidAimInput;
+    private Vector2 lastValidAimInput = new Vector2(1, 0);
     private Vector2 aimDirection;
     public string controlScheme;
     private Vector2 raycastOrigin;
@@ -16,13 +17,7 @@ public class PlayerMagnetism : Magnet
     private HashSet<Magnet> hitLastFrame = new HashSet<Magnet>();
 
     [SerializeField] private GameObject visualisation;
-    private Material material;
 
-    private void Start()
-    {
-        material = spriteRenderer.material;
-        lastValidAimInput = new Vector2(1, 0);
-    }
     private void Update()
     {
         Aim(); 
@@ -48,7 +43,6 @@ public class PlayerMagnetism : Magnet
                 aimDirection = aimInput.normalized;
                 break;
         }
-
         lastValidAimInput = aimInput;
     }
 
@@ -60,15 +54,15 @@ public class PlayerMagnetism : Magnet
 
         if (hits.Length > 0)
         {
-            inRangeOfMagnets.Clear();
+            affectedByMagnets.Clear();
             foreach (RaycastHit2D hitMagnet in hits)
             {
                 if (hitMagnet.transform.CompareTag("Magnet"))
                 {
                     var magnet = hitMagnet.transform.GetComponent<Magnet>();
-                    if (!inRangeOfMagnets.Contains(magnet))
+                    if (!affectedByMagnets.Contains(magnet))
                     {
-                        inRangeOfMagnets.Add(magnet);
+                        affectedByMagnets.Add(magnet);
                     }
                 }
             }
@@ -77,21 +71,21 @@ public class PlayerMagnetism : Magnet
 
     private void HandleAimHighlighting()
     {
-        foreach(Magnet magnet in inRangeOfMagnets)
+        foreach(Magnet magnet in affectedByMagnets)
         {
             magnet.Highlight();
         }
 
-        hitLastFrame.ExceptWith(inRangeOfMagnets);
+        hitLastFrame.ExceptWith(affectedByMagnets);
         foreach (Magnet magnet in hitLastFrame)
         {
-            if (!inRangeOfMagnets.Contains(magnet))
+            if (!affectedByMagnets.Contains(magnet))
             {
                 magnet.UnHighlight();
             }
         }
         hitLastFrame.Clear();
-        hitLastFrame.UnionWith(inRangeOfMagnets);
+        hitLastFrame.UnionWith(affectedByMagnets);
     }
 
     private void HandleVisualisation()
@@ -112,18 +106,21 @@ public class PlayerMagnetism : Magnet
         switch (newPolarization)
         {
             case Polarization.negative:
-                visualisation.GetComponentInChildren<SpriteRenderer>().color = Color.red;
-                material.EnableKeyword("OUTBASE_ON");
-                material.SetColor("_OutlineColor", Color.red);
+                visualisation.GetComponent<SpriteRenderer>().color = Color.red;
+                spriteRenderer.material.EnableKeyword("OUTBASE_ON");
+                spriteRenderer.material.SetColor("_OutlineColor", Color.red);
+                visualisation.GetComponent<AudioSource>().Play();
                 break;
             case Polarization.positive:
-                visualisation.GetComponentInChildren<SpriteRenderer>().color = Color.blue;
-                material.EnableKeyword("OUTBASE_ON");
-                material.SetColor("_OutlineColor", Color.blue);
+                visualisation.GetComponent<SpriteRenderer>().color = Color.blue;
+                spriteRenderer.material.EnableKeyword("OUTBASE_ON");
+                spriteRenderer.material.SetColor("_OutlineColor", Color.blue);
+                visualisation.GetComponent<AudioSource>().Play();
                 break;
             case Polarization.neutral:
-                material.DisableKeyword("OUTBASE_ON");
-                inRangeOfMagnets.Clear();
+                spriteRenderer.material.DisableKeyword("OUTBASE_ON");
+                affectedByMagnets.Clear();
+                visualisation.GetComponent<AudioSource>().Stop();
                 break;
         }
     }

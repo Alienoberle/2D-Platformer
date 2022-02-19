@@ -9,14 +9,14 @@ public class MagneticObject : Magnet
 	{
 		if (other.CompareTag("Magnet"))
 		{
-			other.GetComponentInParent<Magnet>().inRangeOfMagnets.Add(this);
+			other.GetComponentInParent<Magnet>().affectedByMagnets.Add(this);
 		}
 	}
 	private void OnTriggerExit2D(Collider2D other)
 	{
 		if (other.CompareTag("Magnet"))
 		{
-			other.GetComponentInParent<Magnet>().inRangeOfMagnets.Remove(this);
+			other.GetComponentInParent<Magnet>().affectedByMagnets.Remove(this);
 		}
 	}
 }
