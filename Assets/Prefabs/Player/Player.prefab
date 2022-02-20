@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2758541169251429664}
   - component: {fileID: 7472329735725453413}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -160,12 +160,12 @@ GameObject:
   - component: {fileID: 599469852105965142}
   - component: {fileID: 1354142621}
   - component: {fileID: 386653800}
-  - component: {fileID: 6244076534490531751}
-  - component: {fileID: 5659524765646088397}
   - component: {fileID: 5297407452094612872}
+  - component: {fileID: 5659524765646088397}
   - component: {fileID: 4107503892621118844}
   - component: {fileID: 1052751534}
   - component: {fileID: 1738276751}
+  - component: {fileID: 6244076534490531751}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -297,31 +297,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &6244076534490531751
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1865028636488596605}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e989b2e2c61c27d49bd9e6f61037b217, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerHealth: {fileID: 11400000, guid: 565c46341197d164fb4bacca47ce4303, type: 2}
---- !u!114 &5659524765646088397
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1865028636488596605}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8217a8ccfd1b1e14fa747c013b6dbfbf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &5297407452094612872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -497,6 +472,18 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &5659524765646088397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1865028636488596605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8217a8ccfd1b1e14fa747c013b6dbfbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &4107503892621118844
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -519,7 +506,7 @@ MonoBehaviour:
   maxJumpHeight: 4
   minJumpHeight: 1
   timeToJumpApex: 0.25
-  maxJumps: 1
+  maxJumps: 2
   lastPressedJump: 0
   jumpBuffer: 0.1
   coyoteTime: 0.1
@@ -528,7 +515,7 @@ MonoBehaviour:
   dashDistance: 7
   dashDuration: 0.2
   dashAmount: 1
-  dashSFX: {fileID: 8300000, guid: 33de64833759736488d1433cf2e6b0f4, type: 3}
+  dashSFX: {fileID: 8300000, guid: b945b99801182d34ea27ed7ee0784d15, type: 3}
   dashVFX: {fileID: 0}
   wallJumpClimb: {x: 4, y: 40}
   wallJumpOff: {x: 8, y: 16}
@@ -573,11 +560,23 @@ MonoBehaviour:
   chargeValue: 10
   isMoveable: 1
   isPlayer: 1
-  controlScheme: 
-  collisionMask:
+  _layernMask:
     serializedVersion: 2
-    m_Bits: 3328
-  visualisation: {fileID: 6603813113037923547}
+    m_Bits: 2304
+  _visualisation: {fileID: 6603813113037923547}
+--- !u!114 &6244076534490531751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1865028636488596605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e989b2e2c61c27d49bd9e6f61037b217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerHealth: {fileID: 11400000, guid: 565c46341197d164fb4bacca47ce4303, type: 2}
 --- !u!1 &6603813113037923547
 GameObject:
   m_ObjectHideFlags: 0
@@ -588,7 +587,6 @@ GameObject:
   m_Component:
   - component: {fileID: 353099927510911011}
   - component: {fileID: 1584199061619039551}
-  - component: {fileID: 1455218638959372424}
   m_Layer: 0
   m_Name: AimVisualisation
   m_TagString: Untagged
@@ -661,100 +659,3 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!82 &1455218638959372424
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6603813113037923547}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 9190770555053627776, guid: 14bb3af8bfa1d15489ec994684ad36bf,
-    type: 2}
-  m_audioClip: {fileID: 8300000, guid: 38cf8b6d2463e9c4aa1aec108971afdf, type: 3}
-  m_PlayOnAwake: 0
-  m_Volume: 0.2
-  m_Pitch: 1
-  Loop: 1
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
