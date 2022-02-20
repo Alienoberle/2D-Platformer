@@ -73,5 +73,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f28e09827c701e41a1a441589519cb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  magnetismController: {fileID: 3275080013062425481}
-  beam: {fileID: 1201548558708822878, guid: 0f5620e6f9603864a8d3d4da5e0ee2f6, type: 3}
+  _magnetismController: {fileID: 3275080013062425481}
+  _beam: {fileID: 1201548558708822878, guid: 0f5620e6f9603864a8d3d4da5e0ee2f6, type: 3}
