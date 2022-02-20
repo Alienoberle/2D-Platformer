@@ -21,7 +21,7 @@ public class PlayerInputHandler : MonoBehaviour
         playerController = GetComponent<PlayerController>();
         playerMagnetism = GetComponent<PlayerMagnetism>();
         playerInput = GetComponent<PlayerInput>();
-        playerMagnetism.controlScheme = GetControlScheme();
+        playerMagnetism.SetControlScheme(GetControlScheme());
     }
 
     private string GetControlScheme()

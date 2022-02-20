@@ -9,7 +9,7 @@ public class MagnetismController : StaticInstance<MagnetismController>
 	[SerializeField] public HashSet<Magnet> allMagneticObjects = new HashSet<Magnet>();
 	[SerializeField] public HashSet<Magnet> movableMagneticObjects = new HashSet<Magnet>();
 	[SerializeField] public HashSet<Magnet> players = new HashSet<Magnet>();
-	[SerializeField] public HashSet<MagneticForce> activeConnections = new HashSet<MagneticForce>();
+	[SerializeField] public HashSet<MagneticForce> activeForces = new HashSet<MagneticForce>();
 
 	public ContactFilter2D filter;
 	private RaycastHit2D[] hits = new RaycastHit2D[10];
@@ -21,7 +21,7 @@ public class MagnetismController : StaticInstance<MagnetismController>
 
 	private void FixedUpdate()
 	{
-		activeConnections.Clear();
+		activeForces.Clear();
 		foreach (Magnet magnet in players)
 		{
 			HandleMagneticObjects(magnet);
@@ -56,14 +56,19 @@ public class MagnetismController : StaticInstance<MagnetismController>
 	private void HandleMagneticObjects(Magnet objectToMove)
 	{
 		Vector2 magneticVelocity = Vector2.zero;
-		if (objectToMove.affectedByMagnets.Count < 1 || objectToMove.currentCharge == 0)
-        {
-			objectToMove.ApplyMagneticForce(magneticVelocity);
+		if (objectToMove.affectedByMagnets.Count < 1 || objectToMove.currentCharge == 0) //setting velocity to 0 and stop execution at tis point
+		{
+			objectToMove.ApplyMagneticForce(magneticVelocity);  
 			return;
 		}
 
 		foreach (Magnet otherObject in objectToMove.affectedByMagnets)
 		{
+			//if (otherObject.currentCharge == 0) 
+			//{
+			//	objectToMove.ApplyMagneticForce(magneticVelocity); //setting velocity to 0 and stop execution at tis point
+			//	return;
+			//}
             Vector2 direction = objectToMove.transform.position - otherObject.transform.position;
             int objectsHit = otherObject.objectCollider.Raycast(direction, filter, hits);
             for (int i = 0; i < objectsHit; i++)
@@ -102,9 +107,8 @@ public class MagnetismController : StaticInstance<MagnetismController>
             forceMagnitude = Mathf.Clamp(forceMagnitude, -maxForce, maxForce);
             magneticVelocity += forceMagnitude * directionClosest.normalized;
 
-			// does not work since we create a new force everytime
-			activeConnections.Add(new MagneticForce(objectToMove, otherObject, closestPoint, otherClosestPoint, directionClosest, distance, magneticVelocity));
+			activeForces.Add(new MagneticForce(objectToMove, otherObject, closestPoint, otherClosestPoint, directionClosest, distance, magneticVelocity));
 		}
-		//objectToMove.ApplyMagneticForce(magneticVelocity);
+		objectToMove.ApplyMagneticForce(magneticVelocity);
 	}
 }
