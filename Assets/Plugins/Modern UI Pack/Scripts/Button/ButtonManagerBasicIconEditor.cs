@@ -1,76 +1,62 @@
 ﻿using UnityEngine;
-#if UNITY_EDITOR
 using UnityEditor;
 
 namespace Michsky.UI.ModernUIPack
 {
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(ButtonManagerBasicIcon))]
-    [System.Serializable]
     public class ButtonManagerBasicIconEditor : Editor
     {
-        // Variables
-        private ButtonManagerBasicIcon buttonTarget;
+        private ButtonManagerBasicIcon bTarget;
         private int currentTab;
 
         private void OnEnable()
         {
-            // Set target
-            buttonTarget = (ButtonManagerBasicIcon)target;
+            bTarget = (ButtonManagerBasicIcon)target;
         }
 
         public override void OnInspectorGUI()
         {
-            // GUI skin variable
             GUISkin customSkin;
+            Color defaultColor = GUI.color;
 
-            // Select GUI skin depending on the editor theme
             if (EditorGUIUtility.isProSkin == true)
-                customSkin = (GUISkin)Resources.Load("Editor\\Custom Skin Dark");
+                customSkin = (GUISkin)Resources.Load("Editor\\MUI Skin Dark");
             else
-                customSkin = (GUISkin)Resources.Load("Editor\\Custom Skin Light");
+                customSkin = (GUISkin)Resources.Load("Editor\\MUI Skin Light");
 
-            GUILayout.Space(-70);
             GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
+            GUI.backgroundColor = defaultColor;
 
-            // Top Header
             GUILayout.Box(new GUIContent(""), customSkin.FindStyle("Button Top Header"));
 
-            GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+            GUILayout.Space(-42);
 
-            // Toolbar content
             GUIContent[] toolbarTabs = new GUIContent[3];
             toolbarTabs[0] = new GUIContent("Content");
             toolbarTabs[1] = new GUIContent("Resources");
             toolbarTabs[2] = new GUIContent("Settings");
 
             GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            GUILayout.Space(60);
+            GUILayout.Space(17);
 
-            currentTab = GUILayout.Toolbar(currentTab, toolbarTabs, customSkin.FindStyle("Toolbar Indicators"));
+            currentTab = GUILayout.Toolbar(currentTab, toolbarTabs, customSkin.FindStyle("Tab Indicator"));
 
-            GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+            GUILayout.Space(-40);
             GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            GUILayout.Space(50);
+            GUILayout.Space(17);
 
-            // Draw toolbar tabs as a button
-            if (GUILayout.Button(new GUIContent("Content", "Content"), customSkin.FindStyle("Toolbar Items")))
+            if (GUILayout.Button(new GUIContent("Content", "Content"), customSkin.FindStyle("Tab Content")))
                 currentTab = 0;
-
-            if (GUILayout.Button(new GUIContent("Resources", "Resources"), customSkin.FindStyle("Toolbar Resources")))
+            if (GUILayout.Button(new GUIContent("Resources", "Resources"), customSkin.FindStyle("Tab Resources")))
                 currentTab = 1;
-
-            if (GUILayout.Button(new GUIContent("Settings", "Settings"), customSkin.FindStyle("Toolbar Settings")))
+            if (GUILayout.Button(new GUIContent("Settings", "Settings"), customSkin.FindStyle("Tab Settings")))
                 currentTab = 2;
 
-            GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
-            // Property variables
             var buttonIcon = serializedObject.FindProperty("buttonIcon");
             var clickEvent = serializedObject.FindProperty("clickEvent");
             var hoverEvent = serializedObject.FindProperty("hoverEvent");
@@ -91,14 +77,11 @@ namespace Michsky.UI.ModernUIPack
             var maxSize = serializedObject.FindProperty("maxSize");
             var startColor = serializedObject.FindProperty("startColor");
             var transitionColor = serializedObject.FindProperty("transitionColor");
+            var rippleUpdateMode = serializedObject.FindProperty("rippleUpdateMode");
 
-            // Draw content depending on tab index
             switch (currentTab)
             {
                 case 0:
-                    GUILayout.Space(20);
-                    GUILayout.Label("CONTENT", customSkin.FindStyle("Header"));
-                    GUILayout.Space(2);
                     GUILayout.BeginHorizontal(EditorStyles.helpBox);
 
                     EditorGUILayout.LabelField(new GUIContent("Button Icon"), customSkin.FindStyle("Text"), GUILayout.Width(120));
@@ -106,10 +89,10 @@ namespace Michsky.UI.ModernUIPack
 
                     GUILayout.EndHorizontal();
 
-                    if (useCustomContent.boolValue == false && buttonTarget.normalIcon != null)
-                        buttonTarget.normalIcon.sprite = buttonTarget.buttonIcon;
+                    if (useCustomContent.boolValue == false && bTarget.normalIcon != null)
+                        bTarget.normalIcon.sprite = bTarget.buttonIcon;
 
-                    else if (useCustomContent.boolValue == false && buttonTarget.normalIcon == null)
+                    else if (useCustomContent.boolValue == false && bTarget.normalIcon == null)
                     {
                         GUILayout.Space(2);
                         EditorGUILayout.HelpBox("'Image Object' is not assigned. Go to Resources tab and assign the correct variable.", MessageType.Error);
@@ -138,13 +121,9 @@ namespace Michsky.UI.ModernUIPack
                     GUILayout.Space(4);
                     EditorGUILayout.PropertyField(clickEvent, new GUIContent("On Click Event"), true);
                     EditorGUILayout.PropertyField(hoverEvent, new GUIContent("On Hover Event"), true);
-                    GUILayout.Space(4);
                     break;
 
                 case 1:
-                    GUILayout.Space(20);
-                    GUILayout.Label("RESOURCES", customSkin.FindStyle("Header"));
-                    GUILayout.Space(2);
                     GUILayout.BeginHorizontal(EditorStyles.helpBox);
 
                     EditorGUILayout.LabelField(new GUIContent("Image Object"), customSkin.FindStyle("Text"), GUILayout.Width(120));
@@ -172,14 +151,9 @@ namespace Michsky.UI.ModernUIPack
                         GUILayout.EndHorizontal();
                     }
 
-                    GUILayout.Space(4);
                     break;
 
                 case 2:
-                    GUILayout.Space(20);
-                    GUILayout.Label("SETTINGS", customSkin.FindStyle("Header"));
-                    GUILayout.Space(2);
-
                     GUILayout.BeginHorizontal(EditorStyles.helpBox);
 
                     useCustomContent.boolValue = GUILayout.Toggle(useCustomContent.boolValue, new GUIContent("Use Custom Content"), customSkin.FindStyle("Toggle"));
@@ -208,13 +182,13 @@ namespace Michsky.UI.ModernUIPack
 
                         GUILayout.EndHorizontal();
 
-                        if (buttonTarget.soundSource == null)
+                        if (bTarget.soundSource == null)
                         {
                             EditorGUILayout.HelpBox("'Sound Source' is not assigned. Go to Resources tab or click the button to create a new audio source.", MessageType.Info);
 
                             if (GUILayout.Button("Create a new one", customSkin.button))
                             {
-                                buttonTarget.soundSource = buttonTarget.gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
+                                bTarget.soundSource = bTarget.gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
                                 currentTab = 2;
                             }
                         }
@@ -242,6 +216,12 @@ namespace Michsky.UI.ModernUIPack
 
                         centered.boolValue = GUILayout.Toggle(centered.boolValue, new GUIContent("Centered"), customSkin.FindStyle("Toggle"));
                         centered.boolValue = GUILayout.Toggle(centered.boolValue, new GUIContent(""), customSkin.FindStyle("Toggle Helper"));
+
+                        GUILayout.EndHorizontal();
+                        GUILayout.BeginHorizontal(EditorStyles.helpBox);
+
+                        EditorGUILayout.LabelField(new GUIContent("Update Mode"), customSkin.FindStyle("Text"), GUILayout.Width(120));
+                        EditorGUILayout.PropertyField(rippleUpdateMode, new GUIContent(""));
 
                         GUILayout.EndHorizontal();
                         GUILayout.BeginHorizontal(EditorStyles.helpBox);
@@ -277,13 +257,10 @@ namespace Michsky.UI.ModernUIPack
                     }
 
                     GUILayout.EndVertical();
-                    GUILayout.Space(4);
                     break;
             }
 
-            // Apply the changes
             serializedObject.ApplyModifiedProperties();
         }
     }
 }
-#endif
