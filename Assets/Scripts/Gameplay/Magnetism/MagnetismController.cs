@@ -64,11 +64,11 @@ public class MagnetismController : StaticInstance<MagnetismController>
 
 		foreach (Magnet otherObject in objectToMove.affectedByMagnets)
 		{
-			//if (otherObject.currentCharge == 0) 
-			//{
-			//	objectToMove.ApplyMagneticForce(magneticVelocity); //setting velocity to 0 and stop execution at tis point
-			//	return;
-			//}
+            if (otherObject.currentCharge == 0)
+            {
+                objectToMove.ApplyMagneticForce(magneticVelocity); //setting velocity to 0 and stop execution at tis point
+                return;
+            }
             Vector2 direction = objectToMove.transform.position - otherObject.transform.position;
             int objectsHit = otherObject.objectCollider.Raycast(direction, filter, hits);
             for (int i = 0; i < objectsHit; i++)

@@ -18,7 +18,7 @@ public class PlayerTrigger : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.GetComponent<Player>())
+        if (collision.CompareTag("Player"))
         {
             playerInTrigger = true;
             PlayerEntersTrigger.Invoke();
@@ -27,7 +27,7 @@ public class PlayerTrigger : MonoBehaviour
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.GetComponent<Player>())
+        if (collision.CompareTag("Player"))
         {
             playerInTrigger = false;
             PlayerExitsTrigger.Invoke();

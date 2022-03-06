@@ -14,9 +14,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/UI.unity
     guid: 9dde428aa20cb9b41a41136a3d39c798
-  - enabled: 1
-    path: Assets/Scenes/Level_01.unity
-    guid: 42c47118cabd13c4688405956e00a759
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Scenes/TestMap/TestMap.unity
     guid: 6083e0b8900601b49bd95ffdbf6f09a9

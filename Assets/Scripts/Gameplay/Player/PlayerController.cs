@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
     private float deltaTime;
     [HideInInspector] public PlayerInfo playerInfo;
 
-    [Header("GroundCheck")]
+    [Header("Gravity")]
     private float gravity;
     [SerializeField] private float maxGravity = -9.0f;
     public bool isGravity = true;
@@ -32,6 +32,8 @@ public class PlayerController : MonoBehaviour
     private float accelerationTimeAirborn = 0.2f;
     private float accelerationTimeGrounded = 0.1f;
     //[SerializeField] private float maximumSlopeAngle = 60.0f;
+    [SerializeField] private ParticleSystem runVFX;
+    [SerializeField] private AudioClip runSFX;
 
     [Header("Jumping")]
     [SerializeField] private float maxJumpHeight = 4f;
@@ -41,7 +43,7 @@ public class PlayerController : MonoBehaviour
     private float minJumpVelocity;
     [SerializeField] private int maxJumps = 1;
     private int jumpCounter;
-    public float lastPressedJump;
+    [HideInInspector] public float lastPressedJump;
     [SerializeField] private float jumpBuffer = 0.1f;
     private bool hasBufferedJump => lastPressedJump + jumpBuffer > Time.time;
 
@@ -52,6 +54,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioClip jumpSFX;
     [SerializeField] private ParticleSystem jumpVFX;
 
+
     [Header("Dashing")]
     [SerializeField] private float dashDistance = 5f;
     [SerializeField] private float dashDuration = 0.2f;
@@ -61,6 +64,9 @@ public class PlayerController : MonoBehaviour
     public int dashAmount = 1;
     private int dashCounter;
     private int dashingDirectionX;
+    [HideInInspector] public float lastPressedDash;
+    [SerializeField] private float dashBuffer = 0.1f;
+    private bool hasBufferedDash => lastPressedDash + dashBuffer > Time.time;
     [SerializeField] private AudioClip dashSFX;
     [SerializeField] private ParticleSystem dashVFX;
 
@@ -73,6 +79,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float wallStickTime = 0.25f;
     private float timeToWallUnstick;
     private int wallDirectionX;
+
+    [Header("Landing")]
+    [SerializeField] private AudioClip landingSFX;
+    [SerializeField] private ParticleSystem landingVFX;
 
     private void Awake()
     {
@@ -88,6 +98,7 @@ public class PlayerController : MonoBehaviour
         ResetJump();
         ResetDash();
 
+
         gravity = -(2 * maxJumpHeight / Mathf.Pow(timeToJumpApex, 2));
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
         minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight);
@@ -97,8 +108,8 @@ public class PlayerController : MonoBehaviour
         deltaTime = Time.fixedDeltaTime;
         UpdatePlayerInfo();
         Gravity();
-        BufferedJumpInput();
         CalculateInputVelocity();
+        BufferedInput();
         WallSliding();              
         Dashing();
 
@@ -115,24 +126,33 @@ public class PlayerController : MonoBehaviour
             FlipPlayer();
         }
 
-        // Trigger Run animation
-        animator.SetFloat("Speed", Mathf.Abs(velocity.x));
+
+        if (playerInfo.isGrounded && Mathf.Abs(velocity.x) > 0.1)
+        {
+            playerInfo.isRunning = true;
+            animator.SetBool("IsRunning", true);
+            runVFX.Play();
+        }
+        else
+        {
+            playerInfo.isRunning = false;
+            animator.SetBool("IsRunning", false);
+            runVFX.Stop();
+        }
     }
 
-    private void UpdatePlayerInfo() // could use clean up currentyl double book keeping in PlayerCollision and here
+    private void UpdatePlayerInfo() // could use clean up currently double book keeping in PlayerCollision and here
     {
         playerInfo.wasGrounded = playerInfo.isGrounded;
         playerInfo.isGrounded = playerCollision.collisionInfo.isGrounded;
         playerInfo.isStandingOnPlatform = playerCollision.collisionInfo.isStandingOnPlatform;
-
-        if (playerInfo.isGrounded)
+        if (playerInfo.isGrounded) 
         {
             lastGroundedTime = Time.time;
-            if (!playerInfo.wasGrounded)
-            {
-                ResetJump();
-                ResetDash();
-            }
+        }
+        if (playerInfo.isGrounded && !playerInfo.wasGrounded) // check if player is landing
+        {
+            Landing();
         }
     }
     private void Gravity()
@@ -176,6 +196,23 @@ public class PlayerController : MonoBehaviour
         newScale.x *= -1;
         transform.localScale = newScale;
     }
+    public void Landing()
+    {
+        ResetJump();
+        ResetDash();
+        landingVFX.Play();
+    }
+    private void BufferedInput()
+    {
+        if (hasBufferedJump && !playerInfo.isWallsliding && !playerInfo.isJumping)
+        {
+            OnJumpInput();
+        }
+        if (hasBufferedDash && !playerInfo.isDashing)
+        {
+            OnDashInput();
+        }
+    }
 
     #region Wallsliding
     private void WallSliding()
@@ -216,23 +253,10 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Jump
-    private void BufferedJumpInput()
-    {
-        if (hasBufferedJump && !playerInfo.isWallsliding)
-        {
-            OnJumpInput();
-        }
-    }
     private bool CanPlayerJump()
     {
-        if (jumpCounter <= maxJumps && jumpCounter > 0)
-        {
-            if (playerInfo.isGrounded || playerInfo.isWallsliding || canUseCoyoteTime)
-            {
-                return true;
-            }
-            return false;
-        }
+        if (jumpCounter > 0) return true;
+        if (canUseCoyoteTime) return true;
         return false;
     }
     public void OnJumpInput()
@@ -267,7 +291,6 @@ public class PlayerController : MonoBehaviour
             HandleJumping();
         }
     }
-
     private void HandleJumping()
     {
         jumpCounter -= 1;
@@ -275,7 +298,6 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsJumping", true);
         audioManager.PlaySound(jumpSFX, 0.25f);
     }
-
     public void OnJumpInputRelease()
     {
         if (velocity.y > minJumpVelocity)
@@ -359,28 +381,30 @@ public class PlayerController : MonoBehaviour
 
     public struct PlayerInfo
     {
+        public int facingDirection;
         public bool isGrounded { get; set; }
         public bool wasGrounded { get; set; }
-        public bool hasAirControl { get; set; }
         public bool isStandingOnPlatform { get; set; }
-        public bool isMagnetismActive { get; set; }
+        public bool isRunning { get; set; }
         public bool isWallsliding { get; set; }
         public bool isJumping { get; set; }
         public bool isDashing { get; set; }
-
-        public int facingDirection;
+        public bool hasAirControl { get; set; }
+        public bool isMagnetismActive { get; set; }
 
         public void Initialize()
         {
+            facingDirection = 1;
             isGrounded = true;
             wasGrounded = true;
-            hasAirControl = true;
-            isMagnetismActive = false;
             isStandingOnPlatform = false;
+            isRunning = false;
             isWallsliding = false;
             isJumping = false;
             isDashing = false;
-            facingDirection = 1;
+            hasAirControl = true;
+            isMagnetismActive = false;
+
         }
     }
 }

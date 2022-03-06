@@ -74,6 +74,7 @@ public class PlayerInputHandler : MonoBehaviour
         if (context.performed)
         {
             playerController.OnDashInput();
+            playerController.lastPressedDash = Time.time;
         }
     }
     public void ChargePositive(InputAction.CallbackContext context)
