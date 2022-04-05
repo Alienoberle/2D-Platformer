@@ -21,6 +21,6 @@ public class PlayerStart : MonoBehaviour
     {
         Player1 = Instantiate<GameObject>(PlayerPrefab, Player1Spawnpoint, Quaternion.identity);
         Player2 = Instantiate<GameObject>(PlayerPrefab, Player2Spawnpoint, Quaternion.identity);
-        //InputUser
+        // assign the correct input to the correct player -> "InputUser" seems to be the place this information can be acces in
     }
 }
