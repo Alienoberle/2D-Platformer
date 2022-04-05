@@ -19,10 +19,10 @@ public class PlayerMagnetism : Magnet
 
     private void Update()
     {
-        Aim(); 
+        Aim();
+        HandleAimVisualisation();
         HitDetection();
-        HandleVisualisation();
-        HandleAimHighlighting();
+        HandleHits();
     }
 
     private void Aim()
@@ -66,11 +66,12 @@ public class PlayerMagnetism : Magnet
         }
     }
 
-    private void HandleAimHighlighting()
+    private void HandleHits()
     {
         foreach(Magnet magnet in affectedByMagnets)
         {
             magnet.Highlight();
+            magnet.affectedByMagnets.Add(this);
         }
 
         _hitLastFrame.ExceptWith(affectedByMagnets);
@@ -79,13 +80,14 @@ public class PlayerMagnetism : Magnet
             if (!affectedByMagnets.Contains(magnet))
             {
                 magnet.UnHighlight();
+                magnet.affectedByMagnets.Remove(this);
             }
         }
         _hitLastFrame.Clear();
         _hitLastFrame.UnionWith(affectedByMagnets);
     }
 
-    private void HandleVisualisation()
+    private void HandleAimVisualisation()
     {
         _visualisation.transform.position = (Vector2)transform.position + _aimDirection * _rayLenght;
         float angle = Mathf.Atan2(_aimDirection.y, _aimDirection.x) * Mathf.Rad2Deg;

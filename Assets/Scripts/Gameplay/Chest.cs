@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Chest : MonoBehaviour
 {
+    private Animator animator;
     private bool negIsLocked = true;
     private bool posIsLocked = true;
     private bool isUnlocked = false;
@@ -18,22 +19,26 @@ public class Chest : MonoBehaviour
 
     private void Awake()
     {
+        animator = GetComponent<Animator>();
         col2DMagnetNegative = magnetNegative.GetComponent<Collider2D>();
         colDMagnetPositive = magnetPositive.GetComponent<Collider2D>();
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
+        if (isUnlocked) return;
         if (collision == col2DMagnetNegative)
         {
             negIsLocked = false;
             magnetNegative.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+            animator.Play("LockRemoved");
             CheckChestState();
         }
         if (collision == colDMagnetPositive)
         {
             posIsLocked = false;
             magnetPositive.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
+            animator.Play("LockRemoved");
             CheckChestState();
         }
     }
@@ -50,6 +55,7 @@ public class Chest : MonoBehaviour
 
     private void ChestUnlocked()
     {
+        animator.Play("Open");
         vFXChestUnlocked.Play();
         AudioManager.Instance.PlaySound(sFXChestUnlocked);
     }

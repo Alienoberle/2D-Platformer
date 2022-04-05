@@ -28,6 +28,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 47.950718, y: 1.264391, z: 20.91941}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -59,8 +60,8 @@ MonoBehaviour:
     maxDepth: 0
     minNormalAngle: 0
     maxNormalAngle: 0
-  distanceFactor: 1.5
-  maxForce: 36
+  distanceFactor: 1.1
+  maxForce: 20
 --- !u!114 &4308396757829480131
 MonoBehaviour:
   m_ObjectHideFlags: 0

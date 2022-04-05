@@ -49,7 +49,7 @@ public class Magnet : MonoBehaviour
 		magnetismController.RegisterMagneticObject(this, isMoveable, isPlayer);
 	}
 
-private void OnDisable()
+	private void OnDisable()
 	{
 		magnetismController.UnRegisterMagneticObject(this, isMoveable, isPlayer);
 	}
@@ -57,7 +57,7 @@ private void OnDisable()
 
     public void ApplyMagneticForce(Vector2 velocity)
     {
-		var magneticForce = velocity;
+		magneticForce = velocity;
 		if (isPlayer)
         {
 			playerController.playerInfo.isMagnetismActive = true;
@@ -65,7 +65,8 @@ private void OnDisable()
 		}
 		else 
 		{
-			objectRigidbody.AddForce(velocity);
+			//objectRigidbody.AddForce(velocity);
+			objectRigidbody.velocity += velocity;
 		}
 	}
 
