@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class Chest : MonoBehaviour
 {
@@ -14,8 +13,11 @@ public class Chest : MonoBehaviour
     [SerializeField] private GameObject magnetPositive;
     private Collider2D colDMagnetPositive;
 
-    [SerializeField] private ParticleSystem vFXChestUnlocked;
-    [SerializeField] private AudioClip sFXChestUnlocked;
+    [SerializeField] private AudioClip sFXLockRemoved;
+    [SerializeField] private ParticleSystem vFXChestOpens;
+    private const float yDistance = 1.5f;
+    private const float Duration = 1.5f;
+    [SerializeField] private AudioClip sFXChestOpens;
 
     private void Awake()
     {
@@ -23,7 +25,6 @@ public class Chest : MonoBehaviour
         col2DMagnetNegative = magnetNegative.GetComponent<Collider2D>();
         colDMagnetPositive = magnetPositive.GetComponent<Collider2D>();
     }
-
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (isUnlocked) return;
@@ -31,32 +32,39 @@ public class Chest : MonoBehaviour
         {
             negIsLocked = false;
             magnetNegative.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
-            animator.Play("LockRemoved");
             CheckChestState();
         }
         if (collision == colDMagnetPositive)
         {
             posIsLocked = false;
             magnetPositive.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None;
-            animator.Play("LockRemoved");
             CheckChestState();
         }
     }
-
     private void CheckChestState()
     {
         if(negIsLocked == false && posIsLocked == false)
         {
             isUnlocked = true;
             ChestUnlocked();
-            print("unlocked");
+        }
+        else
+        {
+            LockRemoved();
         }
     }
-
+    [ContextMenu("LockRemoved")]
+    private void LockRemoved()
+    {
+        animator.Play("LockRemoved");
+        AudioManager.Instance.PlaySound(sFXLockRemoved);
+    }
+    [ContextMenu("ChestUnlocked")]
     private void ChestUnlocked()
     {
         animator.Play("Open");
-        vFXChestUnlocked.Play();
-        AudioManager.Instance.PlaySound(sFXChestUnlocked);
+        vFXChestOpens.Play();
+        vFXChestOpens.transform.DOLocalMoveY(yDistance, Duration);
+        AudioManager.Instance.PlaySound(sFXChestOpens);
     }
 }
