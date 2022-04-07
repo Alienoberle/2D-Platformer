@@ -15,7 +15,7 @@ public class Chest : MonoBehaviour
 
     [SerializeField] private AudioClip sFXLockRemoved;
     [SerializeField] private ParticleSystem vFXChestOpens;
-    private const float yDistance = 1.5f;
+    private const float yDistance = 2f;
     private const float Duration = 1.5f;
     [SerializeField] private AudioClip sFXChestOpens;
 
@@ -63,8 +63,12 @@ public class Chest : MonoBehaviour
     private void ChestUnlocked()
     {
         animator.Play("Open");
+        AudioManager.Instance.PlaySound(sFXChestOpens);
+    }
+
+    private void ItemPopOut()
+    {
         vFXChestOpens.Play();
         vFXChestOpens.transform.DOLocalMoveY(yDistance, Duration);
-        AudioManager.Instance.PlaySound(sFXChestOpens);
     }
 }

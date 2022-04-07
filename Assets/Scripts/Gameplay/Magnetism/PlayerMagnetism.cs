@@ -48,22 +48,32 @@ public class PlayerMagnetism : Magnet
     private void HitDetection()
     {
         _raycastOrigin = transform.position;
-        var hits = Physics2D.RaycastAll(_raycastOrigin, _aimDirection, _rayLenght, _layernMask);
+        var hit = Physics2D.Raycast(_raycastOrigin, _aimDirection, _rayLenght, _layernMask);
+        //var hits = Physics2D.RaycastAll(_raycastOrigin, _aimDirection, _rayLenght, _layernMask);  // if we want to have all hits
         Debug.DrawRay(_raycastOrigin, _aimDirection * _rayLenght);
         
         affectedByMagnets.Clear();
 
-        if (hits.Length > 0)
+        if (hit)
         {
-            foreach (RaycastHit2D hitMagnet in hits)
-            {
-                var magnet = hitMagnet.transform.GetComponent<Magnet>();
-                if (magnet is null) return;
-                if (!hitMagnet.transform.CompareTag("Player") && !hitMagnet.transform.CompareTag("Magnet")) return;
-                if (affectedByMagnets.Contains(magnet)) return;
-                affectedByMagnets.Add(magnet);
-            }
+            var magnet = hit.transform.GetComponent<Magnet>();
+            if (magnet is null) return;
+            if (!hit.transform.CompareTag("Player") && !hit.transform.CompareTag("Magnet")) return;
+            if (affectedByMagnets.Contains(magnet)) return;
+            affectedByMagnets.Add(magnet);
         }
+
+        //if (hits.Length > 0)
+        //{
+        //    foreach (RaycastHit2D hitMagnet in hits)
+        //    {
+        //        var magnet = hitMagnet.transform.GetComponent<Magnet>();
+        //        if (magnet is null) return;
+        //        if (!hitMagnet.transform.CompareTag("Player") && !hitMagnet.transform.CompareTag("Magnet")) return;
+        //        if (affectedByMagnets.Contains(magnet)) return;
+        //        affectedByMagnets.Add(magnet);
+        //    }
+        //}
     }
 
     private void HandleHits()
