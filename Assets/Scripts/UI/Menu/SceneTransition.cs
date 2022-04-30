@@ -16,20 +16,17 @@ public class SceneTransition : MonoBehaviour
     [Space(10)]
     [SerializeField] private List<Transition> transitionList;
 
-    private bool isTransitionTypeOut;
-    public event Action<bool> OnTransitionFinished = delegate { };
+    public event Action OnTransitionFinished = delegate { };
 
     public void TransitionOut()
     {
         canvas.enabled = true;
         LevelTransition(sceneLoader.transitionName, "TransitionOut");
-        isTransitionTypeOut = true;
     }
     public void TransitionIn()
     {
         canvas.enabled = true;
         LevelTransition(sceneLoader.transitionName, "TransitionIn");
-        isTransitionTypeOut = false;
     }
     public void LevelTransition(string transitionName, string transitionType)
     {
@@ -52,7 +49,7 @@ public class SceneTransition : MonoBehaviour
     }
     private void TransitionFinished()
     {
-        OnTransitionFinished(isTransitionTypeOut);
+        OnTransitionFinished();
         canvas.enabled = false;   
     }
 

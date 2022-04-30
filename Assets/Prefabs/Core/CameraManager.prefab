@@ -113,5 +113,5 @@ MonoBehaviour:
   cameraTarget: {fileID: 662135811}
   minOrtographicSize: 10
   maxOrtographicSize: 15
-  zoomLimit: 30
+  zoomLimit: 20
   cameraTargets: []

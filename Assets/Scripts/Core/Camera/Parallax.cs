@@ -33,6 +33,7 @@ public class Parallax : MonoBehaviour
     {
         _distanceFromSubject = transform.position.z - subject.position.z;
         _clippingPlane = (cam.transform.position.z + (_distanceFromSubject > 0 ? cam.farClipPlane : cam.nearClipPlane));
+        //_parallaxFactor = Mathf.Clamp(Mathf.Abs(_distanceFromSubject) / _clippingPlane, -0.95f, 0.95f);
         _parallaxFactor = Mathf.Abs(_distanceFromSubject) / _clippingPlane;
     }
     private void DetermineTextureUnitSizes()

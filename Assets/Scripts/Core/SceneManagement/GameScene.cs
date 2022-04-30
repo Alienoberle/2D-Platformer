@@ -13,5 +13,4 @@ public class GameScene : ScriptableObject
 	[Header("Scene Loading")]
 	public bool showSceneTransition;
 	public string transitionName;
-	public bool showLoadingScreen;
 }

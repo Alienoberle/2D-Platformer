@@ -16,12 +16,23 @@ public class PlayerTrigger : MonoBehaviour
 
     public bool isPlayerInTrigger => playerInTrigger == true;
 
+    [ContextMenu("Enter")]
+    private void Enter()
+    {
+        PlayerEntersTrigger.Invoke();
+    }
+    [ContextMenu("Exit")]
+    private void Exit()
+    {
+        PlayerExitsTrigger.Invoke();
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
             playerInTrigger = true;
-            PlayerEntersTrigger.Invoke();
+            Enter();
             OnTriggerEnter(this.transform.root.gameObject);
         }
     }
@@ -30,7 +41,7 @@ public class PlayerTrigger : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             playerInTrigger = false;
-            PlayerExitsTrigger.Invoke();
+            Exit();
             OnTriggerExit(this.transform.root.gameObject);
         }
     }
