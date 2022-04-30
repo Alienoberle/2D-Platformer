@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d10b38245d93e85448a6248bd4e9868d, type: 3}
   m_Name: Level01
   m_EditorClassIdentifier: 
-  sceneName: Level01
+  sceneName: Level_01
   shortDescription: 
   showSceneTransition: 1
   transitionName: Crossfade

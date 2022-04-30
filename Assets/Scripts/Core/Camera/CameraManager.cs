@@ -16,9 +16,25 @@ public class CameraManager : StaticInstance<CameraManager>
     public List<Transform> cameraTargets;
     private Bounds debugBounds;
 
+    private void Start()
+    {
+        virtualCamera = Camera.main.GetComponentInChildren<CinemachineVirtualCamera>();
+        Initialize();
+    }
     private void OnEnable()
     {
+        Initialize();
+    }
+
+    private void Initialize()
+    {
+        virtualCamera.Follow = cameraTarget.transform;
         Move(startPosition.transform.position);
+    }
+
+    private void OnDisable()
+    {
+        Move(Vector3.zero);
     }
     private void LateUpdate()
     {

@@ -9,8 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Player
   m_Shader: {fileID: 4800000, guid: 79ee6cefbc672a44e97359d4d14ea301, type: 3}
-  m_ShaderKeywords: GLOWLIGHT_ON OUTBASE8DIR_ON POSTERIZEOUTLINE_ON _GLOWAFFECTLIGHT_ON
-    _OUTLINE8DIRECTIONS_ON _POSTERIZEOUTLINE_ON
+  m_ShaderKeywords: CHANGECOLOR2_ON GLOWLIGHT_ON OUTBASE8DIR_ON POSTERIZEOUTLINE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -80,6 +79,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _Alpha: 1
     - _AlphaCutoffValue: 0.25
@@ -98,8 +98,8 @@ Material:
     - _ClipUvLeft: 0
     - _ClipUvRight: 0
     - _ClipUvUp: 0
-    - _ColorChangeLuminosity: 0
-    - _ColorChangeTolerance: 0.25
+    - _ColorChangeLuminosity: 0.15
+    - _ColorChangeTolerance: 0.7
     - _ColorChangeTolerance2: 0.25
     - _ColorChangeTolerance3: 0.25
     - _ColorRampBlend: 1
@@ -110,9 +110,11 @@ Material:
     - _ColorSwapGreenLuminosity: 0.5
     - _ColorSwapRedLuminosity: 0.5
     - _Contrast: 1
+    - _CullingOption: 0
     - _DistortAmount: 0.5
     - _DistortTexXSpeed: 5
     - _DistortTexYSpeed: 5
+    - _EditorDrawers: 14
     - _EnableExternalAlpha: 0
     - _FadeAmount: 0.103
     - _FadeBurnGlow: 112
@@ -129,6 +131,7 @@ Material:
     - _GlitchSize: 1
     - _Glow: 0
     - _GlowAffectLight: 1
+    - _GlowGlobal: 1
     - _GlowTexUsed: 0
     - _GradBlend: 1
     - _GradBoostX: 1.2
@@ -226,11 +229,11 @@ Material:
     m_Colors:
     - _AlphaOutlineColor: {r: 1, g: 0.6307739, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ColorChangeNewCol: {r: 1, g: 1, b: 0, a: 1}
-    - _ColorChangeNewCol2: {r: 1, g: 1, b: 0, a: 1}
+    - _ColorChangeNewCol: {r: 1, g: 0, b: 0, a: 1}
+    - _ColorChangeNewCol2: {r: 1, g: 0, b: 0, a: 1}
     - _ColorChangeNewCol3: {r: 1, g: 1, b: 0, a: 1}
-    - _ColorChangeTarget: {r: 1, g: 0, b: 0, a: 1}
-    - _ColorChangeTarget2: {r: 1, g: 0, b: 0, a: 1}
+    - _ColorChangeTarget: {r: 0.92549026, g: 0.45098042, b: 0.7490196, a: 1}
+    - _ColorChangeTarget2: {r: 0.64705884, g: 0.64705884, b: 0.0627451, a: 1}
     - _ColorChangeTarget3: {r: 1, g: 0, b: 0, a: 1}
     - _ColorSwapBlue: {r: 1, g: 1, b: 1, a: 1}
     - _ColorSwapGreen: {r: 1, g: 1, b: 1, a: 1}
