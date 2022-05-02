@@ -83,10 +83,9 @@ public class Magnet : MonoBehaviour
 		spriteRenderer.material.DisableKeyword("GLOW_ON");
 		isHighlighted = false;
 	}
-    #endregion
+	#endregion
 
-    [ContextMenu("ToggleMoveable")]
-	public void ToggleMoveable(bool isMoveable)
+	public void SetMoveable(bool isMoveable = true)
 	{
 		this.isMoveable = isMoveable;
 		if (isMoveable)

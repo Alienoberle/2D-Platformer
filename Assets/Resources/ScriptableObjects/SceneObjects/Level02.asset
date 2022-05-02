@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneName: Level_02
   shortDescription: 
-  showSceneTransition: 0
+  showSceneTransition: 1
   transitionName: Crossfade
   music: {fileID: 0}
   musicVolume: 1

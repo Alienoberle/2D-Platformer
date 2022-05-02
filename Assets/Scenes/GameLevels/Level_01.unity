@@ -44384,6 +44384,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4789683558468629319, guid: 20703d02a32ff51499949d1e828b33a8,
+        type: 3}
+      propertyPath: PlayerEntersTrigger.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4789683558468629319, guid: 20703d02a32ff51499949d1e828b33a8,
+        type: 3}
+      propertyPath: PlayerEntersTrigger.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4789683558468629319, guid: 20703d02a32ff51499949d1e828b33a8,
+        type: 3}
+      propertyPath: PlayerEntersTrigger.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4789683558468629319, guid: 20703d02a32ff51499949d1e828b33a8,
+        type: 3}
+      propertyPath: PlayerEntersTrigger.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: LevelExit, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 4866242724790818701, guid: 20703d02a32ff51499949d1e828b33a8,
         type: 3}
       propertyPath: nextScenes.Array.size
@@ -44399,7 +44419,7 @@ PrefabInstance:
         type: 3}
       propertyPath: nextScenes.Array.data[1]
       value: 
-      objectReference: {fileID: 11400000, guid: caee3c2dfb815df40acf39245da6ce2a,
+      objectReference: {fileID: 11400000, guid: c68a2e74c58bab64ba323c598ea79b67,
         type: 2}
     - target: {fileID: 7385831199331424760, guid: 20703d02a32ff51499949d1e828b33a8,
         type: 3}

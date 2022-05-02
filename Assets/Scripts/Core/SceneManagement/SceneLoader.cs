@@ -63,6 +63,7 @@ public class SceneLoader : MonoBehaviour
 		if (TransitionCheck(_locationsToLoad))
 		{
 			StartTransitionOut();
+			loadingScreen.OnLoadingScreenFinished += StartTransitionIn;
 		}
         else
         {
@@ -94,7 +95,6 @@ public class SceneLoader : MonoBehaviour
 	{
 		loadingScreen.EnableLoadingScreen();
 		sceneTransition.OnTransitionFinished -= ShowLoadingScreen;
-		loadingScreen.OnLoadingScreenFinished += StartTransitionIn;
 	}
 
 	private void StartTransitionIn()
@@ -117,6 +117,8 @@ public class SceneLoader : MonoBehaviour
 		for (int i = 0; i < scenesToLoad.Length; ++i)
         {
             String currentSceneName = scenesToLoad[i].sceneName;
+			if (currentSceneName is null)
+				continue;
             if (!CheckLoadState(currentSceneName))
             {
                 //Add the scene to the list of scenes to load asynchronously in the background

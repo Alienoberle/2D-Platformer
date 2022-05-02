@@ -11,6 +11,6 @@ public class GameScene : ScriptableObject
 	public string shortDescription;
 
 	[Header("Scene Loading")]
-	public bool showSceneTransition;
-	public string transitionName;
+	public bool showSceneTransition = false;
+	public string transitionName = "Crossfade";
 }

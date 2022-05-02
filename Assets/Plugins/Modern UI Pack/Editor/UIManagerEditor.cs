@@ -899,7 +899,7 @@ namespace Michsky.UI.ModernUIPack
                 EditorGUI.indentLevel = 0;
                 EditorGUILayout.HelpBox("Use this option only if you're moving Modern UI Pack folder. " +
                     "Make sure to hit apply after changing the root. " +
-                    "Example: Parent Folders/Modern UI Pack/Prefabs.", MessageType.Warning);
+                    "Example: Parent Folders/Modern UI Pack/Resources/", MessageType.Warning);
             }
 
             GUILayout.EndVertical();
