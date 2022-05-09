@@ -1139,6 +1139,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: PickUp (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 6604312463623878725, guid: eb7e7477fb5ffc44ba1dfbe22db3f458,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: eb7e7477fb5ffc44ba1dfbe22db3f458, type: 3}
 --- !u!1 &472263471 stripped
@@ -1163,7 +1168,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &491703252
 Transform:
   m_ObjectHideFlags: 0
@@ -1689,7 +1694,7 @@ PrefabInstance:
     - target: {fileID: 4350128524570691547, guid: 7908e58a6b580ab45b13ee224770ac5f,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6416199889722320353, guid: 7908e58a6b580ab45b13ee224770ac5f,
         type: 3}
@@ -2457,6 +2462,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: PickUp (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6604312463623878725, guid: eb7e7477fb5ffc44ba1dfbe22db3f458,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: eb7e7477fb5ffc44ba1dfbe22db3f458, type: 3}

@@ -46,20 +46,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   forceVisualisation: {fileID: 4308396757829480131}
-  filter:
-    useTriggers: 0
-    useLayerMask: 1
-    useDepth: 0
-    useOutsideDepth: 0
-    useNormalAngle: 0
-    useOutsideNormalAngle: 0
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 3328
-    minDepth: 0
-    maxDepth: 0
-    minNormalAngle: 0
-    maxNormalAngle: 0
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 3328
   distanceFactor: 1.1
   maxForce: 20
 --- !u!114 &4308396757829480131

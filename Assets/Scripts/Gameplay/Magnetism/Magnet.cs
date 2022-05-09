@@ -18,17 +18,16 @@ public class Magnet : MonoBehaviour
 	public Polarization currentPolarization { get; private set; }
 	[SerializeField] private Polarization defaultPolarization = Polarization.neutral;
 	[SerializeField] private float chargeValue = 10;
+	
 	public float currentCharge { get; private set; }
-	[SerializeField] private bool isMoveable;
-	[SerializeField] private bool isPlayer;
-
+	public bool isMoveable;
 	public HashSet<Magnet> affectedByMagnets = new HashSet<Magnet>();
 
 	protected SpriteRenderer spriteRenderer;
 	private bool isHighlighted = false;
 
 	//Debug fields
-	private Vector2 magneticForce; // store the force for debug purposes
+	protected Vector2 magneticForce; // store the force for debug purposes
 
     #region SetUp
     private void Awake()
@@ -41,31 +40,29 @@ public class Magnet : MonoBehaviour
 
     private void OnEnable()
 	{
-
-		if (isPlayer) { 
+		if (this is PlayerMagnetism) { 
 			playerController = GetComponentInParent<PlayerController>();
 		}
 		ChangePolarisation(defaultPolarization);
-		magnetismController.RegisterMagneticObject(this, isMoveable, isPlayer);
+		magnetismController.RegisterMagneticObject(this);
 	}
 
 	private void OnDisable()
 	{
-		magnetismController.UnRegisterMagneticObject(this, isMoveable, isPlayer);
+		magnetismController.UnRegisterMagneticObject(this);
 	}
-    #endregion
+	#endregion
 
-    public void ApplyMagneticForce(Vector2 velocity)
+	public virtual void ApplyMagneticForce(Vector2 velocity)
     {
 		magneticForce = velocity;
-		if (isPlayer)
+		if (this is PlayerMagnetism)
         {
-			playerController.playerInfo.isMagnetismActive = true;
+			playerController.playerInfo.isMagnetismActive = (velocity != Vector2.zero)? true : false;
 			playerController.magneticVelocity = velocity;
 		}
 		else 
 		{
-			//objectRigidbody.AddForce(velocity);
 			objectRigidbody.velocity += velocity;
 		}
 	}
@@ -90,14 +87,14 @@ public class Magnet : MonoBehaviour
 		this.isMoveable = isMoveable;
 		if (isMoveable)
         {
-			magnetismController.RegisterMagneticObject(this, isMoveable, false);
+			magnetismController.RegisterMagneticObject(this);
 			objectRigidbody.bodyType = RigidbodyType2D.Dynamic;
 			objectRigidbody.useAutoMass = true;
 			objectRigidbody.gravityScale = 15;
 		}
         else
         {
-			magnetismController.UnRegisterMagneticObject(this, isMoveable, false);
+			magnetismController.UnRegisterMagneticObject(this);
 			objectRigidbody.bodyType = RigidbodyType2D.Kinematic;
 			objectRigidbody.useFullKinematicContacts = true;
 		}
