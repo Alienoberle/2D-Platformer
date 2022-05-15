@@ -10,9 +10,12 @@ scopes = {
 	"last_search.8788AF05" = "level exit"
 	"OpenInspectorPreview.8788AF05" = "0"
 	"currentGroup.8788AF05" = "all"
-	"last_search.8040E7BB" = "player prefab"
+	"last_search.8040E7BB" = ""
 	"OpenInspectorPreview.8040E7BB" = "1"
 	"currentGroup.8040E7BB" = "all"
+	"last_search.7BEC51F9" = ""
+	"OpenInspectorPreview.7BEC51F9" = "0"
+	"currentGroup.7BEC51F9" = "asset"
 }
 providers = {
 	adb = {
@@ -82,6 +85,8 @@ providers = {
 	}
 }
 recentSearches = [
+	"do"
+	"d"
 	"LE"
 	"m"
 	"?"
@@ -89,7 +94,7 @@ recentSearches = [
 searchItemFavorites = [
 ]
 savedSearchesSortOrder = 0
-showSavedSearchPanel = false
+showSavedSearchPanel = true
 expandedQueries = [
 ]
 queryBuilder = false
