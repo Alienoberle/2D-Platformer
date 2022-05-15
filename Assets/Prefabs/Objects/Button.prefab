@@ -14,10 +14,11 @@ GameObject:
   - component: {fileID: 594282896519028162}
   - component: {fileID: 1008116760407534447}
   - component: {fileID: 4131087016578006004}
-  - component: {fileID: 8741485873709729472}
-  m_Layer: 9
+  - component: {fileID: 1632821279374022191}
+  - component: {fileID: -6127443634328171915}
+  m_Layer: 11
   m_Name: Button
-  m_TagString: Untagged
+  m_TagString: Magnet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -57,7 +58,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: c8073141d786ac14c826a080cc2a8dae, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -78,15 +79,15 @@ SpriteRenderer:
   m_SortingLayerID: 193834345
   m_SortingLayer: 5
   m_SortingOrder: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: b44568c52965fc742a67d1d97865603d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 3}
+  m_Size: {x: 1.6875, y: 1.75}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!95 &7479803926244340732
@@ -99,7 +100,7 @@ Animator:
   m_GameObject: {fileID: 5488659360512341048}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 8cc1b29b169545c4fb6f5acc93826a40, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -122,18 +123,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.34218615}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.125, y: 6}
-    newSize: {x: 1, y: 3}
+    oldSize: {x: 1.6875, y: 1.75}
+    newSize: {x: 1.6875, y: 1.75}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 6}
+  m_Size: {x: 1.4197454, y: 1.0556277}
   m_EdgeRadius: 0
 --- !u!50 &1008116760407534447
 Rigidbody2D:
@@ -167,7 +168,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -252,7 +253,33 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &8741485873709729472
+--- !u!61 &1632821279374022191
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5488659360512341048}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0.66}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1.6875, y: 1.75}
+    newSize: {x: 1.6875, y: 1.75}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.42, y: 2}
+  m_EdgeRadius: 0
+--- !u!114 &-6127443634328171915
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -261,19 +288,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 5488659360512341048}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c09d4a60b8665114e977bc6ab4a4c5ac, type: 3}
+  m_Script: {fileID: 11500000, guid: 0b650ac831d5c5f43996b78e59809f6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingState: 0
-  sFXOpen: {fileID: 8300000, guid: b945b99801182d34ea27ed7ee0784d15, type: 3}
-  vFXOpen: {fileID: 0}
-  sFXClose: {fileID: 8300000, guid: b945b99801182d34ea27ed7ee0784d15, type: 3}
-  vFXClose: {fileID: 0}
-  sFXUnlock: {fileID: 0}
-  vFXUnlock: {fileID: 0}
-  DoorOpened:
+  PlayerEntersTrigger:
     m_PersistentCalls:
       m_Calls: []
-  DoorClosed:
+  PlayerExitsTrigger:
+    m_PersistentCalls:
+      m_Calls: []
+  BothPlayerEnteredTrigger:
+    m_PersistentCalls:
+      m_Calls: []
+  BothPlayersExitTrigger:
     m_PersistentCalls:
       m_Calls: []

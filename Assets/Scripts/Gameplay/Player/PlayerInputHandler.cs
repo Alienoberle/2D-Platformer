@@ -85,11 +85,11 @@ public class PlayerInputHandler : MonoBehaviour
         }
         if (context.performed)
         {
-            playerMagnetism.OnChangeCharge(Polarization.positive);
+            playerMagnetism.ChangePolarisation(Polarization.positive);
         }
         else if (context.canceled)
         {
-            playerMagnetism.OnChangeCharge(Polarization.neutral);
+            playerMagnetism.ChangePolarisation(Polarization.neutral);
         }
     }
     public void ChargeNegative(InputAction.CallbackContext context)
@@ -100,11 +100,11 @@ public class PlayerInputHandler : MonoBehaviour
         }
         if (context.performed)
         {
-            playerMagnetism.OnChangeCharge(Polarization.negative);
+            playerMagnetism.ChangePolarisation(Polarization.negative);
         }
         else if (context.canceled)
         {
-            playerMagnetism.OnChangeCharge(Polarization.neutral);
+            playerMagnetism.ChangePolarisation(Polarization.neutral);
         }
     }
 }

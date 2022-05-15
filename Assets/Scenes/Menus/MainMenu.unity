@@ -1026,7 +1026,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: cc460e5b1c6c0bd498b44195a0c3da99, type: 2}
+  m_Material: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -1381,10 +1381,10 @@ MonoBehaviour:
   soundSource: {fileID: 0}
   rippleParent: {fileID: 810018164}
   useCustomContent: 0
-  enableButtonSounds: 1
+  enableButtonSounds: 0
   useHoverSound: 1
   useClickSound: 1
-  useRipple: 1
+  useRipple: 0
   rippleUpdateMode: 1
   rippleShape: {fileID: 21300000, guid: d25e2ce15dd1c67438e4b70f404fb197, type: 3}
   speed: 2.4
@@ -1850,7 +1850,7 @@ MonoBehaviour:
   firstSelected: {fileID: 1892276691}
   scenesToLoad:
   - {fileID: 11400000, guid: 90aa07e32dfec6b4c83d921601381f97, type: 2}
-  - {fileID: 11400000, guid: caee3c2dfb815df40acf39245da6ce2a, type: 2}
+  - {fileID: 11400000, guid: c68a2e74c58bab64ba323c598ea79b67, type: 2}
 --- !u!114 &1348024534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2463,7 +2463,19 @@ MonoBehaviour:
   buttonText: PLAY
   clickEvent:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1348024532}
+        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   hoverEvent:
     m_PersistentCalls:
       m_Calls: []
@@ -2474,10 +2486,10 @@ MonoBehaviour:
   soundSource: {fileID: 1892276692}
   rippleParent: {fileID: 1300268362}
   useCustomContent: 0
-  enableButtonSounds: 1
+  enableButtonSounds: 0
   useHoverSound: 1
   useClickSound: 1
-  useRipple: 1
+  useRipple: 0
   rippleUpdateMode: 1
   rippleShape: {fileID: 21300000, guid: d25e2ce15dd1c67438e4b70f404fb197, type: 3}
   speed: 2.4
@@ -2707,10 +2719,10 @@ MonoBehaviour:
   soundSource: {fileID: 0}
   rippleParent: {fileID: 419777959}
   useCustomContent: 0
-  enableButtonSounds: 1
+  enableButtonSounds: 0
   useHoverSound: 1
   useClickSound: 1
-  useRipple: 1
+  useRipple: 0
   rippleUpdateMode: 1
   rippleShape: {fileID: 21300000, guid: d25e2ce15dd1c67438e4b70f404fb197, type: 3}
   speed: 2.4
@@ -2907,7 +2919,19 @@ MonoBehaviour:
   buttonText: QUIT
   clickEvent:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1348024532}
+        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
+        m_MethodName: Quit
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   hoverEvent:
     m_PersistentCalls:
       m_Calls: []
@@ -2918,10 +2942,10 @@ MonoBehaviour:
   soundSource: {fileID: 0}
   rippleParent: {fileID: 1828245314}
   useCustomContent: 0
-  enableButtonSounds: 1
+  enableButtonSounds: 0
   useHoverSound: 1
   useClickSound: 1
-  useRipple: 1
+  useRipple: 0
   rippleUpdateMode: 1
   rippleShape: {fileID: 21300000, guid: d25e2ce15dd1c67438e4b70f404fb197, type: 3}
   speed: 2.4

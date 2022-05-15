@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviour
     private float dashVelocity;
     private float dashTimer;
     private float dashProgress = 0.5f;
+    private float dashSmoothing;
     public int dashAmount = 1;
     private int dashCounter;
     private int dashingDirectionX;
@@ -340,13 +341,11 @@ public class PlayerController : MonoBehaviour
         {
             velocity.y = 0;
             velocity.x = dashVelocity * dashingDirectionX;
-            dashTimer -= deltaTime;
 
-            if ((dashTimer * dashProgress) < 0)
+            if (dashTimer < (dashTimer * dashProgress))
             {
                 float targetVelocityX = directionalInput.x * movementSpeed;
-                velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, dashTimer * (1-dashProgress));
-                dashTimer -= deltaTime;
+                velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref dashSmoothing, dashTimer * (1-dashProgress));
             }
             if(dashTimer < 0)
             {
@@ -358,10 +357,12 @@ public class PlayerController : MonoBehaviour
                     ResetDash();
                 }
             }
+            dashTimer -= deltaTime;
         }
     }
     public void ResetDash()
     {
+        dashTimer = dashDuration;
         dashCounter = dashAmount;
         animator.SetBool("IsDashing", false);
     }

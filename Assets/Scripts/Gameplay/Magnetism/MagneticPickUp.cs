@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MagneticPickUp : Magnet
 {
-	[SerializeField] private float maxVelocity;
+	[SerializeField] private float maxVelocity = 5.0f;
 	private Vector2 newVelocity;
 
     public override void ApplyMagneticForce(Vector2 velocity)

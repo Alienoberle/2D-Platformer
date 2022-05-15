@@ -133,9 +133,14 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 129731466485406912, guid: 00d0ef886e5215749b94fe559653c235,
         type: 3}
+      propertyPath: startScenes.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 129731466485406912, guid: 00d0ef886e5215749b94fe559653c235,
+        type: 3}
       propertyPath: startScenes.Array.data[0]
       value: 
-      objectReference: {fileID: 11400000, guid: 32bef5af44bd6b843b1d19494ac84ed2,
+      objectReference: {fileID: 11400000, guid: c5521e763f89b1e46be480b10d8aafc7,
         type: 2}
     - target: {fileID: 380748456754591502, guid: 00d0ef886e5215749b94fe559653c235,
         type: 3}

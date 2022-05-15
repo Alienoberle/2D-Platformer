@@ -24,7 +24,7 @@ public class PlayerMagnetism : Magnet
         HitDetection();
         HandleHits();
     }
-
+    #region Aim & Hit detection
     private void Aim()
     {
         // Check aim input in case of 
@@ -44,12 +44,16 @@ public class PlayerMagnetism : Magnet
         }
         _lastValidAimInput = _aimInput;
     }
-
+    private void HandleAimVisualisation()
+    {
+        _visualisation.transform.position = (Vector2)transform.position + _aimDirection * _rayLenght;
+        float angle = Mathf.Atan2(_aimDirection.y, _aimDirection.x) * Mathf.Rad2Deg;
+        _visualisation.transform.rotation = Quaternion.Euler(0f, 0f, playerController.playerInfo.facingDirection > 0 ? angle : angle + 180);
+    }
     private void HitDetection()
     {
         _raycastOrigin = transform.position;
         var hit = Physics2D.Raycast(_raycastOrigin, _aimDirection, _rayLenght, _layernMask);
-        //var hits = Physics2D.RaycastAll(_raycastOrigin, _aimDirection, _rayLenght, _layernMask);  // if we want to have all hits
         Debug.DrawRay(_raycastOrigin, _aimDirection * _rayLenght);
         
         affectedByMagnets.Clear();
@@ -62,7 +66,8 @@ public class PlayerMagnetism : Magnet
             if (affectedByMagnets.Contains(magnet)) return;
             affectedByMagnets.Add(magnet);
         }
-
+        #region MultiHit - Inactive
+        //var hits = Physics2D.RaycastAll(_raycastOrigin, _aimDirection, _rayLenght, _layernMask);  // if we want to have multi hits
         //if (hits.Length > 0)
         //{
         //    foreach (RaycastHit2D hitMagnet in hits)
@@ -74,8 +79,8 @@ public class PlayerMagnetism : Magnet
         //        affectedByMagnets.Add(magnet);
         //    }
         //}
+        #endregion
     }
-
     private void HandleHits()
     {
         foreach(Magnet magnet in affectedByMagnets)
@@ -96,27 +101,16 @@ public class PlayerMagnetism : Magnet
         _hitLastFrame.Clear();
         _hitLastFrame.UnionWith(affectedByMagnets);
     }
-
-    private void HandleAimVisualisation()
+    #endregion
+    #region Player specific magnet functionality
+    public override void ApplyMagneticForce(Vector2 velocity)
     {
-        _visualisation.transform.position = (Vector2)transform.position + _aimDirection * _rayLenght;
-        float angle = Mathf.Atan2(_aimDirection.y, _aimDirection.x) * Mathf.Rad2Deg;
-        _visualisation.transform.rotation = Quaternion.Euler(0f, 0f, playerController.playerInfo.facingDirection > 0 ? angle : angle + 180);
+        playerController.playerInfo.isMagnetismActive = (velocity != Vector2.zero) ? true : false;
+        playerController.magneticVelocity = velocity;
     }
-
-    public void SetAimInput(Vector2 input)
+    public override void ChangePolarisation(Polarization newPolarization)
     {
-        _aimInput = input;
-    }
-
-    public void SetControlScheme(string controlScheme)
-    {
-        _controlScheme = controlScheme;
-    }
-
-    public void OnChangeCharge(Polarization newPolarization)
-    {
-        ChangePolarisation(newPolarization);
+        base.ChangePolarisation(newPolarization);
         switch (newPolarization)
         {
             case Polarization.negative:
@@ -135,4 +129,15 @@ public class PlayerMagnetism : Magnet
                 break;
         }
     }
+    #endregion
+    #region Helperfunctions
+    public void SetAimInput(Vector2 input)
+    {
+        _aimInput = input;
+    }
+    public void SetControlScheme(string controlScheme)
+    {
+        _controlScheme = controlScheme;
+    }
+    #endregion
 }

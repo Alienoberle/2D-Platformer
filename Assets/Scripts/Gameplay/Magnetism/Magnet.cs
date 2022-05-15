@@ -15,16 +15,16 @@ public class Magnet : MonoBehaviour
 	public Collider2D objectCollider { get; private set; }
 	public Rigidbody2D objectRigidbody { get; private set; }
 
-	public Polarization currentPolarization { get; private set; }
 	[SerializeField] private Polarization defaultPolarization = Polarization.neutral;
-	[SerializeField] private float chargeValue = 10;
+	public Polarization currentPolarization { get; protected set; }
+	[Range(0,20)] [SerializeField] protected float chargeValue = 10;
 	
-	public float currentCharge { get; private set; }
+	public float currentCharge { get; protected set; }
 	public bool isMoveable;
 	public HashSet<Magnet> affectedByMagnets = new HashSet<Magnet>();
 
 	protected SpriteRenderer spriteRenderer;
-	private bool isHighlighted = false;
+	protected bool isHighlighted = false;
 
 	//Debug fields
 	protected Vector2 magneticForce; // store the force for debug purposes
@@ -37,7 +37,6 @@ public class Magnet : MonoBehaviour
 		spriteRenderer = GetComponent<SpriteRenderer>();
 		magnetismController = MagnetismController.Instance;
 	}
-
     private void OnEnable()
 	{
 		if (this is PlayerMagnetism) { 
@@ -46,29 +45,38 @@ public class Magnet : MonoBehaviour
 		ChangePolarisation(defaultPolarization);
 		magnetismController.RegisterMagneticObject(this);
 	}
-
 	private void OnDisable()
 	{
 		magnetismController.UnRegisterMagneticObject(this);
 	}
-	#endregion
-
-	public virtual void ApplyMagneticForce(Vector2 velocity)
+    #endregion
+    #region Magnet functionality
+    public virtual void ApplyMagneticForce(Vector2 velocity)
     {
 		magneticForce = velocity;
-		if (this is PlayerMagnetism)
-        {
-			playerController.playerInfo.isMagnetismActive = (velocity != Vector2.zero)? true : false;
-			playerController.magneticVelocity = velocity;
-		}
-		else 
+		objectRigidbody.velocity += velocity;
+	}
+	public virtual void ChangePolarisation(Polarization newPolarization)
+	{
+		switch (newPolarization)
 		{
-			objectRigidbody.velocity += velocity;
+			case Polarization.negative:
+				currentCharge = Mathf.Abs(chargeValue) * -1;
+				currentPolarization = Polarization.negative;
+				break;
+			case Polarization.positive:
+				currentCharge = Mathf.Abs(chargeValue) * 1;
+				currentPolarization = Polarization.positive;
+				break;
+			case Polarization.neutral:
+				currentCharge = 0;
+				currentPolarization = Polarization.neutral;
+				break;
 		}
 	}
-
-	#region Visuals
-	public void Highlight()
+    #endregion
+    #region Highlighting
+    public void Highlight()
 	{
 		if (isHighlighted) return;
 		spriteRenderer.material.EnableKeyword("GLOW_ON");
@@ -81,7 +89,7 @@ public class Magnet : MonoBehaviour
 		isHighlighted = false;
 	}
 	#endregion
-
+	#region HelperFunctions
 	public void SetMoveable(bool isMoveable = true)
 	{
 		this.isMoveable = isMoveable;
@@ -98,30 +106,12 @@ public class Magnet : MonoBehaviour
 			objectRigidbody.bodyType = RigidbodyType2D.Kinematic;
 			objectRigidbody.useFullKinematicContacts = true;
 		}
-
-	}
-	public void ChangePolarisation(Polarization newPolarization)
-    {
-        switch (newPolarization)
-        {
-			case Polarization.negative:
-				currentCharge = Mathf.Abs(chargeValue) * -1;
-				currentPolarization = Polarization.negative;
-				break;
-			case Polarization.positive:
-				currentCharge = Mathf.Abs(chargeValue) * 1;
-				currentPolarization = Polarization.positive;
-				break;
-			case Polarization.neutral:
-				currentCharge = 0;
-				currentPolarization = Polarization.neutral;
-				break;
-		}
 	}
 	public void ChangeCharge(float newCharge)
     {
-		chargeValue = newCharge;
+		chargeValue = Mathf.Abs(newCharge);
     }
+    #endregion
     #region Debug
     private void OnDrawGizmosSelected()
     {
