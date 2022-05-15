@@ -30,7 +30,7 @@ public class Magnet : MonoBehaviour
 	protected Vector2 magneticForce; // store the force for debug purposes
 
     #region SetUp
-    private void Awake()
+    protected virtual void Awake()
     {
 		objectRigidbody = GetComponent<Rigidbody2D>();
 		objectCollider = GetComponent<Collider2D>();

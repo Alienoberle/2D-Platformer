@@ -39,7 +39,4 @@ public class CoRoutineTest : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
     }
-
-
-
 }

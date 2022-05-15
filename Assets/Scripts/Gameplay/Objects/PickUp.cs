@@ -2,45 +2,64 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using DG.Tweening;
 
 public class PickUp : MonoBehaviour
 {
-    [SerializeField] private Animator _animator;
-    [SerializeField] private Collider2D _collider;
-    private float _destructionDelay = 1.5f;
-    public bool isMoving { get; private set; }
-    public bool isPickedUp { get; private set; }  
 
+    private Animator _animator;
+    private AudioSource _audiosource;
+    public PickUpState state { get; private set; }
+
+    [Header("Feedback")]
+    [SerializeField] private AudioClip sFXPickUp;
+    [SerializeField] private ParticleSystem vFXPickUp;
+
+    [Header("Events")]
     [SerializeField] private UnityEvent OnPickUp;
 
     private void Awake()
     {
+        _animator = GetComponent<Animator>();
+        _audiosource = GetComponent<AudioSource>();
+        Initialize();
+    }
+    private void Initialize()
+    {
         _animator.Play("Idle");
+        state = PickUpState.active;
     }
     private void Moving()
     {
-        isMoving = true;
         _animator.Play("MoveToPlayer");
+        state = PickUpState.isMoving;
     }
     private void HandlePickUp()
     {
-        isPickedUp = true;
-        GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
         _animator.Play("PickUp");
-    }
-    // Triggerd through Animation Event in "PickUp" animation
-    private void PickedUp()
+        GetComponent<Rigidbody2D>().velocity = GetComponent<Rigidbody2D>().velocity.normalized * 0.9f;
+        _audiosource.PlayOneShot(sFXPickUp);
+        state = PickUpState.pickedUp;
+    } 
+    private void PickedUp() // Triggerd through Animation Event in "PickUp" animation
     {
-        GetComponent<SpriteRenderer>().enabled = false;
-        Destroy(gameObject, _destructionDelay);
+        Instantiate(vFXPickUp, transform.position, Quaternion.identity);
+        Destroy(gameObject);
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (state == PickUpState.pickedUp) return;
         if (collision.CompareTag("Player"))
         {
-            _collider.enabled = false;
+            GetComponent<Collider2D>().enabled = false;
             HandlePickUp();
             OnPickUp.Invoke();
         } 
+    }
+    public enum PickUpState
+    {
+        active,
+        isMoving,
+        pickedUp
     }
 }

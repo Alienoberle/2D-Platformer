@@ -13285,7 +13285,7 @@ GameObject:
   - component: {fileID: 753092190}
   - component: {fileID: 753092193}
   - component: {fileID: 753092192}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Tilemap_Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44384,7 +44384,7 @@ GameObject:
   - component: {fileID: 1046628569}
   - component: {fileID: 1046628568}
   - component: {fileID: 1046628567}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Tilemap_LevelDressing
   m_TagString: Untagged
   m_Icon: {fileID: 0}

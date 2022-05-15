@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
     private Animator animator;
     private AudioManager audioManager;
 
-    private Vector2 directionalInput;
+    public Vector2 directionalInput { get; private set; }
     [HideInInspector] public Vector2 magneticVelocity;
     [HideInInspector] public Vector2 platformVelocity;
     [SerializeField] private Vector2 velocity;
@@ -31,7 +31,6 @@ public class PlayerController : MonoBehaviour
     private float velocityXSmoothing;
     private float accelerationTimeAirborn = 0.2f;
     private float accelerationTimeGrounded = 0.1f;
-    //[SerializeField] private float maximumSlopeAngle = 60.0f;
     [SerializeField] private ParticleSystem runVFX;
     [SerializeField] private AudioClip runSFX;
 
@@ -43,8 +42,9 @@ public class PlayerController : MonoBehaviour
     private float minJumpVelocity;
     [SerializeField] private int maxJumps = 1;
     private int jumpCounter;
-    [HideInInspector] public float lastPressedJump;
+    [HideInInspector] public float lastPressedJump; // default value to avoid instant buffered jump
     [SerializeField] private float jumpBuffer = 0.1f;
+    //private bool hasBufferedJump => lastPressedJump + jumpBuffer > Time.time;
     private bool hasBufferedJump => lastPressedJump + jumpBuffer > Time.time;
 
     [SerializeField] private float coyoteTime = 0.1f;
@@ -64,7 +64,7 @@ public class PlayerController : MonoBehaviour
     public int dashAmount = 1;
     private int dashCounter;
     private int dashingDirectionX;
-    [HideInInspector] public float lastPressedDash;
+    [HideInInspector] public float lastPressedDash; 
     [SerializeField] private float dashBuffer = 0.1f;
     private bool hasBufferedDash => lastPressedDash + dashBuffer > Time.time;
     [SerializeField] private AudioClip dashSFX;
@@ -97,7 +97,8 @@ public class PlayerController : MonoBehaviour
         playerInfo.Initialize();
         ResetJump();
         ResetDash();
-
+        lastPressedJump = -0.2f; // to avoid instant buffered jump 
+        lastPressedDash = -0.2f; // to avoid instant buffered dash
 
         gravity = -(2 * maxJumpHeight / Mathf.Pow(timeToJumpApex, 2));
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
@@ -107,11 +108,11 @@ public class PlayerController : MonoBehaviour
     {
         deltaTime = Time.fixedDeltaTime;
         UpdatePlayerInfo();
-        Gravity();
-        CalculateInputVelocity();
         BufferedInput();
-        WallSliding();              
+        CalculateInputVelocity();
+        WallSliding();
         Dashing();
+        Gravity();
 
         // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
         Move(velocity * deltaTime);
@@ -126,8 +127,8 @@ public class PlayerController : MonoBehaviour
             FlipPlayer();
         }
 
-
-        if (playerInfo.isGrounded && Mathf.Abs(velocity.x) > 0.1)
+        // Movement animation and Feedback VFX & SFX
+        if (playerCollision.collisionInfo.isGrounded && Mathf.Abs(velocity.x) > 0.1)
         {
             playerInfo.isRunning = true;
             animator.SetBool("IsRunning", true);
@@ -143,61 +144,18 @@ public class PlayerController : MonoBehaviour
 
     private void UpdatePlayerInfo() // could use clean up currently double book keeping in PlayerCollision and here
     {
-        playerInfo.wasGrounded = playerInfo.isGrounded;
-        playerInfo.isGrounded = playerCollision.collisionInfo.isGrounded;
-        playerInfo.isStandingOnPlatform = playerCollision.collisionInfo.isStandingOnPlatform;
-        if (playerInfo.isGrounded) 
+        if (playerCollision.collisionInfo.isGrounded) 
         {
             lastGroundedTime = Time.time;
         }
-        if (playerInfo.isGrounded && !playerInfo.wasGrounded) // check if player is landing
+        if (playerCollision.collisionInfo.isGrounded && !playerCollision.collisionInfo.wasGrounded) // check if player is landing
         {
             Landing();
         }
     }
-    private void Gravity()
-    {
-        if (isGravity)
-        {
-            if (velocity.y + gravity * deltaTime < maxGravity)
-                velocity.y = maxGravity;
-            else
-                velocity.y += gravity * deltaTime;
-        }
-        else
-        {
-            velocity.y = 0;
-        }
-    }
-    private void CalculateInputVelocity()
-    {
-        // Calculate the target X velocity based on input and movement speed. 
-        float targetVelocityX = directionalInput.x * movementSpeed;
-
-        //only control the player if grounded or airControl is turned on
-        if (playerInfo.isGrounded || playerInfo.hasAirControl)
-        {
-            // Reduce horizontal velocity when airborne
-            velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (playerInfo.isGrounded) ? accelerationTimeGrounded : accelerationTimeAirborn);
-        }
-    }
-    public void Move(Vector2 aVelocity)
-    {
-        rb2D.velocity = aVelocity * 50.0f;
-        rb2D.velocity += (playerInfo.isStandingOnPlatform)? platformVelocity: Vector2.zero;
-        rb2D.velocity += (playerInfo.isMagnetismActive)? magneticVelocity : Vector2.zero;
-    }
-    void FlipPlayer()
-    {
-        playerInfo.facingDirection = (int)Mathf.Sign(directionalInput.x);
-
-        // Multiply the player's x local scale by -1.
-        Vector3 newScale = transform.localScale;
-        newScale.x *= -1;
-        transform.localScale = newScale;
-    }
     public void Landing()
     {
+        velocity.y = 0;
         ResetJump();
         ResetDash();
         landingVFX.Play();
@@ -213,7 +171,39 @@ public class PlayerController : MonoBehaviour
             OnDashInput();
         }
     }
+    private void CalculateInputVelocity()
+    {
+        // Calculate the target X velocity based on input and movement speed. 
+        float targetVelocityX = directionalInput.x * movementSpeed;
 
+        //only control the player if grounded or airControl is turned on
+        if (playerCollision.collisionInfo.isGrounded || playerInfo.hasAirControl)
+        {
+            // Reduce horizontal velocity when airborne
+            var smoothedVelocityX = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (playerCollision.collisionInfo.isGrounded) ? accelerationTimeGrounded : accelerationTimeAirborn);
+            velocity.x = (smoothedVelocityX < 0.01 && smoothedVelocityX > -0.01) ? 0 : smoothedVelocityX;
+
+        }
+    }
+    private void Gravity()
+    {
+        if (!isGravity) return;
+        if (playerCollision.collisionInfo.isGrounded) return;
+        if (playerInfo.isWallsliding) return;
+        if (playerInfo.isDashing) return;
+        if (velocity.y + gravity * deltaTime < maxGravity) // smaller '<' than max. gravity because gravity is negative
+        {
+            velocity.y = maxGravity;
+            return;
+        }
+        velocity.y += gravity * deltaTime;
+    }
+    public void Move(Vector2 aVelocity)
+    {
+        rb2D.velocity = aVelocity * 50.0f;
+        rb2D.velocity += (playerCollision.collisionInfo.isStandingOnPlatform)? platformVelocity: Vector2.zero;
+        rb2D.velocity += (playerInfo.isMagnetismActive)? magneticVelocity : Vector2.zero;
+    }
     #region Wallsliding
     private void WallSliding()
     {
@@ -222,7 +212,7 @@ public class PlayerController : MonoBehaviour
 
         playerInfo.isWallsliding = false;
         if ((playerCollision.collisionInfo.left || playerCollision.collisionInfo.right) && !playerCollision.collisionInfo.below && velocity.y < 0)
-        {
+         {
             // Set wallSlideSpeedMax
             playerInfo.isWallsliding = true;
             if (velocity.y < -wallSlideSpeedMax)
@@ -234,10 +224,12 @@ public class PlayerController : MonoBehaviour
             {
                 velocity.x = 0;
                 velocityXSmoothing = 0;
+                print("Sticking to wall");
 
                 if (directionalInput.x != wallDirectionX && directionalInput.x != 0)
                 {
                     timeToWallUnstick -= deltaTime;
+                    print("move away");
                 }
                 else
                 {
@@ -282,7 +274,7 @@ public class PlayerController : MonoBehaviour
             HandleJumping();
         }
 
-        if (CanPlayerJump())
+         if (CanPlayerJump())
         {
             if (directionalInput.y! > -0.95f) // input values are from 0.999... to -0.999...
             {
@@ -292,7 +284,7 @@ public class PlayerController : MonoBehaviour
         }
     }
     private void HandleJumping()
-    {
+      {
         jumpCounter -= 1;
         playerInfo.isJumping = true;
         animator.SetBool("IsJumping", true);
@@ -346,7 +338,6 @@ public class PlayerController : MonoBehaviour
     {
         if (playerInfo.isDashing)
         {
-            isGravity = false;
             velocity.y = 0;
             velocity.x = dashVelocity * dashingDirectionX;
             dashTimer -= deltaTime;
@@ -361,10 +352,11 @@ public class PlayerController : MonoBehaviour
             {
                 dashTimer = dashDuration;
                 playerInfo.isDashing = false;
-                isGravity = true;
 
-                if (playerInfo.isGrounded)
+                if (playerCollision.collisionInfo.isGrounded)
+                {
                     ResetDash();
+                }
             }
         }
     }
@@ -373,18 +365,23 @@ public class PlayerController : MonoBehaviour
         dashCounter = dashAmount;
         animator.SetBool("IsDashing", false);
     }
+    #endregion
     public void SetDirectionalInput(Vector2 input)
     {
         directionalInput = input;
     }
-    #endregion
+    void FlipPlayer()
+    {
+        playerInfo.facingDirection = (int)Mathf.Sign(directionalInput.x);
 
+        //// Multiply the player's x local scale by -1.
+        Vector3 newScale = transform.localScale;
+        newScale.x *= -1;
+        transform.localScale = newScale;
+    }
     public struct PlayerInfo
     {
         public int facingDirection;
-        public bool isGrounded { get; set; }
-        public bool wasGrounded { get; set; }
-        public bool isStandingOnPlatform { get; set; }
         public bool isRunning { get; set; }
         public bool isWallsliding { get; set; }
         public bool isJumping { get; set; }
@@ -395,16 +392,12 @@ public class PlayerController : MonoBehaviour
         public void Initialize()
         {
             facingDirection = 1;
-            isGrounded = true;
-            wasGrounded = true;
-            isStandingOnPlatform = false;
             isRunning = false;
             isWallsliding = false;
             isJumping = false;
             isDashing = false;
             hasAirControl = true;
             isMagnetismActive = false;
-
         }
     }
 }
