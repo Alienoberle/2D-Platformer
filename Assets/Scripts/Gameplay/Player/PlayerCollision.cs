@@ -59,7 +59,7 @@ public class PlayerCollision : RaycastController
                 }
             }
         }
-        else
+        else // check left and right in case the player is wallsliding or not moving on his own
         {
             for (int i = 0; i < horizontalRayCount; i++)  // check left side
             {
@@ -127,6 +127,9 @@ public class PlayerCollision : RaycastController
                         case 10:
                             collisionInfo.isGrounded = true;
                             collisionInfo.isStandingOnPlatform = true;
+                            break;
+                        case 11:
+                            collisionInfo.isGrounded = true;
                             break;
                     }
                 }

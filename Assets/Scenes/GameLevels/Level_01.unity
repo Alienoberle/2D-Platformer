@@ -59660,7 +59660,7 @@ PrefabInstance:
         type: 3}
       propertyPath: nextScenes.Array.data[0]
       value: 
-      objectReference: {fileID: 11400000, guid: 32bef5af44bd6b843b1d19494ac84ed2,
+      objectReference: {fileID: 11400000, guid: 0fe983de5835b6a479548458e5f3e903,
         type: 2}
     - target: {fileID: 4866242724790818701, guid: 20703d02a32ff51499949d1e828b33a8,
         type: 3}

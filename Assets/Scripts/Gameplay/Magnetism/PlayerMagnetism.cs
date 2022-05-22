@@ -13,7 +13,7 @@ public class PlayerMagnetism : Magnet
     private string _controlScheme;
     private Vector2 _raycastOrigin;
     private float _rayLenght = 10.0f;
-    [SerializeField] private LayerMask _layernMask;
+    [SerializeField] private LayerMask _layerMask;
     private HashSet<Magnet> _hitLastFrame = new HashSet<Magnet>();
     [SerializeField] private GameObject _visualisation;
 
@@ -53,7 +53,7 @@ public class PlayerMagnetism : Magnet
     private void HitDetection()
     {
         _raycastOrigin = transform.position;
-        var hit = Physics2D.Raycast(_raycastOrigin, _aimDirection, _rayLenght, _layernMask);
+        var hit = Physics2D.Raycast(_raycastOrigin, _aimDirection, _rayLenght, _layerMask);
         Debug.DrawRay(_raycastOrigin, _aimDirection * _rayLenght);
         
         affectedByMagnets.Clear();
@@ -85,7 +85,10 @@ public class PlayerMagnetism : Magnet
     {
         foreach(Magnet magnet in affectedByMagnets)
         {
-            magnet.Highlight();
+            if (magnet.GetType() != typeof(PlayerMagnetism))
+            {
+                magnet.Highlight();
+            }
             magnet.affectedByMagnets.Add(this);
         }
 

@@ -116,7 +116,7 @@ public class PlayerController : MonoBehaviour
         Gravity();
 
         // Hand over the input and calcualted velocity to the playercontroller handling the actual movement and collision
-        Move(velocity * deltaTime);
+        Move(velocity);
 
         // Flip the players faceing direction if needed
         if (directionalInput.x > 0 && playerInfo.facingDirection < 0 )
@@ -201,7 +201,7 @@ public class PlayerController : MonoBehaviour
     }
     public void Move(Vector2 aVelocity)
     {
-        rb2D.velocity = aVelocity * 50.0f;
+        rb2D.velocity = aVelocity;
         rb2D.velocity += (playerCollision.collisionInfo.isStandingOnPlatform)? platformVelocity: Vector2.zero;
         rb2D.velocity += (playerInfo.isMagnetismActive)? magneticVelocity : Vector2.zero;
     }

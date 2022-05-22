@@ -726,7 +726,9 @@ MonoBehaviour:
   defaultPolarization: 1
   chargeValue: 10
   isMoveable: 1
-  _layernMask:
+  colorPositive: {r: 1, g: 1, b: 1, a: 1}
+  colorNegative: {r: 1, g: 1, b: 1, a: 1}
+  _layerMask:
     serializedVersion: 2
     m_Bits: 2304
   _visualisation: {fileID: 6603813113037923547}

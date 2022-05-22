@@ -15,10 +15,10 @@ public class Magnet : MonoBehaviour
 	public Collider2D objectCollider { get; private set; }
 	public Rigidbody2D objectRigidbody { get; private set; }
 
+	[Header("Magnet Values")]
 	[SerializeField] private Polarization defaultPolarization = Polarization.neutral;
 	public Polarization currentPolarization { get; protected set; }
-	[Range(0,20)] [SerializeField] protected float chargeValue = 10;
-	
+	[Range(0,20)] [SerializeField] protected float chargeValue = 10;	
 	public float currentCharge { get; protected set; }
 	public bool isMoveable;
 	public HashSet<Magnet> affectedByMagnets = new HashSet<Magnet>();
@@ -29,15 +29,15 @@ public class Magnet : MonoBehaviour
 	//Debug fields
 	protected Vector2 magneticForce; // store the force for debug purposes
 
-    #region SetUp
-    protected virtual void Awake()
+	#region SetUp
+	protected virtual void Awake()
     {
 		objectRigidbody = GetComponent<Rigidbody2D>();
 		objectCollider = GetComponent<Collider2D>();
 		spriteRenderer = GetComponent<SpriteRenderer>();
 		magnetismController = MagnetismController.Instance;
 	}
-    private void OnEnable()
+	private void OnEnable()
 	{
 		if (this is PlayerMagnetism) { 
 			playerController = GetComponentInParent<PlayerController>();
@@ -80,7 +80,8 @@ public class Magnet : MonoBehaviour
 	{
 		if (isHighlighted) return;
 		spriteRenderer.material.EnableKeyword("GLOW_ON");
-		spriteRenderer.material.SetFloat("_GLOW", 50f);
+		spriteRenderer.material.SetColor("_GlowColor", spriteRenderer.material.GetColor("_Color"));
+		spriteRenderer.material.SetFloat("_Glow", 5f);
 		isHighlighted = true;
 	}
 	public void UnHighlight()

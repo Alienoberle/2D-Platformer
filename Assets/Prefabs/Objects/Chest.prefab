@@ -113,7 +113,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: cc460e5b1c6c0bd498b44195a0c3da99, type: 2}
+  - {fileID: 2100000, guid: 2a88578570d0f59418a58855c8e7639c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -135,7 +135,7 @@ SpriteRenderer:
   m_SortingLayer: 5
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: b325a13e94f3bac4199e75b91fa98449, type: 3}
-  m_Color: {r: 0.6901961, g: 0.18431373, b: 0.18431373, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -207,6 +207,9 @@ MonoBehaviour:
   defaultPolarization: 0
   chargeValue: 1
   isMoveable: 1
+  colorPositive: {r: 0.20392157, g: 0.28627452, b: 0.78431374, a: 1}
+  colorNegative: {r: 0.8392157, g: 0.22745098, b: 0.22745098, a: 1}
+  maxVelocity: 3
 --- !u!1 &3081574877878590459
 GameObject:
   m_ObjectHideFlags: 0
@@ -262,7 +265,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: cc460e5b1c6c0bd498b44195a0c3da99, type: 2}
+  - {fileID: 2100000, guid: 2a88578570d0f59418a58855c8e7639c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -284,7 +287,7 @@ SpriteRenderer:
   m_SortingLayer: 5
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: b325a13e94f3bac4199e75b91fa98449, type: 3}
-  m_Color: {r: 0.20392157, g: 0.28627452, b: 0.78431374, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -356,6 +359,9 @@ MonoBehaviour:
   defaultPolarization: 2
   chargeValue: 1
   isMoveable: 1
+  colorPositive: {r: 0.20392157, g: 0.28627452, b: 0.78431374, a: 1}
+  colorNegative: {r: 0.8392157, g: 0.22745098, b: 0.22745098, a: 1}
+  maxVelocity: 3
 --- !u!1 &4350128524570691547
 GameObject:
   m_ObjectHideFlags: 0
@@ -606,10 +612,11 @@ MonoBehaviour:
   magnetNegative: {fileID: 2293732875924243530}
   magnetPositive: {fileID: 3081574877878590459}
   sFXLockRemoved: {fileID: 8300000, guid: 781d89818f668904cbd88c5791dc0446, type: 3}
-  sFXChestUnlocked: {fileID: 8300000, guid: 299ce00ae33760648b41ad04ed06d554, type: 3}
+  sFXChestUnlocked: {fileID: 8300000, guid: 2e27bd2d9e6adaf40a53d4f4625ec1b5, type: 3}
   vFXItemAppearance: {fileID: 6700809495136222236}
-  sFXItemAppearance: {fileID: 8300000, guid: a550cb02580f00c40b4ba02aeff3acb4, type: 3}
-  lootItem: {fileID: 631041782514459740, guid: 644d21c4898b2cd4799aa2884f05796f, type: 3}
+  sFXItemAppearance: {fileID: 0}
+  lootItem: {fileID: 6604312463623878725, guid: eb7e7477fb5ffc44ba1dfbe22db3f458,
+    type: 3}
   yDistance: 4
   Duration: 2
   OnLockRemoved:
@@ -618,26 +625,10 @@ MonoBehaviour:
   OnChestOpen:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2155541615154584157}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: PlayOneShot
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8300000, guid: add16b13ea0e72c4db6d126219c2e46c,
-            type: 3}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  ItemAppeared:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 11400000, guid: 7ed7a004d703db544a2cf5f84bf92451, type: 2}
-        m_TargetAssemblyTypeName: VoidGameEvent, Assembly-CSharp
-        m_MethodName: Raise
-        m_Mode: 1
+      - m_Target: {fileID: 1462161081}
+        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+        m_MethodName: set_enabled
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -646,6 +637,21 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1422337478}
+        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  ItemAppeared:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &6700809495117178808
 PrefabInstance:
   m_ObjectHideFlags: 0
