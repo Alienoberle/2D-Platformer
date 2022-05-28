@@ -29,84 +29,55 @@ public class PlayerCollision : RaycastController
     }
     void HorizontalCollisions(Vector2 moveAmount)
     {
-        float directionX = Mathf.Sign(moveAmount.x); // direction +1 or -1 of the x moveAmount
         float rayLenght = Mathf.Abs(moveAmount.x) + skinWidth; // get the absolute lenght which is always positive and add the skinwidth
         if (Mathf.Abs(moveAmount.x) < skinWidth)
         {
             rayLenght = skinWidth * 2; // have minimal raylenght to detect the wall if standing still
         }
-        if (moveAmount.x != 0)
+        for (int i = 0; i < horizontalRayCount; i++)  // check left side
         {
-            for (int i = 0; i < horizontalRayCount; i++)
-            {
-                Vector2 rayOrigin = (directionX == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight;
-                rayOrigin += Vector2.up * horizontalRaySpacing * i;
-                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLenght, collisionMask);
-                Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLenght, Color.red);
+            Vector2 rayOrigin = raycastOrigins.bottomLeft;
+            rayOrigin += Vector2.up * horizontalRaySpacing * i;
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.left, rayLenght, collisionMask);
+            Debug.DrawRay(rayOrigin, Vector2.left * rayLenght, Color.red);
 
-                // directly continue with the next ray if the player is within a collision
-                if (hit.distance == 0)
-                {
-                    continue;
-                }
-                if (hit)
-                {
-                    // calculate the angel between the normal vector or the slope hit and the up vector which is the same as the angle of the slope
-                    float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
-                    var hitLayer = hit.transform.gameObject.layer;
-                    collisionInfo.left = directionX == -1; // if we hit smth. and we are going left we set collision info 'left'
-                    collisionInfo.right = directionX == 1; // if we hit smth. and are going right we set collisin info 'right'
-                }
+            if (hit)
+            {
+                // calculate the angel between the normal vector or the slope hit and the up vector which is the same as the angle of the slope
+                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+                var hitLayer = hit.transform.gameObject.layer;
+                collisionInfo.left = true; // if we hit smth. and we are going left we set collision info 'left'
             }
         }
-        else // check left and right in case the player is wallsliding or not moving on his own
+        for (int i = 0; i < horizontalRayCount; i++)  // check right side
         {
-            for (int i = 0; i < horizontalRayCount; i++)  // check left side
-            {
-                Vector2 rayOrigin = raycastOrigins.bottomLeft;
-                rayOrigin += Vector2.up * horizontalRaySpacing * i;
-                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * -1, rayLenght, collisionMask);
-                Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLenght, Color.red);
+            Vector2 rayOrigin = raycastOrigins.bottomRight;
+            rayOrigin += Vector2.up * horizontalRaySpacing * i;
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right, rayLenght, collisionMask);
+            Debug.DrawRay(rayOrigin, Vector2.right * rayLenght, Color.red);
 
-                if (hit)
-                {
-                    // calculate the angel between the normal vector or the slope hit and the up vector which is the same as the angle of the slope
-                    float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
-                    var hitLayer = hit.transform.gameObject.layer;
-                    collisionInfo.left = true; // if we hit smth. and we are going left we set collision info 'left'
-                }
-            }
-            for (int i = 0; i < horizontalRayCount; i++)  // check right side
+            if (hit)
             {
-                Vector2 rayOrigin = raycastOrigins.bottomRight;
-                rayOrigin += Vector2.up * horizontalRaySpacing * i;
-                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * 1, rayLenght, collisionMask);
-                Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLenght, Color.red);
-
-                if (hit)
-                {
-                    // calculate the angel between the normal vector or the slope hit and the up vector which is the same as the angle of the slope
-                    float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
-                    var hitLayer = hit.transform.gameObject.layer;
-                    collisionInfo.right = true; // if we hit smth. and are going right we set collisin info 'right'
-                }
+                // calculate the angel between the normal vector or the slope hit and the up vector which is the same as the angle of the slope
+                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+                var hitLayer = hit.transform.gameObject.layer;
+                collisionInfo.right = true; // if we hit smth. and are going right we set collisin info 'right'
             }
         }
     }
     void VerticalCollisions(Vector2 moveAmount)
     {
-        float directionY = (moveAmount.y == 0 )? -1: Mathf.Sign(moveAmount.y); // direction +1 or -1 of the y moveAmount, choose to detect ground if no vertical movement
         float rayLenght = Mathf.Abs(moveAmount.y) + skinWidth; // get the absolute lenght which is always positive and add the inset
         if (Mathf.Abs(moveAmount.y) < skinWidth)
         {
             rayLenght = skinWidth * 2; // have minimal raylenght to detect the floor if standing still
         }
-        for (int i = 0; i < verticalRayCount; i++)
+        for (int i = 0; i < verticalRayCount; i++) // check downwards
         {
-            Vector2 rayOrigin = (directionY == -1) ? raycastOrigins.bottomLeft : raycastOrigins.topLeft;
+            Vector2 rayOrigin = raycastOrigins.bottomLeft;
             rayOrigin += Vector2.right * (verticalRaySpacing * i + moveAmount.x * Time.deltaTime); // + moveAmount x to also check the place we will be after moving
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, rayLenght, collisionMask);
-            Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLenght, Color.red);
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, rayLenght, collisionMask);
+            Debug.DrawRay(rayOrigin, Vector2.down * rayLenght, Color.red);
 
             // directly continue with the next ray if the player is within a collision
             if (hit.distance == 0)
@@ -115,30 +86,47 @@ public class PlayerCollision : RaycastController
             }
             if (hit)
             {
-                if(directionY == -1) // if we hit smth. and we are going downwards we set collision info 'below'
+                collisionInfo.below = true;
+                var hitLayer = hit.transform.gameObject.layer;
+                switch (hitLayer) //can check for more layers if nescessary
                 {
-                    collisionInfo.below = true;
-                    var hitLayer = hit.transform.gameObject.layer;
-                    switch (hitLayer) //can check for more layers if nescessary
-                    {
-                        case 9:
-                            collisionInfo.isGrounded = true;
-                            break;
-                        case 10:
-                            collisionInfo.isGrounded = true;
-                            collisionInfo.isStandingOnPlatform = true;
-                            break;
-                        case 11:
-                            collisionInfo.isGrounded = true;
-                            break;
-                    }
+                    case 9:
+                        collisionInfo.isGrounded = true;
+                        break;
+                    case 10:
+                        collisionInfo.isGrounded = true;
+                        collisionInfo.isStandingOnPlatform = true;
+                        break;
+                    case 11:
+                        collisionInfo.isGrounded = true;
+                        break;
                 }
-                else
-                {
-                    collisionInfo.below = false;
-                    collisionInfo.isGrounded = false;
-                }
-                collisionInfo.above = directionY == 1; // if we hit smth. and are going upwards we set collision info 'above'
+            }
+            else
+            {
+                collisionInfo.below = false;
+                collisionInfo.isGrounded = false;
+            }
+        }
+        for (int i = 0; i < verticalRayCount; i++) // check upwards
+        {
+            Vector2 rayOrigin = raycastOrigins.topLeft;
+            rayOrigin += Vector2.right * (verticalRaySpacing * i + moveAmount.x * Time.deltaTime); // + moveAmount x to also check the place we will be after moving
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up, rayLenght, collisionMask);
+            Debug.DrawRay(rayOrigin, Vector2.up * rayLenght, Color.red);
+
+            // directly continue with the next ray if the player is within a collision
+            if (hit.distance == 0)
+            {
+                continue;
+            }
+            if (hit)
+            {
+                collisionInfo.above = true;
+            }
+            else
+            {
+                collisionInfo.above = false;
             }
         }
     }
