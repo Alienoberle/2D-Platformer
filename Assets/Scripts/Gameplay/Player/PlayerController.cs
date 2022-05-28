@@ -220,17 +220,13 @@ public class PlayerController : MonoBehaviour
             {
                 velocity.y = -wallSlideSpeedMax;
             }
-
             if (timeToWallUnstick > 0)
             {
                 velocity.x = 0;
                 velocityXSmoothing = 0;
-                print("Sticking to wall");
-
                 if (directionalInput.x != wallDirectionX && directionalInput.x != 0)
                 {
                     timeToWallUnstick -= deltaTime;
-                    print("move away");
                 }
                 else
                 {

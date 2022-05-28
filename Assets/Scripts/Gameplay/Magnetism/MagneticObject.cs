@@ -23,7 +23,6 @@ public class MagneticObject : Magnet
 			other.GetComponentInParent<Magnet>().affectedByMagnets.Remove(this);
 		}
 	}
-
 	public override void ApplyMagneticForce(Vector2 velocity)
 	{
 		magneticForce = velocity;
@@ -37,7 +36,6 @@ public class MagneticObject : Magnet
 			objectRigidbody.velocity -= brakeVelocity;
 		}
 	}
-
 	public override void ChangePolarisation(Polarization newPolarization)
 	{
 		base.ChangePolarisation(newPolarization);

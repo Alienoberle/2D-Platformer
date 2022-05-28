@@ -81,7 +81,7 @@ public class Magnet : MonoBehaviour
 		if (isHighlighted) return;
 		spriteRenderer.material.EnableKeyword("GLOW_ON");
 		spriteRenderer.material.SetColor("_GlowColor", spriteRenderer.material.GetColor("_Color"));
-		spriteRenderer.material.SetFloat("_Glow", 5f);
+		spriteRenderer.material.SetFloat("_Glow", 1.5f);
 		isHighlighted = true;
 	}
 	public void UnHighlight()
@@ -115,25 +115,31 @@ public class Magnet : MonoBehaviour
     #endregion
     #region Debug
     private void OnDrawGizmosSelected()
-    {
-		if (Application.isPlaying)
-		{
-			GUIStyle customStyle = new GUIStyle();
-			customStyle.richText = true;
+	{
+		GUIStyle customStyle = new GUIStyle();
+		customStyle.richText = true;
 
-			Vector3 textPosition = transform.position + (Vector3.down * 3f);
-			string _stateText = $"{currentCharge}";
-			string richText = "<color=red><size=14>[" + _stateText + "]</size></color>";
+		Vector3 textPosition = transform.position;
+		string _stateText = $"{defaultPolarization}";
+		string richText = "<color=green><size=14>[" + _stateText + "]</size></color>";
 
-			Handles.Label(textPosition, richText, customStyle);
+		Handles.Label(textPosition, richText, customStyle);
 
-			textPosition = transform.position + (Vector3.down * 4f);
-			_stateText = $"{magneticForce}";
-			richText = "<color=cyan><size=14>[" + _stateText + "]</size></color>";
-			Handles.Label(textPosition, richText, customStyle);
-			Gizmos.color = Color.cyan;
-			Gizmos.DrawRay(transform.position, magneticForce);
-		}
-	}
+        if (Application.isPlaying)
+        {
+            textPosition = transform.position + (Vector3.down * 3f);
+            _stateText = $"{currentCharge}";
+            richText = "<color=red><size=14>[" + _stateText + "]</size></color>";
+
+            Handles.Label(textPosition, richText, customStyle);
+
+            textPosition = transform.position + (Vector3.down * 4f);
+            _stateText = $"{magneticForce}";
+            richText = "<color=cyan><size=14>[" + _stateText + "]</size></color>";
+            Handles.Label(textPosition, richText, customStyle);
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawRay(transform.position, magneticForce);
+        }
+    }
     #endregion
 }

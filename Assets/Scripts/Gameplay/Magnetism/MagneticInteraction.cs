@@ -12,13 +12,18 @@ public class MagneticInteraction : Magnet
 	[Header("Events")]
 	public UnityEvent OnInteraction;
 	public bool isPush { get; private set; }
+	private bool interacted = false;
 
 	#region Magnet functionality
 	public override void ApplyMagneticForce(Vector2 velocity)
 	{
 		magneticForce = velocity;
 		isPush = (velocity.magnitude > 0) ? true : false;
-		OnInteraction.Invoke();
+        if (!interacted)
+        {
+			OnInteraction.Invoke();
+			interacted = true;
+		}
 	}
 	public override void ChangePolarisation(Polarization newPolarization)
 	{
