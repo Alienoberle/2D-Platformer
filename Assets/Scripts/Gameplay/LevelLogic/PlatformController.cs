@@ -38,7 +38,6 @@ public class PlatformController : RaycastController
     {
         base.Start();
 
-
         globalWaypoints = new Vector3[localWaypoints.Length];
         for (int i = 0; i < localWaypoints.Length; i++)
         {
