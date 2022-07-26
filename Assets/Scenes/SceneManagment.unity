@@ -124,6 +124,18 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &2083524436 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5765988178517921439, guid: 00d0ef886e5215749b94fe559653c235,
+    type: 3}
+  m_PrefabInstance: {fileID: 380748456882022227}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89e63ff5dbab375478f30647db30caee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &380748456882022227
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -261,6 +273,46 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7543701858450173777, guid: 00d0ef886e5215749b94fe559653c235,
+        type: 3}
+      propertyPath: m_NotificationBehavior
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7543701858450173777, guid: 00d0ef886e5215749b94fe559653c235,
+        type: 3}
+      propertyPath: m_PlayerLeftEvent.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7543701858450173777, guid: 00d0ef886e5215749b94fe559653c235,
+        type: 3}
+      propertyPath: m_PlayerLeftEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7543701858450173777, guid: 00d0ef886e5215749b94fe559653c235,
+        type: 3}
+      propertyPath: m_PlayerLeftEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 2083524436}
+    - target: {fileID: 7543701858450173777, guid: 00d0ef886e5215749b94fe559653c235,
+        type: 3}
+      propertyPath: m_PlayerLeftEvent.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7543701858450173777, guid: 00d0ef886e5215749b94fe559653c235,
+        type: 3}
+      propertyPath: m_PlayerLeftEvent.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: RemoveCameraTarget
+      objectReference: {fileID: 0}
+    - target: {fileID: 7543701858450173777, guid: 00d0ef886e5215749b94fe559653c235,
+        type: 3}
+      propertyPath: m_PlayerLeftEvent.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: CameraManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7543701858450173777, guid: 00d0ef886e5215749b94fe559653c235,
+        type: 3}
+      propertyPath: m_PlayerLeftEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 7543701858450173782, guid: 00d0ef886e5215749b94fe559653c235,
         type: 3}

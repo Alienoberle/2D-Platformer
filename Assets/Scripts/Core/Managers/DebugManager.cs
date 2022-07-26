@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-public class DebugManager : StaticInstance<DebugManager>
+public class DebugManager : Singleton<DebugManager>
 {
     private Controls controls;
     private bool debugMenuOpen;

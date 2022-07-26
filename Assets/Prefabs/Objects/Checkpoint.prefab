@@ -122,7 +122,7 @@ GameObject:
   - component: {fileID: 2087899034}
   - component: {fileID: 2161836799526671892}
   - component: {fileID: 4204926526715039066}
-  - component: {fileID: 8929069848589539092}
+  - component: {fileID: 1256095754946617889}
   m_Layer: 0
   m_Name: Checkpoint
   m_TagString: Untagged
@@ -322,7 +322,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 3.0868807, y: 4.1749744}
   m_EdgeRadius: 0
---- !u!114 &8929069848589539092
+--- !u!114 &1256095754946617889
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -331,7 +331,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2343949777624723492}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b650ac831d5c5f43996b78e59809f6d, type: 3}
+  m_Script: {fileID: 11500000, guid: 7f4cb8e297dbf5f40b357de1b13caf7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerEntersTrigger:
@@ -371,7 +371,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 1
+          m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 4204926526715039066}
         m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
@@ -385,10 +385,10 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 8929069848589539092}
-        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
-        m_Mode: 6
+      - m_Target: {fileID: 1256095754946617889}
+        m_TargetAssemblyTypeName: Checkpoint, Assembly-CSharp
+        m_MethodName: CheckpointTriggered
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -397,15 +397,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  PlayerExitsTrigger:
-    m_PersistentCalls:
-      m_Calls: []
-  BothPlayerEnteredTrigger:
-    m_PersistentCalls:
-      m_Calls: []
-  BothPlayersExitTrigger:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1001 &226408099717352725
 PrefabInstance:
   m_ObjectHideFlags: 0

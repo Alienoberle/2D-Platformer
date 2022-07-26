@@ -22,7 +22,7 @@ public class EnemyAI : MonoBehaviour
         stateMachine = new StateMachine();
         animator = GetComponent<Animator>();
         enemyMovement = GetComponent<EnemyPathfinding>();
-        player = Player.instance.transform.root.gameObject;
+        player = PlayerManager.playerList[0].transform.root.gameObject;
         playerTrigger = GetComponentInChildren<PlayerTrigger>();
  
         // Defines the possible States of the Enemy

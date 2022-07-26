@@ -10,6 +10,11 @@ public class PlayerTrigger : MonoBehaviour
 {
     public int numPlayersInTrigger { get; private set; } = 0;
     public bool playerInTrigger { get; private set; } = false;
+    
+    [System.Serializable]
+    public class TriggerEvent : UnityEvent<GameObject>
+    {
+    }
 
     [Header("Events")]
     public UnityEvent PlayerEntersTrigger;
@@ -19,7 +24,7 @@ public class PlayerTrigger : MonoBehaviour
     public event Action<GameObject> OnTriggerEnter = delegate { };
     public event Action<GameObject> OnTriggerExit = delegate { };
 
-    public bool isPlayerInTrigger => playerInTrigger == true;
+    public bool isPlayerInTrigger => (numPlayersInTrigger > 0) ? true : false;
 
     [ContextMenu("Enter")]
     private void Enter()
@@ -41,30 +46,17 @@ public class PlayerTrigger : MonoBehaviour
     {
         BothPlayersExitTrigger.Invoke();
     }
-    private void Update()
-    {
-        playerInTrigger = (numPlayersInTrigger > 0) ? true : false;
-    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
             Mathf.Clamp(numPlayersInTrigger++, 0, 2);
             Enter();
-            OnTriggerEnter(transform.root.gameObject);
+            OnTriggerEnter(gameObject);
         }
         if(numPlayersInTrigger == 2)
         {
             BothEntered();
-        }
-    }
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Player"))
-        {
-            playerInTrigger = true;
-            Enter();
-            OnTriggerEnter(transform.root.gameObject);
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
@@ -73,7 +65,7 @@ public class PlayerTrigger : MonoBehaviour
         {
             Mathf.Clamp(numPlayersInTrigger--,0,2);
             Exit();
-            OnTriggerExit(transform.root.gameObject);
+            OnTriggerExit(gameObject);
         }
         if (numPlayersInTrigger == 0)
         {

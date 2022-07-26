@@ -33,7 +33,7 @@ public class CameraFollow : MonoBehaviour
 
     void Start()
     {
-        player = Player.instance.GetComponent<PlayerController>();
+        player = PlayerManager.playerList[0].GetComponentInParent<PlayerController>();
 
         // Grab the needed components from the player
         target = player.GetComponent<PlayerCollision>();

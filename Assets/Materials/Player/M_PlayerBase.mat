@@ -11,8 +11,12 @@ Material:
   m_Shader: {fileID: 4800000, guid: 79ee6cefbc672a44e97359d4d14ea301, type: 3}
   m_ValidKeywords:
   - CHANGECOLOR2_ON
+  - CHANGECOLOR_ON
   - GLOWLIGHT_ON
+  - GLOW_ON
+  - HITEFFECT_ON
   - OUTBASE8DIR_ON
+  - OUTBASE_ON
   - POSTERIZEOUTLINE_ON
   m_InvalidKeywords:
   - _GLOWAFFECTLIGHT_ON
@@ -106,7 +110,7 @@ Material:
     - _ClipUvRight: 0
     - _ClipUvUp: 0
     - _ColorChangeLuminosity: 0.15
-    - _ColorChangeTolerance: 0.7
+    - _ColorChangeTolerance: 1
     - _ColorChangeTolerance2: 0.25
     - _ColorChangeTolerance3: 0.25
     - _ColorRampBlend: 1
@@ -154,8 +158,8 @@ Material:
     - _GreyscaleOutline: 0
     - _HandDrawnAmount: 10
     - _HandDrawnSpeed: 5
-    - _HitEffectBlend: 0.011
-    - _HitEffectGlow: 29.6
+    - _HitEffectBlend: 0
+    - _HitEffectGlow: 1
     - _HologramBlend: 1
     - _HologramMaxAlpha: 0.75
     - _HologramMinAlpha: 0.1
@@ -184,12 +188,12 @@ Material:
     - _OnlyInnerOutline: 0
     - _OnlyOutline: 0
     - _Outline8Directions: 1
-    - _OutlineAlpha: 1
+    - _OutlineAlpha: 0
     - _OutlineDistortAmount: 0.5
     - _OutlineDistortTexXSpeed: 5
     - _OutlineDistortTexYSpeed: 5
     - _OutlineDistortToggle: 0
-    - _OutlineGlow: 59.3
+    - _OutlineGlow: 1
     - _OutlineIsPixel: 0
     - _OutlinePixelWidth: 1
     - _OutlineTexGrey: 0

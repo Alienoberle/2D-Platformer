@@ -12,7 +12,10 @@ Material:
   m_ValidKeywords:
   - CHANGECOLOR2_ON
   - CHANGECOLOR_ON
+  - GLOW_ON
+  - HITEFFECT_ON
   - OUTBASE8DIR_ON
+  - OUTBASE_ON
   - POSTERIZEOUTLINE_ON
   m_InvalidKeywords:
   - GLOWLIGHT_ON
@@ -156,8 +159,8 @@ Material:
     - _GreyscaleOutline: 0
     - _HandDrawnAmount: 10
     - _HandDrawnSpeed: 5
-    - _HitEffectBlend: 0.011
-    - _HitEffectGlow: 29.6
+    - _HitEffectBlend: 0
+    - _HitEffectGlow: 1
     - _HologramBlend: 1
     - _HologramMaxAlpha: 0.75
     - _HologramMinAlpha: 0.1
@@ -186,7 +189,7 @@ Material:
     - _OnlyInnerOutline: 0
     - _OnlyOutline: 0
     - _Outline8Directions: 1
-    - _OutlineAlpha: 1
+    - _OutlineAlpha: 0
     - _OutlineDistortAmount: 0.5
     - _OutlineDistortTexXSpeed: 5
     - _OutlineDistortTexYSpeed: 5

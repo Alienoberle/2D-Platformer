@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Cinemachine;
 
-public class CameraManager : StaticInstance<CameraManager>
+public class CameraManager : Singleton<CameraManager>
 {
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
     [SerializeField] private GameObject startPosition;

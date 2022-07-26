@@ -54,6 +54,7 @@ public class PickUp : MonoBehaviour
             GetComponent<Collider2D>().enabled = false;
             HandlePickUp();
             OnPickUp.Invoke();
+            //if(collision.transform.parent.GetComponent<Player>())
         } 
     }
     public enum PickUpState

@@ -10,15 +10,14 @@ public class Health : ScriptableObject, ISerializationCallbackReceiver
 	[System.NonSerialized]
 	public int currentHealth;
 
-    public event Action<int, int> OnHealthChanged = delegate { };
+    public event Action<int,int> OnHealthChanged = delegate { };
     public event Action<ScriptableObject> OnHealthZero = delegate { };
 
     private void Awake()
     {
-        currentHealth = maxHealth;
+        SetHealth(maxHealth);
         OnHealthChanged(currentHealth, 0);
     }
-
     public void ModifyHealth(int healthChange)
     {
         currentHealth += healthChange;
@@ -31,15 +30,24 @@ public class Health : ScriptableObject, ISerializationCallbackReceiver
             OnHealthZero(scriptableObject);
         }
     }
+    public void SetHealth(int healthValue)
+    {
+        currentHealth = healthValue;
+        float currentHealthPercent = currentHealth / maxHealth;
+        OnHealthChanged(currentHealth, currentHealth);
 
+        if (currentHealth < 1)
+        {
+            ScriptableObject scriptableObject = this;
+            OnHealthZero(scriptableObject);
+        }
+    }
     public void OnAfterDeserialize()
 	{
 		currentHealth = maxHealth;
 	}
-
 	public void OnBeforeSerialize() 
     {
     
     }
-
 }

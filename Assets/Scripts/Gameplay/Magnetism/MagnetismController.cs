@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MagnetismController : StaticInstance<MagnetismController>
+public class MagnetismController : Singleton<MagnetismController>
 {
 	[SerializeField] private ForceVisualisation forceVisualisation;
 	[SerializeField] public HashSet<Magnet> allMagneticObjects = new HashSet<Magnet>();
