@@ -2,18 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using DG.Tweening;
+using MoreMountains.Feedbacks;
 
 public class PickUp : MonoBehaviour
 {
-
     private Animator _animator;
-    private AudioSource _audiosource;
+    
     public PickUpState state { get; private set; }
 
     [Header("Feedback")]
-    [SerializeField] private AudioClip sFXPickUp;
-    [SerializeField] private ParticleSystem vFXPickUp;
+    [SerializeField] MMFeedbacks mMFeedbackPickUp;
 
     [Header("Events")]
     [SerializeField] private UnityEvent OnPickUp;
@@ -21,7 +19,6 @@ public class PickUp : MonoBehaviour
     private void Awake()
     {
         _animator = GetComponent<Animator>();
-        _audiosource = GetComponent<AudioSource>();
         Initialize();
     }
     private void Initialize()
@@ -36,16 +33,12 @@ public class PickUp : MonoBehaviour
     }
     private void HandlePickUp()
     {
-        _animator.Play("PickUp");
-        GetComponent<Rigidbody2D>().velocity = GetComponent<Rigidbody2D>().velocity.normalized * 0.9f;
-        _audiosource.PlayOneShot(sFXPickUp);
         state = PickUpState.pickedUp;
+        _animator.Play("PickUp");
+        mMFeedbackPickUp?.PlayFeedbacks();
+        GetComponent<Rigidbody2D>().velocity = GetComponent<Rigidbody2D>().velocity.normalized * 0.5f; 
     } 
-    private void PickedUp() // Triggerd through Animation Event in "PickUp" animation
-    {
-        Instantiate(vFXPickUp, transform.position, Quaternion.identity);
-        Destroy(gameObject);
-    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (state == PickUpState.pickedUp) return;
@@ -54,7 +47,6 @@ public class PickUp : MonoBehaviour
             GetComponent<Collider2D>().enabled = false;
             HandlePickUp();
             OnPickUp.Invoke();
-            //if(collision.transform.parent.GetComponent<Player>())
         } 
     }
     public enum PickUpState

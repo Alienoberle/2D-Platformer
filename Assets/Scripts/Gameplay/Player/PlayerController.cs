@@ -9,10 +9,11 @@ using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
+    private Player player;
     private PlayerCollision playerCollision;
     [HideInInspector] public Rigidbody2D rb2D;
     private Animator animator;
-    private AudioManager audioManager;
+    private AudioSource audioSource;
 
     public Vector2 directionalInput { get; private set; }
     [HideInInspector] public Vector2 magneticVelocity;
@@ -20,6 +21,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Vector2 velocity;
     private float deltaTime;
     [HideInInspector] public PlayerInfo playerInfo;
+
+    private static readonly int Idle = Animator.StringToHash("Idle");
+    private static readonly int Run = Animator.StringToHash("Run");
+    private static readonly int Jump = Animator.StringToHash("Jump");
+    private static readonly int WallJump = Animator.StringToHash("WallJump");
+    private static readonly int DoubleJump = Animator.StringToHash("DoubleJump");
+    private static readonly int Dash = Animator.StringToHash("Dash");
+    private static readonly int WallSlide = Animator.StringToHash("WallSliding");
+    private static readonly int Fall = Animator.StringToHash("Fall");
+    private static readonly int Hit = Animator.StringToHash("Hit");
+    private int currentState;
+    private float _lockedTill;
 
     [Header("Gravity")]
     private float gravity;
@@ -85,12 +98,22 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioClip landingSFX;
     [SerializeField] private ParticleSystem landingVFX;
 
+    [Header("Damage")]
+    [SerializeField] private AudioClip takeDamageSFX;
+    [SerializeField] private ParticleSystem takeDamageVFX;
+
+    [Header("Death")]
+    [SerializeField] private AudioClip deathSFX;
+    [SerializeField] private ParticleSystem deathVFX;
+
+
     private void Awake()
     {
+        player = GetComponent<Player>();
         rb2D = GetComponent<Rigidbody2D>();
         playerCollision = GetComponent<PlayerCollision>();
         animator = GetComponent<Animator>();
-        audioManager = AudioManager.Instance;
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -105,6 +128,35 @@ public class PlayerController : MonoBehaviour
         maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
         minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight);
     }
+
+    private void Update()
+    {
+        var state = GetState();
+        if (state == currentState) return;
+        animator.CrossFade(state, 0, 0);
+        currentState = state;
+    }
+
+    private int GetState()
+    {
+        if (Time.time < _lockedTill) return currentState;
+
+        if (player.playerState == Player.PlayerState.dead) return LockState(Hit, 0.45f);
+        if (playerInfo.isDashing) return Dash;
+        if (playerInfo.isJumping) return Jump;
+        if (playerInfo.isWallsliding) return WallSlide;
+        if (playerInfo.isRunning) return Run;
+
+        if (playerCollision.collisionInfo.isGrounded) return Idle;
+        return Fall;
+
+        int LockState(int s, float t)
+        {
+            _lockedTill = Time.time + t;
+            return s;
+        }
+    }
+
     private void FixedUpdate()
     {
         deltaTime = Time.fixedDeltaTime;
@@ -132,13 +184,11 @@ public class PlayerController : MonoBehaviour
         if (playerCollision.collisionInfo.isGrounded && Mathf.Abs(velocity.x) > 0.1)
         {
             playerInfo.isRunning = true;
-            animator.SetBool("IsRunning", true);
             runVFX.Play();
         }
         else
         {
             playerInfo.isRunning = false;
-            animator.SetBool("IsRunning", false);
             runVFX.Stop();
         }
     }
@@ -284,8 +334,7 @@ public class PlayerController : MonoBehaviour
       {
         jumpCounter -= 1;
         playerInfo.isJumping = true;
-        animator.SetBool("IsJumping", true);
-        audioManager.PlaySound(jumpSFX, 0.25f);
+        audioSource.PlayOneShot(jumpSFX, 0.25f);
     }
     public void OnJumpInputRelease()
     {
@@ -299,7 +348,6 @@ public class PlayerController : MonoBehaviour
         jumpCounter = maxJumps;
         playerInfo.isJumping = false;
         coyoteTimeActive = true;
-        animator.SetBool("IsJumping", false);
     }
     #endregion
 
@@ -319,8 +367,7 @@ public class PlayerController : MonoBehaviour
             }
             dashCounter -= 1;
             playerInfo.isDashing = true;
-            animator.SetBool("IsDashing", true);
-            audioManager.PlaySound(dashSFX, 0.5f);
+            audioSource.PlayOneShot(dashSFX, 0.5f);
         }
     }
     private bool CanPlayerDash()
@@ -360,7 +407,6 @@ public class PlayerController : MonoBehaviour
     {
         dashTimer = dashDuration;
         dashCounter = dashAmount;
-        animator.SetBool("IsDashing", false);
     }
     #endregion
     public void SetDirectionalInput(Vector2 input)
@@ -375,6 +421,17 @@ public class PlayerController : MonoBehaviour
         Vector3 newScale = transform.localScale;
         newScale.x *= -1;
         transform.localScale = newScale;
+    }
+    public void TakeDamage()
+    {
+        audioSource.PlayOneShot(takeDamageSFX, 0.5f);
+        //takeDamageVFX.Play();
+    }
+    public void Death()
+    {
+        velocity = new Vector2(0, 0);
+        audioSource.PlayOneShot(deathSFX, 0.5f);
+        //deathVFX.Play();
     }
     public struct PlayerInfo
     {

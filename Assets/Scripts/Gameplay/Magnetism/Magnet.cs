@@ -20,7 +20,6 @@ public class Magnet : MonoBehaviour
 	public Polarization currentPolarization { get; protected set; }
 	[Range(0,20)] [SerializeField] protected float chargeValue = 10;	
 	public float currentCharge { get; protected set; }
-	public bool isMoveable;
 	public HashSet<Magnet> affectedByMagnets = new HashSet<Magnet>();
 
 	protected SpriteRenderer spriteRenderer;
@@ -74,9 +73,13 @@ public class Magnet : MonoBehaviour
 				break;
 		}
 	}
-    #endregion
-    #region Highlighting
-    public void Highlight()
+	public void ChangeCharge(float newCharge)
+	{
+		chargeValue = Mathf.Abs(newCharge);
+	}
+	#endregion
+	#region Highlighting
+	public void Highlight()
 	{
 		if (isHighlighted) return;
 		spriteRenderer.material.EnableKeyword("GLOW_ON");
@@ -90,29 +93,6 @@ public class Magnet : MonoBehaviour
 		isHighlighted = false;
 	}
 	#endregion
-	#region HelperFunctions
-	public void SetMoveable(bool isMoveable = true)
-	{
-		this.isMoveable = isMoveable;
-		if (isMoveable)
-        {
-			magnetismController.RegisterMagneticObject(this);
-			objectRigidbody.bodyType = RigidbodyType2D.Dynamic;
-			objectRigidbody.useAutoMass = true;
-			objectRigidbody.gravityScale = 15;
-		}
-        else
-        {
-			magnetismController.UnRegisterMagneticObject(this);
-			objectRigidbody.bodyType = RigidbodyType2D.Kinematic;
-			objectRigidbody.useFullKinematicContacts = true;
-		}
-	}
-	public void ChangeCharge(float newCharge)
-    {
-		chargeValue = Mathf.Abs(newCharge);
-    }
-    #endregion
     #region Debug
     private void OnDrawGizmosSelected()
 	{

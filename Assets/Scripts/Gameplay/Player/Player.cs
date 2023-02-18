@@ -4,19 +4,22 @@ using UnityEditorInternal;
 using UnityEngine;
 using DG.Tweening;
 using UnityEditor;
+using System;
 
 [RequireComponent(typeof(PlayerController))]
 public class Player : MonoBehaviour
 {
     private PlayerManager playerManager;
     private PlayerController playerController;
+    private SpriteRenderer spriteRenderer;
     private AudioSource audiosource;
     public Health playerHealth;
+
     public PlayerState playerState { get; private set; }
+
     [HideInInspector] public GameObject lastCheckpoint;
-    private float invicibilityTimer = 3.0f;
-    private SpriteRenderer spriteRenderer;
-    [SerializeField] private AudioClip SfxTakeDamage;
+    private float RespawnInvicibilityTime;
+
 
     #region SetUp
     private void Awake()
@@ -25,13 +28,16 @@ public class Player : MonoBehaviour
         playerController = GetComponentInParent<PlayerController>();
         audiosource = GetComponent<AudioSource>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        ChangePlayerState(PlayerState.alive);
     }
     private void OnEnable()
     {
+        playerHealth.OnHealthChanged += TakeDamage;
         playerHealth.OnHealthZero += HandleOnHealthZero;
     }
     private void OnDisable()
     {
+        playerHealth.OnHealthChanged -= TakeDamage;
         playerHealth.OnHealthZero -= HandleOnHealthZero;
     }
     #endregion
@@ -40,44 +46,57 @@ public class Player : MonoBehaviour
     {
         if (playerState == PlayerState.dead) return;
         if (playerState == PlayerState.invincible) return;
-        playerHealth.ModifyHealth(damage);
-        DamageFeedback();
+        playerController.TakeDamage();
     }
-    private void DamageFeedback()
+    private void HandleOnHealthZero()
     {
-        spriteRenderer.material.SetColor("_HitEffectColor", Color.white);
-        spriteRenderer.material.SetFloat("_HitEffectGlow", 1.0f);
-        spriteRenderer.material.DOFloat(1, "_HitEffectBlend", 0.2f).SetLoops(2, LoopType.Yoyo);
-        audiosource.PlayOneShot(SfxTakeDamage);
-    }
-    private void HandleOnHealthZero(ScriptableObject obj)
-    {
-        print("dead");
-        playerState = PlayerState.dead;
-        playerController.enabled = false; 
-        // disable physics
-        // disable input
-        // die animation 
-        // die SFX
-        
-        Respawn();
+        ChangePlayerState(PlayerState.dead);
     }
     #endregion
     #region Respawn
-    private void Respawn()
+    private void Respawn() // Currently called from as event from within the "Hit" animation
     {
-        playerHealth.SetHealth(1);
-        playerController.enabled = true;
         gameObject.transform.position = lastCheckpoint.transform.position;
+        ChangePlayerState(PlayerState.alive);
         StartCoroutine("InvicibilityCoroutine");
     }
     private IEnumerator InvicibilityCoroutine()
     {
-        playerState = PlayerState.invincible;
-        yield return new WaitForSeconds(invicibilityTimer);
-        playerState = PlayerState.alive;
+        ChangePlayerState(PlayerState.invincible);
+        yield return new WaitForSeconds(RespawnInvicibilityTime);
+        ChangePlayerState(PlayerState.alive);
     }
     #endregion
+    public void ChangePlayerState(PlayerState newState)
+    {
+        switch (newState)
+        {
+            case PlayerState.alive:
+                playerState = PlayerState.alive;
+                playerHealth.SetHealth(1);
+                GetComponent<Rigidbody2D>().simulated = true;
+                GetComponentInChildren<TrailRenderer>().enabled = true;
+                //GetComponent<PlayerInputHandler>().enabled = true;
+                break;
+            case PlayerState.dead:
+                playerState = PlayerState.dead;
+                GetComponent<Rigidbody2D>().simulated = false;
+                GetComponentInChildren<TrailRenderer>().enabled = false;
+                playerController.Death();
+               // GetComponent<PlayerInputHandler>().enabled = false;
+                break;
+            case PlayerState.invincible:
+                playerState = PlayerState.invincible;
+                spriteRenderer.enabled = true;
+                spriteRenderer.material.SetColor("_HitEffectColor", Color.white);
+                spriteRenderer.material.SetFloat("_HitEffectGlow", 1.0f);
+                spriteRenderer.material.DOFloat(1, "_HitEffectBlend", 0.2f).SetLoops(18, LoopType.Yoyo);
+                break;
+            default:
+                break;
+        }
+    }
+
     public enum PlayerState
     {
         alive,

@@ -21,12 +21,12 @@ public class HealthElement : MonoBehaviour
     {
         maxHealth = playerHealth.maxHealth;
         UpdateMaxHealth();
-        UpdateHealthElement(99, 0);
+        UpdateHealthElement(99);
 
         playerHealth.OnHealthChanged += UpdateHealthElement;
         playerHealth.OnHealthZero += OnHealthZero;
     }
-    private void UpdateHealthElement(int currentHealth, int healthChange)
+    private void UpdateHealthElement(int currentHealth)
     {
         for (int i = 0; i < healthArray.Length; i++)
         {
@@ -54,7 +54,7 @@ public class HealthElement : MonoBehaviour
             }
         }
     }
-    private void OnHealthZero(ScriptableObject obj)
+    private void OnHealthZero()
     {
         // Play VFX and SFX on bar?
     }

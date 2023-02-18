@@ -9,7 +9,6 @@ public class PlayerCollision : RaycastController
     public CollisionInfo collisionInfo;
     [SerializeField] private PlayerController playerController;
     [HideInInspector] public float maxSlopeAngle;
-    
 
     public override void Awake()
     {
@@ -19,7 +18,6 @@ public class PlayerCollision : RaycastController
     {
         base.Start();
     }
-
     public void FixedUpdate()
     {
         UpdateRaycastOrigins();

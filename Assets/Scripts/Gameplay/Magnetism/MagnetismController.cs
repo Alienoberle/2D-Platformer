@@ -24,50 +24,40 @@ public class MagnetismController : Singleton<MagnetismController>
 		activeForces.Clear();
 		foreach (Magnet magnet in players)
 		{
+			if (!CheckIsAffected(magnet))
+            {
+				magnet.ApplyMagneticForce(Vector2.zero);
+				continue;
+			}
 			HandleMagneticObjects(magnet);
 		}
 		foreach (Magnet magnet in movableMagneticObjects)
 		{
+			if (!CheckIsAffected(magnet))
+            {
+				continue;
+			}
 			HandleMagneticObjects(magnet);
 		}
 	}
-	public void RegisterMagneticObject(Magnet magnet)
+	private bool CheckIsAffected(Magnet magnet)
     {
-		allMagneticObjects.Add(magnet);
-        if (magnet is PlayerMagnetism)
-        {
-			players.Add(magnet);
-			return;
-		}
-		if (magnet.isMoveable)
-			movableMagneticObjects.Add(magnet);
-	}
-	public void UnRegisterMagneticObject(Magnet magnet)
-	{
-		allMagneticObjects.Remove(magnet);
-		if (magnet is PlayerMagnetism)
-		{
-			players.Remove(magnet);
-			return;
-		}
-		if (magnet.isMoveable)
-			movableMagneticObjects.Remove(magnet);
-	}
-	private void HandleMagneticObjects(Magnet objectToMove)
+		if (magnet.affectedByMagnets.Count < 1 || magnet.currentCharge == 0) //setting velocity to 0 and stop execution at tis point
+			return false;
+		else 
+			return true;
+    }
+
+private void HandleMagneticObjects(Magnet objectToMove)
 	{
 		Vector2 magneticVelocity = Vector2.zero;
-		if (objectToMove.affectedByMagnets.Count < 1 || objectToMove.currentCharge == 0) //setting velocity to 0 and stop execution at tis point
-		{
-			objectToMove.ApplyMagneticForce(magneticVelocity);  
-			return;
-		}
-
 		foreach (Magnet otherObject in objectToMove.affectedByMagnets)
 		{
-            if (otherObject.currentCharge == 0 || otherObject.GetType() == typeof(MagneticPickUp))
-			{
-                continue;
-            }
+            if (otherObject.currentCharge == 0) continue;
+			if (otherObject.GetType() == typeof(MagneticPickUp)) continue;
+			if (objectToMove.GetType() == typeof(MagneticPickUp) && otherObject.GetType() != typeof(PlayerMagnetism)) continue;
+			if (objectToMove.GetType() == typeof(PlayerMagnetism) && IsMoveable(otherObject) && otherObject.GetType() != typeof(PlayerMagnetism)) continue;
+
             Vector2 direction = objectToMove.transform.position - otherObject.transform.position;
 			hits = Physics2D.RaycastAll(otherObject.transform.position, direction, 50.0f, layerMask);
 			for (int i = 0; i < hits.Length; i++)
@@ -105,7 +95,7 @@ public class MagnetismController : Singleton<MagnetismController>
             float forceMagnitude = (objectToMove.currentCharge * otherObject.currentCharge) / Mathf.Pow(distance, distanceFactor);
             forceMagnitude = Mathf.Clamp(forceMagnitude, -maxForce, maxForce);
 
-            if (objectToMove.GetType() == typeof(MagneticPickUp))
+            if (objectToMove.GetType() == typeof(MagneticPickUp)) // if the other object is a pick up always pull it towards the player
             {
                 forceMagnitude = Mathf.Abs(forceMagnitude) * -1;
             }
@@ -114,5 +104,34 @@ public class MagnetismController : Singleton<MagnetismController>
 			activeForces.Add(new MagneticForce(objectToMove, otherObject, closestPoint, otherClosestPoint, directionClosest, distance, magneticVelocity));
 		}
 		objectToMove.ApplyMagneticForce(magneticVelocity);
+    }
+	#region Registering
+	public void RegisterMagneticObject(Magnet magnet)
+	{
+		allMagneticObjects.Add(magnet);
+		if (magnet is PlayerMagnetism)
+		{
+			players.Add(magnet);
+			return;
+		}
+		if (IsMoveable(magnet))
+			movableMagneticObjects.Add(magnet);
+	}
+	public void UnRegisterMagneticObject(Magnet magnet)
+	{
+		allMagneticObjects.Remove(magnet);
+		if (magnet is PlayerMagnetism)
+		{
+			players.Remove(magnet);
+			return;
+		}
+		if (IsMoveable(magnet))
+			movableMagneticObjects.Remove(magnet);
+	}
+    #endregion 
+	private bool IsMoveable(Magnet magnet)
+    {
+		var isMoveable = (magnet.objectRigidbody.bodyType == RigidbodyType2D.Dynamic || magnet.objectRigidbody.bodyType == RigidbodyType2D.Kinematic) ? true : false;
+		return isMoveable;
 	}
 }
