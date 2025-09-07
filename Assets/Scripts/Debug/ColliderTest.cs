@@ -18,7 +18,7 @@ public class ColliderTest : MonoBehaviour
     void Update()
     {
 
-        numOverlaps = areaCollider.OverlapCollider(filter, overlaps);
+        numOverlaps = areaCollider.Overlap(filter, overlaps);
         if(numOverlaps > 5)
         {
             Debug.Log("Overlaps: " + numOverlaps);
